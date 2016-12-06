@@ -1,3 +1,17 @@
 <resources>
-    <string name="app_name">Party Manager</string>
+    <string name="app_name">PartyManager</string>
+    <string name="resSum">Общая сумма:</string>
+    <string name="perPersonSum">На человека:</string>
+    <string name="whatToBuy">Что покупаем?</string>
+    <string name="whoBuy">Кто покупает?</string>
+    <string name="quantity">Количество: </string>
+    <string name="averageCost">Примерная цена: </string>
+    <string name="add">Добавить</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="loginToAccount">Войти через vk</string>
+    <string name="guests">Гости</string>
+    <string name="purchases">Покупки</string>
+    <string name="timeAndPlace">Время и место</string>
+    <integer name="com_vk_sdk_AppId">5747918</integer>
 </resources>
