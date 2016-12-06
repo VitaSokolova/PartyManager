@@ -1,0 +1,96 @@
+package com.vsu.nastya.partymanager;
+
+import android.content.Context;
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+public class AddItemActivity extends AppCompatActivity {
+
+    private SeekBar quantitySeekBar;
+    private SeekBar averagePriceSeekBar;
+    private TextView quantityTxt;
+    private TextView averagePriceTxt;
+    private Button addItemButton;
+
+    public int quantityNumber;
+    private int priceNumber;
+
+    public static void start(Context context) {
+        Intent intent = new Intent(context, AddItemActivity.class);
+        context.startActivity(intent);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_item);
+
+        addItemButton = (Button) findViewById(R.id.addItemBtn);
+
+        quantitySeekBar = (SeekBar) findViewById(R.id.quantitySlider);
+        quantityTxt = (TextView) findViewById(R.id.quantitySliderProgressTxt);
+
+        averagePriceSeekBar = (SeekBar) findViewById(R.id.priceSlider);
+        averagePriceTxt = (TextView) findViewById(R.id.priceSliderProgressTxt);
+
+        // инициализируем значения текущей позицией прогресса SeekBar
+        quantityNumber = 0;
+        priceNumber = 0;
+
+        //получаем подписи из строковых ресурсов
+        final String quantityText = getString(R.string.quantity);
+        final String priceText = getString(R.string.averageCost);
+
+
+        quantityTxt.setText(quantityText + String.valueOf(quantityNumber));
+        averagePriceTxt.setText(priceText + String.valueOf(priceNumber));
+
+        // устанавливаем слушателей для прокрутку SeekBar
+        quantitySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            // метод отвечает за изменения прогресса
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
+                quantityTxt.setText(quantityText + String.valueOf(progressValue));
+                quantityNumber = progressValue;
+            }
+
+            // никак не реагируем на начало движения индикатора прогресса
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            // никак не реагируем, когда пользователь отпустил индикатор изменения прогресса
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        averagePriceSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progressValue, boolean b) {
+                //чтобы не утомлять пользоватьля, введём величину шага ползунка 50
+                progressValue = progressValue / 50;
+                progressValue = progressValue * 50;
+                averagePriceTxt.setText(priceText + String.valueOf(progressValue));
+                priceNumber = progressValue;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+}
