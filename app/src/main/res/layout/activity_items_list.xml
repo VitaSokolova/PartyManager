@@ -3,38 +3,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.vsu.nastya.partymanager.ItemsListActivity">
+    tools:context="com.example.android.partymanager.ItemList.ItemsListActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="@dimen/activity_horizontal_margin">
 
-        <ListView
-            android:id="@+id/itemListView"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/items_list_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-        <TextView
-            android:id="@+id/resSumTxt"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/resSum" />
+            android:orientation="vertical"
+            android:layout_alignParentBottom="true">
 
-        <TextView
-            android:id="@+id/perPersonSumTxt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/perPersonSum" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/items_list_res_sum_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:text="@string/resSum" />
+
+            <TextView
+                android:id="@+id/items_list_personal_sum_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@id/items_list_res_sum_txt"
+                android:layout_weight="0"
+                android:text="@string/perPersonSum" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/itemAddFab"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:id="@+id/items_list_add_item_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:tint="@android:color/white"
         android:src="@android:drawable/ic_input_add"
-        />
+        android:tint="@android:color/white" />
 </FrameLayout>

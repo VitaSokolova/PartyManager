@@ -28,32 +28,32 @@
         android:inputType="text" />
 
     <TextView
-        android:id="@+id/quantitySliderProgressTxt"
+        android:id="@+id/add_item_quantity_progress_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/quantity"
         android:layout_marginTop="16dp"/>
 
     <SeekBar
-        android:id="@+id/quantitySlider"
+        android:id="@+id/add_item_quantity_seekbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="50" />
 
     <TextView
-        android:id="@+id/priceSliderProgressTxt"
+        android:id="@+id/add_item_price_progress_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/averageCost"
         android:layout_marginTop="16dp"/>
 
     <SeekBar
-        android:id="@+id/priceSlider"
+        android:id="@+id/add_item_price_seekbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="2500" />
     <Button
-        android:id="@+id/addItemBtn"
+        android:id="@+id/add_item_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/add"
