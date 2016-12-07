@@ -23,7 +23,7 @@ public class ItemsListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_items_list);
 
-        addItemFAB = (ImageButton) findViewById(R.id.itemAddFab);
+        addItemFAB = (ImageButton) findViewById(R.id.add_item_btn);
 
         addItemFAB.setOnClickListener(new View.OnClickListener() {
             @Override
