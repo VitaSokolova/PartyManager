@@ -29,13 +29,13 @@ public class AddItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
 
-        addItemButton = (Button) findViewById(R.id.addItemBtn);
+        addItemButton = (Button) findViewById(R.id.add_item_btn);
 
-        quantitySeekBar = (SeekBar) findViewById(R.id.quantitySlider);
-        quantityTxt = (TextView) findViewById(R.id.quantitySliderProgressTxt);
+        quantitySeekBar = (SeekBar) findViewById(R.id.add_item_quantity_seekbar);
+        quantityTxt = (TextView) findViewById(R.id.add_item_quantity_progress_txt);
 
-        averagePriceSeekBar = (SeekBar) findViewById(R.id.priceSlider);
-        averagePriceTxt = (TextView) findViewById(R.id.priceSliderProgressTxt);
+        averagePriceSeekBar = (SeekBar) findViewById(R.id.add_item_price_seekbar);
+        averagePriceTxt = (TextView) findViewById(R.id.add_item_price_progress_txt);
 
         // инициализируем значения текущей позицией прогресса SeekBar
         quantityNumber = 0;

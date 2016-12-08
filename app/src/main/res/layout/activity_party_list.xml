@@ -6,16 +6,16 @@
     tools:context="com.vsu.nastya.partymanager.PartyListActivity">
 
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/partylist_parties_recycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/main_parties_recycler"/>
+        android:layout_height="match_parent"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/main_partyAdd_fab"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:id="@+id/partylist_partyAdd_fab"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_margin="25dp"
         android:src="@android:drawable/ic_input_add"
         android:tint="@android:color/white" />
 </FrameLayout>

@@ -1,12 +1,10 @@
 package com.vsu.nastya.partymanager;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 public class ItemsListActivity extends AppCompatActivity {
@@ -23,7 +21,7 @@ public class ItemsListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_items_list);
 
-        addItemFAB = (ImageButton) findViewById(R.id.itemAddFab);
+        addItemFAB = (ImageButton) findViewById(R.id.items_list_add_item_fab);
 
         addItemFAB.setOnClickListener(new View.OnClickListener() {
             @Override

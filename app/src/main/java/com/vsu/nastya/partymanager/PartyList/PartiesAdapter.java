@@ -46,18 +46,12 @@ public class PartiesAdapter extends RecyclerView.Adapter<PartiesAdapter.PartyVie
     public void onBindViewHolder(PartyViewHolder holder, int position) {
         Party party = partiesList.get(position);
         holder.partyName.setText(party.getPartyName());
-        String date = getDateAsString(party.getDateTime());
+        String date = party.getDateAndTimeAsString();
         holder.date.setText(date);
     }
 
     @Override
     public int getItemCount() {
         return partiesList.size();
-    }
-
-    private String getDateAsString(Calendar date){
-        Locale myLocale = new Locale("ru","RU");
-        SimpleDateFormat simpleDateFormat =  new SimpleDateFormat("d MMM, H:mm", myLocale);
-        return simpleDateFormat.format(date.getTime());
     }
 }

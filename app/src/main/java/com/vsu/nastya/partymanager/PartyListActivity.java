@@ -26,25 +26,26 @@ public class PartyListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_party_list);
         initView();
     }
 
     private void initView() {
         //инициализируем список вечеринок
         partiesList = new ArrayList<>();
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.main_parties_recycler);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.partylist_parties_recycler);
         PartiesAdapter adapter = new PartiesAdapter(partiesList);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
         //кнопка добавления новой вечеринки
-        FloatingActionButton addPartyButton = (FloatingActionButton) findViewById(R.id.main_partyAdd_fab);
+        FloatingActionButton addPartyButton = (FloatingActionButton) findViewById(R.id.partylist_partyAdd_fab);
         addPartyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //появляется окно с возможностью добавить новую вечеринку
+                AddPartyActivity.start(PartyListActivity.this);
             }
         });
     }

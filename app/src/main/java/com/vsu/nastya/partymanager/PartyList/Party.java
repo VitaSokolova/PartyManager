@@ -1,6 +1,8 @@
 package com.vsu.nastya.partymanager.PartyList;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Created by nastya on 06.12.16.
@@ -9,6 +11,11 @@ import java.util.Calendar;
 public class Party {
     private String name;
     private Calendar date;
+
+    public Party(){
+        name = "";
+        date = Calendar.getInstance();
+    }
 
     public Party(String partyName, Calendar date) {
         this.name = partyName;
@@ -29,6 +36,24 @@ public class Party {
 
     public void setPartyName(String partyName) {
         this.name = partyName;
+    }
+
+    public String getDateAndTimeAsString(){
+        Locale myLocale = new Locale("ru","RU");
+        SimpleDateFormat simpleDateFormat =  new SimpleDateFormat("d MMM, H:mm", myLocale);
+        return simpleDateFormat.format(date.getTime());
+    }
+
+    public String getDateAsString(){
+        Locale myLocale = new Locale("ru","RU");
+        SimpleDateFormat simpleDateFormat =  new SimpleDateFormat("d MMM", myLocale);
+        return simpleDateFormat.format(date.getTime());
+    }
+
+    public String getTimeAsString(){
+        Locale myLocale = new Locale("ru","RU");
+        SimpleDateFormat simpleDateFormat =  new SimpleDateFormat("H:mm", myLocale);
+        return simpleDateFormat.format(date.getTime());
     }
 }
 
