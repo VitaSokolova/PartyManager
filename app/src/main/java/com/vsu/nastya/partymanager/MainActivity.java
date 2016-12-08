@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button loginButton = (Button)findViewById(R.id.loginActv_login_button);
+        Button loginButton = (Button) findViewById(R.id.loginActv_login_button);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
                 VKSdk.login(MainActivity.this, myScope);
             }
         });
-
-        String[] fingerprints = VKUtil.getCertificateFingerprint(this, this.getPackageName());
+        //Вита узнавала свой отпечаток
+        // String[] fingerprints = VKUtil.getCertificateFingerprint(this, this.getPackageName());
     }
 
     @Override
@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast toast = Toast.makeText(MainActivity.this, "Успешная авторизация", Toast.LENGTH_SHORT);
                 toast.show();
             }
+
             @Override
             public void onError(VKError error) {
                 // Произошла ошибка авторизации (например, пользователь запретил авторизацию)

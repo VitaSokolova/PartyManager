@@ -19,13 +19,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".AddItemActivity" />
-        <activity android:name=".GuestListActivity" />
-        <activity android:name=".ItemsListActivity" />
         <activity
             android:name="com.vk.sdk.VKServiceActivity"
             android:label="ServiceActivity"
             android:theme="@style/VK.Transparent" />
-        <activity android:name=".PartyListActivity"></activity>
+        <activity android:name=".PartyList.PartyListActivity"></activity>
     </application>
 
 </manifest>

@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import java.io.Serializable;
 
 /**
- * Created by Комп on 01.12.2016.
+ * Created by Вита on 01.12.2016.
  */
 
 public class Guest implements Serializable {
@@ -18,6 +18,4 @@ public class Guest implements Serializable {
     public String getGuestName() {
         return guestName;
     }
-
-
 }

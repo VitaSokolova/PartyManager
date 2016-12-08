@@ -7,32 +7,41 @@
     android:padding="16dp"
     tools:context="com.vsu.nastya.partymanager.AddItemActivity">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/whatToBuy" />
 
-    <EditText
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text" />
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/whoBuy" />
+        <EditText
+            android:id="@+id/add_item_name_edtxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:text="@string/whatToBuy"
+            android:textColor="@color/textColorDetails"
+            android:textSize="14sp" />
+    </android.support.design.widget.TextInputLayout>
 
-    <EditText
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text" />
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/add_item_who_edtxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:text="@string/whoBuy"
+            android:textColor="@color/textColorDetails"
+            android:textSize="14sp" />
+    </android.support.design.widget.TextInputLayout>
 
     <TextView
         android:id="@+id/add_item_quantity_progress_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/quantity"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp"
+        android:text="@string/quantity" />
 
     <SeekBar
         android:id="@+id/add_item_quantity_seekbar"
@@ -44,18 +53,20 @@
         android:id="@+id/add_item_price_progress_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/averageCost"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp"
+        android:text="@string/averageCost" />
 
     <SeekBar
         android:id="@+id/add_item_price_seekbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="2500" />
+
     <Button
         android:id="@+id/add_item_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/add"
-        android:layout_marginTop="16dp"/>
+        android:layout_gravity="right"/>
 </LinearLayout>
