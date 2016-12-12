@@ -17,18 +17,9 @@ import com.vsu.nastya.partymanager.R;
 public class PartyDetailsPagerAdapter extends FragmentPagerAdapter {
 
     private static final int COUNT = 3;
-    private String tabTitles[] = new String[COUNT];
 
-    public PartyDetailsPagerAdapter(FragmentManager fm, Context context) {
+    public PartyDetailsPagerAdapter(FragmentManager fm) {
         super(fm);
-        tabTitles[0] = context.getResources().getString(R.string.details);
-        tabTitles[1] = context.getResources().getString(R.string.purchases);
-        tabTitles[2]= context.getResources().getString(R.string.guests);
-    }
-
-    @Override
-    public CharSequence getPageTitle(int position) {
-        return tabTitles[position];
     }
 
     @Override
