@@ -22,8 +22,8 @@ public class PartyDetailsPagerAdapter extends FragmentPagerAdapter {
     public PartyDetailsPagerAdapter(FragmentManager fm, Context context) {
         super(fm);
         tabTitles[0] = context.getResources().getString(R.string.details);
-        tabTitles[1]= context.getResources().getString(R.string.guests);
-        tabTitles[2] = context.getResources().getString(R.string.purchases);
+        tabTitles[1] = context.getResources().getString(R.string.purchases);
+        tabTitles[2]= context.getResources().getString(R.string.guests);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class PartyDetailsPagerAdapter extends FragmentPagerAdapter {
                 return PartyInfoFragment.newInstance();
             case 1:
                 return ItemsListFragment.newInstance();
-            case 3:
+            case 2:
                 return GuestListFragment.newInstance();
             default:
                 return ItemsListFragment.newInstance();
