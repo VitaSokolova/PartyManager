@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.vsu.nastya.partymanager.AddPartyActivity;
 import com.vsu.nastya.partymanager.R;
 
 import java.util.ArrayList;

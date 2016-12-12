@@ -14,6 +14,7 @@ import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.util.VKUtil;
+import com.vsu.nastya.partymanager.PartyList.PartyListActivity;
 
 /**
  * Экран со списком всех вечеринок

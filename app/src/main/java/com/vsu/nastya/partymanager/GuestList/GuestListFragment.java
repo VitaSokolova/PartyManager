@@ -1,10 +1,8 @@
 package com.vsu.nastya.partymanager.GuestList;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,8 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.vsu.nastya.partymanager.AddGuestActivity;
-import com.vsu.nastya.partymanager.ItemList.Item;
-import com.vsu.nastya.partymanager.ItemList.ItemAdapter;
 import com.vsu.nastya.partymanager.R;
 
 import java.util.ArrayList;
@@ -50,6 +46,10 @@ public class GuestListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    public static GuestListFragment newInstance(){
+        return new GuestListFragment();
     }
 
     private void initRecycler() {

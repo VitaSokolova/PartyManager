@@ -1,9 +1,6 @@
 package com.vsu.nastya.partymanager.ItemList;
 
-import android.content.Context;
-import android.content.Intent;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -48,6 +45,10 @@ public class ItemsListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    public static ItemsListFragment newInstance(){
+        return  new ItemsListFragment();
     }
 
     private void initRecycler() {

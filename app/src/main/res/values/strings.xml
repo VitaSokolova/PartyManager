@@ -14,5 +14,7 @@
     <string name="purchases">Покупки</string>
     <string name="timeAndPlace">Время и место</string>
     <string name="partyName">Название вечеринки</string>
+    <string name="details">Детали</string>
     <integer name="com_vk_sdk_AppId">5747918</integer>
+
 </resources>
