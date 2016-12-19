@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
                 // Пользователь успешно авторизовался
                 Toast toast = Toast.makeText(MainActivity.this, "Успешная авторизация", Toast.LENGTH_SHORT);
                 toast.show();
+
+                PartyListActivity.start(MainActivity.this);
             }
 
             @Override

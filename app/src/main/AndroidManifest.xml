@@ -26,6 +26,7 @@
         <activity android:name=".PartyList.PartyListActivity" />
         <activity android:name=".AddPartyActivity" />
         <activity android:name=".PartyDetails.PartyDetailsActivity"/>
+        <activity android:name=".GuestList.AddGuestActivity"/>
     </application>
 
 </manifest>

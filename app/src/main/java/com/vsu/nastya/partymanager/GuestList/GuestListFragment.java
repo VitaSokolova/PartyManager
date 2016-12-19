@@ -12,26 +12,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
-import com.vsu.nastya.partymanager.AddGuestActivity;
 import com.vsu.nastya.partymanager.R;
 
 import java.util.ArrayList;
+
 /**
  * Created by Вита on 08.12.2016.
  */
 public class GuestListFragment extends Fragment {
     private RecyclerView recyclerView;
     private ImageButton addGuestFab;
+    private ArrayList<Guest> guestList;
+    private GuestAdapter adapter;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_guest_list, container, false);
 
+        this.guestList = new ArrayList<>();
+        this.adapter = new GuestAdapter(guestList);
+
         this.recyclerView = (RecyclerView) view.findViewById(R.id.guest_list_recycler_view);
         this.addGuestFab = (ImageButton) view.findViewById(R.id.guest_list_add_fab);
 
         initRecycler();
+
         addGuestFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -48,21 +54,30 @@ public class GuestListFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    public static GuestListFragment newInstance(){
+    public static GuestListFragment newInstance() {
         return new GuestListFragment();
     }
 
     private void initRecycler() {
         //TODO: вытащить это список из экземпляра User, но пока пусть так
-        final ArrayList<Guest> guestList = new ArrayList<>();
         guestList.add(new Guest("Вита"));
         guestList.add(new Guest("Настя"));
 
-        final GuestAdapter adapter = new GuestAdapter(guestList);
+
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) {
+            return;
+        }
+        Guest newGuest = (Guest) data.getSerializableExtra("guest");
+        this.guestList.add(newGuest);
+        this.adapter.notifyItemInserted(this.guestList.size());
     }
 }
 

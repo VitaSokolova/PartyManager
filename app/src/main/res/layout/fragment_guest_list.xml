@@ -3,12 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.vsu.nastya.partymanager.GuestList.GuestListFragment">
+    tools:context="com.vsu.nastya.partymanager.GuestList.GuestListFragment"
+    android:padding="16dp">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/guest_list_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/guest_list_add_fab"

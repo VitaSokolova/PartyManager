@@ -17,9 +17,13 @@ import java.util.Locale;
  * Created by nastya on 06.12.16.
  */
 
-public class PartiesAdapter extends RecyclerView.Adapter<PartiesAdapter.PartyViewHolder>{
+public class PartiesAdapter extends RecyclerView.Adapter<PartiesAdapter.PartyViewHolder> {
+    public interface OnItemClickListener {
+        void onItemClick(View v, Party party);
+    }
 
     private List<Party> partiesList;
+    private OnItemClickListener listener;
 
     public class PartyViewHolder extends RecyclerView.ViewHolder {
         public TextView partyName, date;
@@ -32,8 +36,9 @@ public class PartiesAdapter extends RecyclerView.Adapter<PartiesAdapter.PartyVie
         }
     }
 
-    public PartiesAdapter(List<Party> partiesList){
+    public PartiesAdapter(List<Party> partiesList,  OnItemClickListener listener) {
         this.partiesList = partiesList;
+        this.listener = listener;
     }
 
     @Override
@@ -44,10 +49,19 @@ public class PartiesAdapter extends RecyclerView.Adapter<PartiesAdapter.PartyVie
 
     @Override
     public void onBindViewHolder(PartyViewHolder holder, int position) {
-        Party party = partiesList.get(position);
+        final Party party = partiesList.get(position);
         holder.partyName.setText(party.getPartyName());
         String date = party.getDateAndTimeAsString();
         holder.date.setText(date);
+
+        if (listener != null) {
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onItemClick(v, party);
+                }
+            });
+        }
     }
 
     @Override

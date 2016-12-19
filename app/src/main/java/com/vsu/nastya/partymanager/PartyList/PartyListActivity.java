@@ -10,9 +10,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.vsu.nastya.partymanager.AddPartyActivity;
+import com.vsu.nastya.partymanager.PartyDetails.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.R;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class PartyListActivity extends AppCompatActivity {
@@ -34,8 +36,17 @@ public class PartyListActivity extends AppCompatActivity {
     private void initView() {
         //инициализируем список вечеринок
         partiesList = new ArrayList<>();
+        partiesList.add(new Party("Виточкин ДР", new GregorianCalendar()));
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.partylist_parties_recycler);
-        PartiesAdapter adapter = new PartiesAdapter(partiesList);
+        //Вита добавила открытие активити с тремя фрагментами по нажатию на вечеринку
+        // TODO: доделать передачу на эти фрагменты нужных данных
+        PartiesAdapter adapter = new PartiesAdapter(partiesList, new PartiesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, Party party) {
+                Intent intent = new Intent(PartyListActivity.this, PartyDetailsActivity.class);
+                startActivity(intent);
+            }
+        });
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);

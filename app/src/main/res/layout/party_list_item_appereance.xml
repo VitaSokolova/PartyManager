@@ -4,7 +4,8 @@
     android:layout_margin="16dp"
     android:background="@drawable/rect_background"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:padding="8dp"
+    android:layout_marginBottom="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
