@@ -1,17 +1,19 @@
-package com.vsu.nastya.partymanager;
+package com.vsu.nastya.partymanager.ItemList;
 
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.vsu.nastya.partymanager.ItemList.Item;
 import com.vsu.nastya.partymanager.GuestList.Guest;
+import com.vsu.nastya.partymanager.R;
+
 /**
  * Created by Вита on 01.12.2016.
  */
@@ -19,14 +21,14 @@ import com.vsu.nastya.partymanager.GuestList.Guest;
 public class AddItemActivity extends AppCompatActivity {
 
     private EditText nameEditTxt;
-    private EditText whoBuyEditTxt;
+    private AutoCompleteTextView whoBuyEditTxt;
     private SeekBar quantitySeekBar;
     private SeekBar averagePriceSeekBar;
     private TextView quantityTxt;
     private TextView averagePriceTxt;
     private Button addItemButton;
 
-    public int quantityNumber;
+    private int quantityNumber;
     private int priceNumber;
 
     public static void start(Context context) {
@@ -44,7 +46,8 @@ public class AddItemActivity extends AppCompatActivity {
     private void InitView() {
 
         nameEditTxt = (EditText) findViewById(R.id.add_item_name_edtxt);
-        whoBuyEditTxt = (EditText) findViewById(R.id.add_item_who_edtxt);
+        whoBuyEditTxt = (AutoCompleteTextView) findViewById(R.id.add_item_who_autocomplete);
+        //TODO: надо закинуть в список для автодополнения гостей текущей вечеринки.
 
         addItemButton = (Button) findViewById(R.id.add_item_btn);
 
@@ -60,7 +63,7 @@ public class AddItemActivity extends AppCompatActivity {
 
                 Item newItem = GetItemFromFields();
                 Intent intent = new Intent();
-                intent.putExtra("newItem", newItem);
+                intent.putExtra("item", newItem);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -70,12 +73,9 @@ public class AddItemActivity extends AppCompatActivity {
         quantityNumber = 0;
         priceNumber = 0;
 
-
-
         //получаем подписи из строковых ресурсов
         final String quantityText = getString(R.string.quantity);
         final String priceText = getString(R.string.averageCost);
-
 
         quantityTxt.setText(quantityText + String.valueOf(quantityNumber));
         averagePriceTxt.setText(priceText + String.valueOf(priceNumber));
@@ -129,10 +129,8 @@ public class AddItemActivity extends AppCompatActivity {
         String itemName = String.valueOf(this.nameEditTxt.getText());
         String who = String.valueOf(this.whoBuyEditTxt.getText());
         Guest guest = new Guest(who);
-        int quantity = (int) Integer.valueOf(this.quantityTxt.getText().toString());
-        int price = (int) Integer.valueOf(this.averagePriceTxt.getText().toString());
 
-        Item item = new Item(itemName, quantity, guest, price);
+        Item item = new Item(itemName, quantityNumber, guest, priceNumber);
 
         return item;
     }

@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:layout_margin="16dp">
 
-    <MultiAutoCompleteTextView
-        android:id="@+id/add_guest_autocomplete_txt"
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
+
+        <AutoCompleteTextView
+            android:id="@+id/add_guest_autocomplete_txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/fill_friend_name" />
+    </android.support.design.widget.TextInputLayout>
 
     <Button
         android:id="@+id/add_guest_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Добавить"
-        android:layout_gravity="right" />
-</LinearLayout>
+        android:layout_gravity="right|bottom"
+        android:text="Добавить" />
+</FrameLayout>

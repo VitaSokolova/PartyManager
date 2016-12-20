@@ -17,19 +17,47 @@
             android:layout_height="0dp"
             android:layout_weight="10" />
 
-        <TextView
-            android:id="@+id/items_list_res_sum_txt"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="@string/resSum" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/items_list_personal_sum_txt"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="@string/perPersonSum" />
+            <TextView
+                android:id="@+id/items_list_res_sum_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/resSum" />
+
+            <TextView
+                android:id="@+id/items_list_res_sum_number_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:text="0" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/items_list_personal_sum_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/perPersonSum" />
+
+            <TextView
+                android:id="@+id/items_list_personal_sum_number_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:text="0" />
+        </LinearLayout>
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton

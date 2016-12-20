@@ -1,72 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp"
-    tools:context="com.vsu.nastya.partymanager.AddItemActivity">
+    tools:context="com.vsu.nastya.partymanager.ItemList.AddItemActivity">
 
-
-    <android.support.design.widget.TextInputLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/add_item_name_edtxt"
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/add_item_name_edtxt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="@string/whatToBuy"
+                android:textColor="@color/textColorDetails"
+                android:textSize="14sp" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <AutoCompleteTextView
+                android:id="@+id/add_item_who_autocomplete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="@string/whoBuy"
+                android:textColor="@color/textColorDetails"
+                android:textSize="14sp" />
+        </android.support.design.widget.TextInputLayout>
+
+        <TextView
+            android:id="@+id/add_item_quantity_progress_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/quantity" />
+
+        <SeekBar
+            android:id="@+id/add_item_quantity_seekbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:text="@string/whatToBuy"
-            android:textColor="@color/textColorDetails"
-            android:textSize="14sp" />
-    </android.support.design.widget.TextInputLayout>
+            android:max="50" />
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/add_item_price_progress_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/averageCost" />
 
-        <EditText
-            android:id="@+id/add_item_who_edtxt"
+        <SeekBar
+            android:id="@+id/add_item_price_seekbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:text="@string/whoBuy"
-            android:textColor="@color/textColorDetails"
-            android:textSize="14sp" />
-    </android.support.design.widget.TextInputLayout>
-
-    <TextView
-        android:id="@+id/add_item_quantity_progress_txt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/quantity" />
-
-    <SeekBar
-        android:id="@+id/add_item_quantity_seekbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="50" />
-
-    <TextView
-        android:id="@+id/add_item_price_progress_txt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/averageCost" />
-
-    <SeekBar
-        android:id="@+id/add_item_price_seekbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="2500" />
+            android:max="2500" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/add_item_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
         android:layout_marginTop="16dp"
-        android:text="@string/add"
-        android:layout_gravity="right"/>
-</LinearLayout>
+        android:text="@string/add" />
+</FrameLayout>
