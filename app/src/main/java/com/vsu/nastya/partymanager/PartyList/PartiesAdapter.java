@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.vsu.nastya.partymanager.Logic.DateWorker;
 import com.vsu.nastya.partymanager.R;
 
 import java.text.SimpleDateFormat;
@@ -50,8 +51,9 @@ public class PartiesAdapter extends RecyclerView.Adapter<PartiesAdapter.PartyVie
     @Override
     public void onBindViewHolder(PartyViewHolder holder, int position) {
         final Party party = partiesList.get(position);
-        holder.partyName.setText(party.getPartyName());
-        String date = party.getDateAndTimeAsString();
+        holder.partyName.setText(party.getName());
+        String date = DateWorker.getDateAsString(party.getDate()) + ", " +
+                DateWorker.getTimeAsString(party.getDate());
         holder.date.setText(date);
 
         if (listener != null) {

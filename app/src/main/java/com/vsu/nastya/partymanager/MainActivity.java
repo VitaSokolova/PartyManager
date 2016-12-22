@@ -38,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                VKSdk.login(MainActivity.this, myScope);
+                //VKSdk.login(MainActivity.this, myScope);
+                PartyListActivity.start(MainActivity.this);
             }
         });
         //Вита узнавала свой отпечаток
