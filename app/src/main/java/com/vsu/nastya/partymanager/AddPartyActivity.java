@@ -110,7 +110,7 @@ public class AddPartyActivity extends AppCompatActivity implements DatePickerDia
                     finish();
                 }
                 else {
-                    Toast toast = Toast.makeText(AddPartyActivity.this, "Введите название вечеринки", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(AddPartyActivity.this, getResources().getString(R.string.enter_party_name), Toast.LENGTH_SHORT);
                     toast.show();
                 }
             }
