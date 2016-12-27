@@ -17,6 +17,8 @@
     <string name="details">Детали</string>
     <string name="fill_friend_name">Введите имя друга</string>
     <string name="ok">OK</string>
+    <string name="delete">Удалить</string>
+    <string name="edit">Редактировать</string>
     <string name="enter_party_name">Введите название вечеринки</string>
     <integer name="com_vk_sdk_AppId">5747918</integer>
 

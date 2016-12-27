@@ -15,14 +15,22 @@ import java.util.ArrayList;
  */
 
 public class GuestAdapter extends RecyclerView.Adapter<GuestAdapter.GuestViewHolder> {
-    private ArrayList guestList;
 
-    public GuestAdapter(ArrayList guestList) {
+    public interface OnLongClickListener {
+        void onLongClick(View view, Guest guest, int position);
+    }
+
+    private ArrayList guestList;
+    private OnLongClickListener longListener;
+
+    public GuestAdapter(ArrayList guestList, OnLongClickListener longListener) {
         this.guestList = guestList;
+        this.longListener = longListener;
     }
 
     public class GuestViewHolder extends RecyclerView.ViewHolder {
         public TextView nameTxtView;
+
         public GuestViewHolder(View itemView) {
             super(itemView);
             this.nameTxtView = (TextView) itemView.findViewById(R.id.guest_name_txt);
@@ -37,8 +45,20 @@ public class GuestAdapter extends RecyclerView.Adapter<GuestAdapter.GuestViewHol
     }
 
     @Override
-    public void onBindViewHolder (GuestViewHolder holder, int position) {
-        Guest guest = (Guest) guestList.get(position);
+    public void onBindViewHolder(final GuestViewHolder holder, int position) {
+        final Guest guest = (Guest) guestList.get(position);
+
+        if (longListener != null) {
+            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    longListener.onLongClick(view, guest, holder.getAdapterPosition());
+                    holder.itemView.setSelected(true);
+                    return true;
+                }
+            });
+        }
+
         holder.nameTxtView.setText(guest.getGuestName());
     }
 
