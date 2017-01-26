@@ -1,4 +1,4 @@
-package com.vsu.nastya.partymanager.ItemList;
+package com.vsu.nastya.partymanager.item_list;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.vsu.nastya.partymanager.GuestList.Guest;
+import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
 
 /**
@@ -40,10 +40,10 @@ public class AddItemActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
-        InitView();
+        initView();
     }
 
-    private void InitView() {
+    private void initView() {
 
         nameEditTxt = (EditText) findViewById(R.id.add_item_name_edtxt);
         whoBuyEditTxt = (AutoCompleteTextView) findViewById(R.id.add_item_who_autocomplete);
@@ -61,7 +61,7 @@ public class AddItemActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Item newItem = GetItemFromFields();
+                Item newItem = getItemFromFields();
                 Intent intent = new Intent();
                 intent.putExtra("item", newItem);
                 setResult(RESULT_OK, intent);
@@ -124,7 +124,7 @@ public class AddItemActivity extends AppCompatActivity {
         });
     }
 
-    private Item GetItemFromFields() {
+    private Item getItemFromFields() {
 
         String itemName = String.valueOf(this.nameEditTxt.getText());
         String who = String.valueOf(this.whoBuyEditTxt.getText());

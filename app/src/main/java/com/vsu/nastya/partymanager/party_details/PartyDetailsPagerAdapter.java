@@ -1,14 +1,12 @@
-package com.vsu.nastya.partymanager.PartyDetails;
+package com.vsu.nastya.partymanager.party_details;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.vsu.nastya.partymanager.GuestList.GuestListFragment;
-import com.vsu.nastya.partymanager.ItemList.ItemsListFragment;
+import com.vsu.nastya.partymanager.guest_list.GuestListFragment;
+import com.vsu.nastya.partymanager.item_list.ItemsListFragment;
 import com.vsu.nastya.partymanager.PartyInfoFragment;
-import com.vsu.nastya.partymanager.R;
 
 /**
  * Created by nastya on 08.12.16.

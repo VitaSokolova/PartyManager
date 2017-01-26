@@ -18,15 +18,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ItemList.AddItemActivity" />
+        <activity android:name=".item_list.AddItemActivity" />
         <activity
             android:name="com.vk.sdk.VKServiceActivity"
             android:label="ServiceActivity"
             android:theme="@style/VK.Transparent" />
-        <activity android:name=".PartyList.PartyListActivity" />
+        <activity android:name=".party_list.PartyListActivity" />
         <activity android:name=".AddPartyActivity" />
-        <activity android:name=".PartyDetails.PartyDetailsActivity"/>
-        <activity android:name=".GuestList.AddGuestActivity"/>
+        <activity android:name=".party_details.PartyDetailsActivity"/>
+        <activity android:name=".guest_list.AddGuestActivity"/>
     </application>
 
 </manifest>

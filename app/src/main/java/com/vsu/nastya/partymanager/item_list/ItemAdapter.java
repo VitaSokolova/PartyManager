@@ -1,4 +1,4 @@
-package com.vsu.nastya.partymanager.ItemList;
+package com.vsu.nastya.partymanager.item_list;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

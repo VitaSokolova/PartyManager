@@ -17,10 +17,10 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.vsu.nastya.partymanager.Logic.DateWorker;
-import com.vsu.nastya.partymanager.PartyList.Party;
-import com.vsu.nastya.partymanager.Pickers.DatePickerFragment;
-import com.vsu.nastya.partymanager.Pickers.TimePickerFragment;
+import com.vsu.nastya.partymanager.logic.DateWorker;
+import com.vsu.nastya.partymanager.party_list.Party;
+import com.vsu.nastya.partymanager.pickers.DatePickerFragment;
+import com.vsu.nastya.partymanager.pickers.TimePickerFragment;
 
 import java.util.Calendar;
 

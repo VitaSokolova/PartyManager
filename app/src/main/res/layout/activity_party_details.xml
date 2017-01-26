@@ -5,7 +5,7 @@
     android:id="@+id/activity_party_details"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.vsu.nastya.partymanager.PartyDetails.PartyDetailsActivity"
+    tools:context="com.vsu.nastya.partymanager.party_details.PartyDetailsActivity"
     android:orientation="vertical">
 
     <android.support.v4.view.ViewPager

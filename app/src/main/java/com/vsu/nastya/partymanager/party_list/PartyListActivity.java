@@ -1,4 +1,4 @@
-package com.vsu.nastya.partymanager.PartyList;
+package com.vsu.nastya.partymanager.party_list;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.vsu.nastya.partymanager.AddPartyActivity;
-import com.vsu.nastya.partymanager.PartyDetails.PartyDetailsActivity;
+import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.R;
 
 import java.util.ArrayList;

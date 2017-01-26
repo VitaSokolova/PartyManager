@@ -1,6 +1,6 @@
-package com.vsu.nastya.partymanager.ItemList;
+package com.vsu.nastya.partymanager.item_list;
 
-import com.vsu.nastya.partymanager.GuestList.Guest;
+import com.vsu.nastya.partymanager.guest_list.data.Guest;
 
 import java.io.Serializable;
 

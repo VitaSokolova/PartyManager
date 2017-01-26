@@ -1,4 +1,4 @@
-package com.vsu.nastya.partymanager.PartyList;
+package com.vsu.nastya.partymanager.party_list;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -6,13 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.vsu.nastya.partymanager.Logic.DateWorker;
+import com.vsu.nastya.partymanager.logic.DateWorker;
 import com.vsu.nastya.partymanager.R;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by nastya on 06.12.16.

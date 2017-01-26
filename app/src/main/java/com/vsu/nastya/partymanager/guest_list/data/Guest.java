@@ -1,7 +1,4 @@
-package com.vsu.nastya.partymanager.GuestList;
-
-import android.os.Parcel;
-import android.os.Parcelable;
+package com.vsu.nastya.partymanager.guest_list.data;
 
 import java.io.Serializable;
 
@@ -10,12 +7,17 @@ import java.io.Serializable;
  */
 
 public class Guest implements Serializable {
-    private String guestName; public Guest(String guestName) {
+    private String guestName;
 
+    public Guest(String guestName) {
         this.guestName = guestName;
     }
 
     public String getGuestName() {
         return guestName;
+    }
+
+    public void setGuestName(String guestName) {
+        this.guestName = guestName;
     }
 }

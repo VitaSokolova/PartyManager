@@ -1,4 +1,4 @@
-package com.vsu.nastya.partymanager.PartyDetails;
+package com.vsu.nastya.partymanager.party_details;
 
 import android.content.Context;
 import android.content.Intent;

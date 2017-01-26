@@ -1,4 +1,4 @@
-package com.vsu.nastya.partymanager.GuestList;
+package com.vsu.nastya.partymanager.guest_list;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,8 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 
-import com.vsu.nastya.partymanager.GuestList.Guest;
 import com.vsu.nastya.partymanager.R;
+import com.vsu.nastya.partymanager.guest_list.data.Guest;
 
 /**
  * Created by Вита on 08.12.2016.
@@ -50,8 +50,8 @@ public class AddGuestActivity extends AppCompatActivity {
     }
 
     private String getTextFromField() {
-        String s = this.autoCompleteTextView.getText().toString();
-        return s;
+        //TODO не упадет ли при пустом поле?
+        return this.autoCompleteTextView.getText().toString();
     }
 }
 

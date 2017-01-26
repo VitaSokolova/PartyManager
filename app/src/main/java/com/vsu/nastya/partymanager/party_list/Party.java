@@ -1,4 +1,4 @@
-package com.vsu.nastya.partymanager.PartyList;
+package com.vsu.nastya.partymanager.party_list;
 
 import java.io.Serializable;
 import java.util.Calendar;

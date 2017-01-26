@@ -1,4 +1,4 @@
-package com.vsu.nastya.partymanager.ItemList;
+package com.vsu.nastya.partymanager.item_list;
 
 import android.content.Intent;
 import android.support.v4.app.Fragment;
@@ -12,12 +12,10 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.vsu.nastya.partymanager.GuestList.AddGuestActivity;
-import com.vsu.nastya.partymanager.GuestList.Guest;
+import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Вита on 08.12.2016.

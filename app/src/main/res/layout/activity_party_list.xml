@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.vsu.nastya.partymanager.PartyList.PartyListActivity">
+    tools:context="com.vsu.nastya.partymanager.party_list.PartyListActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/partylist_parties_recycler"
