@@ -1,6 +1,6 @@
-package com.vsu.nastya.partymanager.Logic;
+package com.vsu.nastya.partymanager.logic;
 
-import com.vsu.nastya.partymanager.PartyList.Party;
+import com.vsu.nastya.partymanager.party_list.Party;
 
 import java.util.ArrayList;
 

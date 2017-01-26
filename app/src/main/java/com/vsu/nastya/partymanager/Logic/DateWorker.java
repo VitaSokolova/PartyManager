@@ -1,4 +1,4 @@
-package com.vsu.nastya.partymanager.Logic;
+package com.vsu.nastya.partymanager.logic;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

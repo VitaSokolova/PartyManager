@@ -1,11 +1,10 @@
-package com.vsu.nastya.partymanager.Pickers;
+package com.vsu.nastya.partymanager.pickers;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.widget.DatePicker;
 
 import com.vsu.nastya.partymanager.AddPartyActivity;
 

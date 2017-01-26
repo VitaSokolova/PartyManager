@@ -31,6 +31,7 @@ import java.util.ArrayList;
  * Это фрагмент для списка гостей
  */
 public class GuestListFragment extends Fragment {
+    public static String TAG = "guestListFragment";
     private RecyclerView mRecyclerView;
     private ImageButton addGuestFab;
     private ArrayList<Guest> guestList;
@@ -52,6 +53,7 @@ public class GuestListFragment extends Fragment {
                 //проходимся по всему списку, если элемент присутствует в MultiSelector, удаляем его
                 for (int i = guestList.size(); i >= 0; i--) {
                     if (mMultiSelector.isSelected(i, 0)) {
+                        //TODO:удалить еще и из базы и вообще навсегда
                         guestList.remove(i);
                         mRecyclerView.getAdapter().notifyItemRemoved(i);
                     }
@@ -120,6 +122,32 @@ public class GuestListFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+
+        if (mMultiSelector != null) {
+            Bundle bundle = savedInstanceState;
+            if (bundle != null) {
+                mMultiSelector.restoreSelectionStates(bundle.getBundle(TAG));
+            }
+
+            if (mMultiSelector.isSelectable()) {
+                if (mActionModeCallback != null) {
+                    mActionModeCallback.setClearOnPrepare(false);
+                    ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
+                }
+
+            }
+        }
+
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putBundle(TAG, mMultiSelector.saveSelectionStates());
+        super.onSaveInstanceState(outState);
+    }
     //получаем нашего нового гостя
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
