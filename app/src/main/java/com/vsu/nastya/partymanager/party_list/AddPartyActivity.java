@@ -1,4 +1,4 @@
-package com.vsu.nastya.partymanager;
+package com.vsu.nastya.partymanager.party_list;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -17,8 +17,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.logic.DateWorker;
-import com.vsu.nastya.partymanager.party_list.Party;
 import com.vsu.nastya.partymanager.pickers.DatePickerFragment;
 import com.vsu.nastya.partymanager.pickers.TimePickerFragment;
 
