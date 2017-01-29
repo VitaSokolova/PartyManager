@@ -8,6 +8,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.AutoCompleteTextView;
 
 import com.vsu.nastya.partymanager.R;
@@ -18,6 +19,14 @@ import com.vsu.nastya.partymanager.R;
  */
 
 public class EditDialogFragment extends DialogFragment {
+
+    public static EditDialogFragment newInstance(String name) {
+        EditDialogFragment frag = new EditDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("name", name);
+        frag.setArguments(args);
+        return frag;
+    }
 
     public interface OnItemClickListener {
         void onItemClick(String text);
@@ -31,19 +40,22 @@ public class EditDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        //забираем имя с активити
+        String name = getArguments().getString("name");
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // Get the layout inflater
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-
+        final LayoutInflater inflater = getActivity().getLayoutInflater();
+        final View main_view = inflater.inflate(R.layout.dialog_guest_edit, null);
+        final AutoCompleteTextView txtView = (AutoCompleteTextView) main_view.findViewById(R.id.guest_list_edit_etxt);
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.dialog_guest_edit, null))
+        builder.setView(main_view)
                 // Add action buttons
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        AutoCompleteTextView txtView = (AutoCompleteTextView) getView().findViewById(R.id.guest_list_edit_etxt);
                         listener.onItemClick(txtView.getText().toString());
                     }
                 })
@@ -51,8 +63,22 @@ public class EditDialogFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int id) {
                         EditDialogFragment.this.getDialog().cancel();
                     }
-                });
-        return builder.create();
+                })
+                .setTitle(R.string.edit);
+
+        //исправляем баги AutoCompleteTextView советами со Stackoverflow
+        AlertDialog alert = builder.create();
+        txtView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                txtView.showDropDown();
+            }
+        }, 500);
+        txtView.setText(name);
+        txtView.dismissDropDown();
+        txtView.setSelection(txtView.getText().length());
+
+        return alert;
     }
 
 }

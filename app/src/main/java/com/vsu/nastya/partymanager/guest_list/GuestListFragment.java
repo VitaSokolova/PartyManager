@@ -64,25 +64,24 @@ public class GuestListFragment extends Fragment {
 
             //TODO:сделать редактирование
             if (menuItem.getItemId() == R.id.action_edit) {
-                for (int i = guestList.size(); i >= 0; i--) {
-                    if (mMultiSelector.isSelected(i, 0)) {
-                        EditDialogFragment dialog = new EditDialogFragment();
-                        final int finalI = i;
-                        dialog.setListener(new EditDialogFragment.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(String text) {
-                                Guest guest = guestList.get(finalI);
-                                guest.setGuestName(text);
-                                adapter.notifyItemChanged(finalI);
-                            }
-                        });
-                        dialog.show(getFragmentManager(), "dialog");
-                    }
-                    return true;
+                final ArrayList<Integer> indexes = (ArrayList<Integer>) mMultiSelector.getSelectedPositions();
+                if (indexes.size() == 1) {
+                    EditDialogFragment dialog =  EditDialogFragment.newInstance(guestList.get(indexes.get(0)).getGuestName());
+                    dialog.setListener(new EditDialogFragment.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(String text) {
+                            Guest guest = guestList.get(indexes.get(0));
+                            guest.setGuestName(text);
+                            adapter.notifyItemChanged(indexes.get(0));
+                        }
+                    });
+                    dialog.show(getFragmentManager(), "guestEditDialog");
                 }
+                return true;
             }
-            return false;
+        return false;
         }
+
 
         @Override
         public void onDestroyActionMode(ActionMode actionMode) {
