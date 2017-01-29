@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
-import com.vsu.nastya.partymanager.AddPartyActivity;
+import com.vsu.nastya.partymanager.party_list.AddPartyActivity;
 
 import java.util.Calendar;
 

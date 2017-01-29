@@ -24,7 +24,7 @@
             android:label="ServiceActivity"
             android:theme="@style/VK.Transparent" />
         <activity android:name=".party_list.PartyListActivity" />
-        <activity android:name=".AddPartyActivity" />
+        <activity android:name=".party_list.AddPartyActivity" />
         <activity android:name=".party_details.PartyDetailsActivity"/>
         <activity android:name=".guest_list.AddGuestActivity"/>
     </application>
