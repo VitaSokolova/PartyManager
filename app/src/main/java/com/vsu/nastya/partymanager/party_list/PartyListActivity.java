@@ -40,6 +40,7 @@ public class PartyListActivity extends AppCompatActivity{
     private RecyclerView recyclerView;
     private MultiSelector multiSelector = new MultiSelector();
 
+    private ActionMode actionMode;
     private ModalMultiSelectorCallback callback = new ModalMultiSelectorCallback(multiSelector) {
 
         @Override
@@ -196,6 +197,9 @@ public class PartyListActivity extends AppCompatActivity{
             if (multiSelector.isSelectable()) {
                 setActivated(!isActivated());
                 multiSelector.setSelected(PartyViewHolder.this, isActivated());
+                if (multiSelector.getSelectedPositions().size() == 0) {
+                    actionMode.finish();
+                }
             } else {
                 PartyDetailsActivity.start(PartyListActivity.this);
             }
@@ -203,7 +207,7 @@ public class PartyListActivity extends AppCompatActivity{
 
         @Override
         public boolean onLongClick(View view) {
-            startSupportActionMode(callback);
+            actionMode = startSupportActionMode(callback);
             multiSelector.setSelected(PartyViewHolder.this, true);
             multiSelector.setSelectable(true);
             return true;

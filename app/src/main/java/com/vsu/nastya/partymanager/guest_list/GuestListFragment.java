@@ -37,6 +37,7 @@ public class GuestListFragment extends Fragment {
     private ArrayList<Guest> guestList;
     private GuestAdapter adapter;
     private MultiSelector mMultiSelector = new MultiSelector();
+    private ActionMode actionMode;
     private ModalMultiSelectorCallback mActionModeCallback = new ModalMultiSelectorCallback(mMultiSelector) {
         //открывается наше меню
         @Override
@@ -193,7 +194,7 @@ public class GuestListFragment extends Fragment {
 
         @Override
         public boolean onLongClick(View view) {
-            ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
+            actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
             mMultiSelector.setSelected(GuestViewHolder.this, true);
             return true;
         }
@@ -204,6 +205,9 @@ public class GuestListFragment extends Fragment {
                 // Selection is active; toggle activation
                 setActivated(!isActivated());
                 mMultiSelector.setSelected(GuestViewHolder.this, isActivated());
+                if (mMultiSelector.getSelectedPositions().size() == 0) {
+                    actionMode.finish();
+                }
             } else {
                 // Selection not active
             }
