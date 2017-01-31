@@ -33,6 +33,7 @@ import java.util.List;
 public class PartyListActivity extends AppCompatActivity{
 
     private static final int ADD_PARTY_REQUEST_CODE = 1;
+    private static final int EDIT_PARTY_REQUEST_CODE = 2;
     private static final String TAG = "PartyListActivity";
     private List<Party> partiesList;
     private PartiesAdapter adapter;
@@ -59,6 +60,16 @@ public class PartyListActivity extends AppCompatActivity{
                         }
                     }
                     mode.finish();
+                    return true;
+                case R.id.action_edit:
+                    ArrayList<Integer> positions = (ArrayList<Integer>) multiSelector.getSelectedPositions();
+                    if (positions.size() == 1) {
+                        Intent intent = new Intent(PartyListActivity.this, AddPartyActivity.class);
+                        intent.putExtra("party", partiesList.get(positions.get(0)));
+                        intent.putExtra("position", positions.get(0));
+                        startActivityForResult(intent, EDIT_PARTY_REQUEST_CODE);
+                        mode.finish();
+                    }
                     return true;
                 default:
                     return false;
@@ -90,9 +101,8 @@ public class PartyListActivity extends AppCompatActivity{
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         if (multiSelector != null) {
-            Bundle bundle = savedInstanceState;
-            if (bundle != null) {
-                multiSelector.restoreSelectionStates(bundle.getBundle(TAG));
+            if (savedInstanceState != null) {
+                multiSelector.restoreSelectionStates(savedInstanceState.getBundle(TAG));
             }
 
             if (multiSelector.isSelectable()) {
@@ -107,16 +117,26 @@ public class PartyListActivity extends AppCompatActivity{
 
     /**
      * Метод вызывается, когда AddPartyActivity завершает работу.
-     * Новая вечеринка добавляется в список.
+     * Новая вечеринка добавляется в список или изменяется информация об одной из.
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ADD_PARTY_REQUEST_CODE){
-            if (resultCode == RESULT_OK){
-                Party party = (Party) data.getSerializableExtra("party");
-                partiesList.add(party);
-                adapter.notifyItemInserted(adapter.getItemCount());
-            }
+        switch (requestCode) {
+            case ADD_PARTY_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    Party party = (Party) data.getSerializableExtra("party");
+                    partiesList.add(party);
+                    adapter.notifyItemInserted(adapter.getItemCount());
+                }
+                break;
+            case EDIT_PARTY_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    Party party = (Party) data.getSerializableExtra("party");
+                    int position = data.getIntExtra("position", 0);
+                    partiesList.set(position, party);
+                    adapter.notifyItemChanged(position);
+                }
+                break;
         }
     }
 
@@ -143,7 +163,7 @@ public class PartyListActivity extends AppCompatActivity{
         addPartyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AddPartyActivity.startForResult(PartyListActivity.this, ADD_PARTY_REQUEST_CODE);
+                startActivityForResult(new Intent(PartyListActivity.this, AddPartyActivity.class), ADD_PARTY_REQUEST_CODE);
             }
         });
     }

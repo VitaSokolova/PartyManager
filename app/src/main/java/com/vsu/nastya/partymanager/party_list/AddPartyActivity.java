@@ -72,9 +72,25 @@ public class AddPartyActivity extends AppCompatActivity implements DatePickerDia
 
         dateText = (TextView) findViewById(R.id.addparty_date_text);
         timeText = (TextView) findViewById(R.id.addparty_time_text);
+        final EditText partyName = (EditText) findViewById(R.id.addparty_name_edit);
 
-        //установим текущее время и дату в текст вью
-        calendar = Calendar.getInstance();
+        Intent intent = getIntent();
+        final int pos; // Если меняем старую информацию о вечеринке, то это ее позиция в списке
+
+        if (intent.getExtras() != null) {
+           /* Если надо поменять информацию о существующей вечеринке,
+            заполняем поля старой информацией о вечеринке */
+            Party party = (Party) intent.getSerializableExtra("party");
+            calendar = party.getDate();
+            partyName.setText(party.getName());
+            pos = intent.getIntExtra("position", 0);
+        } else {
+            /* Если создаем новую вечеринку, то устанавливаем текущее время и дату.
+             Поле с названием вечеринки оставляем пустым */
+            calendar = Calendar.getInstance();
+            pos = -1;
+        }
+
         dateText.setText(DateWorker.getDateAsString(calendar));
         timeText.setText(DateWorker.getTimeAsString(calendar));
 
@@ -82,7 +98,7 @@ public class AddPartyActivity extends AppCompatActivity implements DatePickerDia
         showTimePickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DialogFragment timeFragment = new TimePickerFragment();
+                DialogFragment timeFragment = TimePickerFragment.newInstance(calendar);
                 timeFragment.show(getSupportFragmentManager(), "timePicker");
             }
         });
@@ -91,21 +107,21 @@ public class AddPartyActivity extends AppCompatActivity implements DatePickerDia
         showDatePickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DialogFragment dateFragment = new DatePickerFragment();
+                DialogFragment dateFragment = DatePickerFragment.newInstance(calendar);
                 dateFragment.show(getSupportFragmentManager(), "datePicker");
             }
         });
 
-        final EditText partyName = (EditText) findViewById(R.id.addparty_name_edit);
         Button okButton = (Button) findViewById(R.id.addparty_ok_button);
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!partyName.getText().toString().equals("")) {
-                    //Создаем новую вечеринку и закрываем активити
+                    //Заполняем информацию о вечеринке
                     Party party = new Party(partyName.getText().toString(), calendar);
                     Intent intent = new Intent();
                     intent.putExtra("party", party);
+                    intent.putExtra("position", pos);
                     setResult(RESULT_OK, intent);
                     finish();
                 }
