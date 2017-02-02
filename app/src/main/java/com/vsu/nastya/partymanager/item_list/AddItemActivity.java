@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
+import com.vsu.nastya.partymanager.item_list.data.Item;
 
 /**
  * Created by Вита on 01.12.2016.
@@ -45,17 +46,17 @@ public class AddItemActivity extends AppCompatActivity {
 
     private void initView() {
 
-        nameEditTxt = (EditText) findViewById(R.id.add_item_name_edtxt);
-        whoBuyEditTxt = (AutoCompleteTextView) findViewById(R.id.add_item_who_autocomplete);
+        nameEditTxt = (EditText) findViewById(R.id.item_name_edtxt);
+        whoBuyEditTxt = (AutoCompleteTextView) findViewById(R.id.item_who_autocomplete);
         //TODO: надо закинуть в список для автодополнения гостей текущей вечеринки.
 
         addItemButton = (Button) findViewById(R.id.add_item_btn);
 
-        quantitySeekBar = (SeekBar) findViewById(R.id.add_item_quantity_seekbar);
-        quantityTxt = (TextView) findViewById(R.id.add_item_quantity_progress_txt);
+        quantitySeekBar = (SeekBar) findViewById(R.id.item_quantity_seekbar);
+        quantityTxt = (TextView) findViewById(R.id.item_quantity_number_txt);
 
-        averagePriceSeekBar = (SeekBar) findViewById(R.id.add_item_price_seekbar);
-        averagePriceTxt = (TextView) findViewById(R.id.add_item_price_progress_txt);
+        averagePriceSeekBar = (SeekBar) findViewById(R.id.item_price_seekbar);
+        averagePriceTxt = (TextView) findViewById(R.id.item_price_number_txt);
 
         addItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,12 +74,9 @@ public class AddItemActivity extends AppCompatActivity {
         quantityNumber = 0;
         priceNumber = 0;
 
-        //получаем подписи из строковых ресурсов
-        final String quantityText = getString(R.string.quantity);
-        final String priceText = getString(R.string.averageCost);
 
-        quantityTxt.setText(quantityText + String.valueOf(quantityNumber));
-        averagePriceTxt.setText(priceText + String.valueOf(priceNumber));
+        quantityTxt.setText(String.valueOf(quantityNumber));
+        averagePriceTxt.setText(String.valueOf(priceNumber));
 
         // устанавливаем слушателей для прокрутку SeekBar
         quantitySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -86,7 +84,7 @@ public class AddItemActivity extends AppCompatActivity {
             // метод отвечает за изменения прогресса
             @Override
             public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
-                quantityTxt.setText(quantityText + String.valueOf(progressValue));
+                quantityTxt.setText(String.valueOf(progressValue));
                 quantityNumber = progressValue;
             }
 
@@ -108,7 +106,7 @@ public class AddItemActivity extends AppCompatActivity {
                 //чтобы не утомлять пользоватьля, введём величину шага ползунка 50
                 progressValue = progressValue / 50;
                 progressValue = progressValue * 50;
-                averagePriceTxt.setText(priceText + String.valueOf(progressValue));
+                averagePriceTxt.setText(String.valueOf(progressValue));
                 priceNumber = progressValue;
             }
 

@@ -9,7 +9,6 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -66,8 +65,8 @@ public class GuestListFragment extends Fragment {
             if (menuItem.getItemId() == R.id.action_edit) {
                 final ArrayList<Integer> indexes = (ArrayList<Integer>) mMultiSelector.getSelectedPositions();
                 if (indexes.size() == 1) {
-                    EditDialogFragment dialog =  EditDialogFragment.newInstance(guestList.get(indexes.get(0)).getGuestName());
-                    dialog.setListener(new EditDialogFragment.OnItemClickListener() {
+                    EditGuestDialogFragment dialog =  EditGuestDialogFragment.newInstance(guestList.get(indexes.get(0)).getGuestName());
+                    dialog.setListener(new EditGuestDialogFragment.OnItemClickListener() {
                         @Override
                         public void onItemClick(String text) {
                             Guest guest = guestList.get(indexes.get(0));

@@ -1,12 +1,10 @@
 package com.vsu.nastya.partymanager.guest_list;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -18,24 +16,20 @@ import com.vsu.nastya.partymanager.R;
  * этот класс отвечает за диалоговое окно с редактированием имени гостя
  */
 
-public class EditDialogFragment extends DialogFragment {
+public class EditGuestDialogFragment extends DialogFragment {
 
-    public static EditDialogFragment newInstance(String name) {
-        EditDialogFragment frag = new EditDialogFragment();
-        Bundle args = new Bundle();
-        args.putString("name", name);
-        frag.setArguments(args);
-        return frag;
-    }
+    private OnItemClickListener listener;
 
     public interface OnItemClickListener {
         void onItemClick(String text);
     }
 
-    private OnItemClickListener listener;
-
-    public void setListener(OnItemClickListener listener) {
-        this.listener = listener;
+    public static EditGuestDialogFragment newInstance(String name) {
+        EditGuestDialogFragment frag = new EditGuestDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("name", name);
+        frag.setArguments(args);
+        return frag;
     }
 
     @Override
@@ -61,7 +55,7 @@ public class EditDialogFragment extends DialogFragment {
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        EditDialogFragment.this.getDialog().cancel();
+                        EditGuestDialogFragment.this.getDialog().cancel();
                     }
                 })
                 .setTitle(R.string.edit);
@@ -79,6 +73,10 @@ public class EditDialogFragment extends DialogFragment {
         txtView.setSelection(txtView.getText().length());
 
         return alert;
+    }
+
+    public void setListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 
 }

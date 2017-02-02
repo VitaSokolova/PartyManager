@@ -1,4 +1,4 @@
-package com.vsu.nastya.partymanager.item_list;
+package com.vsu.nastya.partymanager.item_list.data;
 
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 
