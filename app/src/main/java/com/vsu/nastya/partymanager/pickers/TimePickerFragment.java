@@ -12,6 +12,7 @@ import java.util.Calendar;
 
 /**
  * Created by nastya on 07.12.16.
+ * Диалог для выбора времени
  */
 
 public class TimePickerFragment extends DialogFragment {
@@ -19,9 +20,19 @@ public class TimePickerFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Calendar calendar = Calendar.getInstance();
+
+        Calendar calendar = (Calendar) getArguments().getSerializable("calendar");
+
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
         return new TimePickerDialog(getActivity(), (AddPartyActivity) getActivity(), hour, minute, true);
+    }
+
+    public static TimePickerFragment newInstance(Calendar calendar) {
+        Bundle args = new Bundle();
+        args.putSerializable("calendar", calendar);
+        TimePickerFragment fragment = new TimePickerFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 }
