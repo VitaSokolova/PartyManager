@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
@@ -17,6 +18,7 @@ import com.vsu.nastya.partymanager.guest_list.data.Guest;
  */
 
 public class AddGuestActivity extends AppCompatActivity {
+
     private Button addBtn;
     private AutoCompleteTextView autoCompleteTextView;
 
@@ -39,19 +41,29 @@ public class AddGuestActivity extends AppCompatActivity {
         this.addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // этого гостя мы потом правильно создадим по указанным полям
-                newGuest = new Guest(getTextFromField());
-                Intent intent = new Intent();
-                intent.putExtra("guest", newGuest);
-                setResult(RESULT_OK, intent);
-                finish();
+                if (isTextFieldEmpty()) {
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            R.string.alertGuestNameIsEmpty, Toast.LENGTH_SHORT);
+                    toast.show();
+                } else {
+
+                    // этого гостя мы потом правильно создадим по указанным полям
+                    newGuest = new Guest(getTextFromField());
+                    Intent intent = new Intent();
+                    intent.putExtra("guest", newGuest);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
             }
         });
     }
 
     private String getTextFromField() {
-        //TODO не упадет ли при пустом поле?
         return this.autoCompleteTextView.getText().toString();
+    }
+
+    private boolean isTextFieldEmpty() {
+        return this.autoCompleteTextView.getText().toString().isEmpty();
     }
 }
 

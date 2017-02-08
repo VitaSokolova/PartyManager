@@ -8,9 +8,11 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
@@ -31,10 +33,10 @@ public class EditItemDialogFragment extends DialogFragment {
     private SeekBar quantitySeekBar;
     private SeekBar priceSeekBar;
 
-    String whatToBuy;
-    Guest whoBuy;
-    int quantity;
-    int price;
+    private String whatToBuy;
+    private Guest whoBuy;
+    private int quantity;
+    private int price;
 
     public interface OnItemClickListener {
         void onItemClick(String whatToBuy, Guest whoBuy, int quantity, int price);
@@ -48,6 +50,7 @@ public class EditItemDialogFragment extends DialogFragment {
         args.putInt("quantity", quantity);
         args.putInt("price", price);
         frag.setArguments(args);
+        frag.setCancelable(false);
         return frag;
     }
 
@@ -55,8 +58,6 @@ public class EditItemDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        // Get the layout inflater
         final LayoutInflater inflater = getActivity().getLayoutInflater();
         final View main_view = inflater.inflate(R.layout.dialog_item_edit, null);
 
@@ -68,32 +69,54 @@ public class EditItemDialogFragment extends DialogFragment {
 
         showData();
 
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(main_view)
-                // Add action buttons
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+
+        final AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                .setView(main_view)
+                .setTitle(R.string.edit)
+                .setPositiveButton(R.string.ok, null) //Set to null. We override the onclick
+                .setNegativeButton(R.string.cancel, null)
+                .create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(final DialogInterface dialog) {
+
+                Button buttonOk = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                buttonOk.setOnClickListener(new View.OnClickListener() {
+
                     @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                         listener.onItemClick(nameTxtView.getText().toString(), new Guest(whoBuyTxtView.getText().toString()), quantity, price);
+                    public void onClick(View view) {
+
+                        //я вполне допускаю, что price может быть == 0. Например вы вносите в список клубничку, которую сорвете у себя на даче,
+                        // вам надо не забыть её сорвать, а следовательно внести список, но стоимость её будет == 0
+                        if (nameTxtView.getText().toString().isEmpty() || (whoBuyTxtView.getText().toString().isEmpty()) || (quantity == 0)) {
+                            Toast toast = Toast.makeText(getContext(),
+                                    R.string.alertSomeFieldsAreEmpty, Toast.LENGTH_SHORT);
+                            toast.show();
+                        } else {
+                            listener.onItemClick(nameTxtView.getText().toString(), new Guest(whoBuyTxtView.getText().toString()), quantity, price);
+                            //если всё хорошо, то можно закрывать диалог
+                            dialog.dismiss();
+                        }
                     }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
+                });
+
+                Button buttonCancel = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+                buttonCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
                         EditItemDialogFragment.this.getDialog().cancel();
                     }
-                })
-                .setTitle(R.string.edit);
+                });
+            }
+        });
 
-
-        AlertDialog alert = builder.create();
-
-
-        return alert;
+        return dialog;
     }
 
+    //отыскиваем все вьюшки, задействованные в коде
     private void initViews(View main_view) {
-
         this.nameTxtView = (EditText) main_view.findViewById(R.id.item_name_edtxt);
         this.whoBuyTxtView = (AutoCompleteTextView) main_view.findViewById(R.id.item_who_autocomplete);
         this.quantitySeekBar = (SeekBar) main_view.findViewById(R.id.item_quantity_seekbar);
@@ -102,15 +125,16 @@ public class EditItemDialogFragment extends DialogFragment {
         this.priceNumberTxt = (TextView) main_view.findViewById(R.id.item_price_number_txt);
     }
 
-    private void initData(){
-
+    //заполняем поля теми данными, что переданы при вызове диалога
+    private void initData() {
         this.whatToBuy = getArguments().getString("whatToBuy");
         this.whoBuy = (Guest) getArguments().getSerializable("whoBuy");
         this.quantity = getArguments().getInt("quantity");
         this.price = getArguments().getInt("price");
     }
 
-    private void showData(){
+    //заполняем все вью данными из полей
+    private void showData() {
         this.nameTxtView.setText(this.whatToBuy);
         this.quantityNumberTxt.setText(String.valueOf(this.quantity));
         this.priceNumberTxt.setText(String.valueOf(this.price));
@@ -127,7 +151,8 @@ public class EditItemDialogFragment extends DialogFragment {
         whoBuyTxtView.setSelection(whoBuyTxtView.getText().length());
     }
 
-    private void initQuantitySeekBar(){
+    //этот метод инициализирует SeekBar, отвечающий за количество
+    private void initQuantitySeekBar() {
         quantitySeekBar.setProgress(quantity);
         quantitySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -148,7 +173,8 @@ public class EditItemDialogFragment extends DialogFragment {
         });
     }
 
-    private void initPriceSeekBar(){
+    //этот метод инициализирует SeekBar, отвечающий за цену
+    private void initPriceSeekBar() {
         priceSeekBar.setProgress(price);
         priceSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -171,6 +197,7 @@ public class EditItemDialogFragment extends DialogFragment {
             }
         });
     }
+
     public void setListener(EditItemDialogFragment.OnItemClickListener listener) {
         this.listener = listener;
     }

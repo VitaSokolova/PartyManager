@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
@@ -63,10 +64,18 @@ public class AddItemActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 Item newItem = getItemFromFields();
-                Intent intent = new Intent();
-                intent.putExtra("item", newItem);
-                setResult(RESULT_OK, intent);
-                finish();
+                //я вполне допускаю, что price может быть == 0. Например вы вносите в список клубничку, которую сорвете у себя на даче,
+                // вам надо не забыть её сорвать, а следовательно внести список, но стоимость её будет == 0
+                if (newItem.getName().isEmpty() || (newItem.getWhoBrings().getGuestName().isEmpty()) || (newItem.getQuantity() == 0)) {
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            R.string.alertSomeFieldsAreEmpty, Toast.LENGTH_SHORT);
+                    toast.show();
+                } else {
+                    Intent intent = new Intent();
+                    intent.putExtra("item", newItem);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
             }
         });
 

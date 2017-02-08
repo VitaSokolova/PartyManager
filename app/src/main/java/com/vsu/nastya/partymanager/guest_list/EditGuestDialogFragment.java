@@ -8,8 +8,12 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.vsu.nastya.partymanager.R;
+import com.vsu.nastya.partymanager.guest_list.data.Guest;
+import com.vsu.nastya.partymanager.item_list.EditItemDialogFragment;
 
 /**
  * Created by Вита on 25.01.2017.
@@ -29,6 +33,7 @@ public class EditGuestDialogFragment extends DialogFragment {
         Bundle args = new Bundle();
         args.putString("name", name);
         frag.setArguments(args);
+        frag.setCancelable(false);
         return frag;
     }
 
@@ -37,31 +42,53 @@ public class EditGuestDialogFragment extends DialogFragment {
         //забираем имя с активити
         String name = getArguments().getString("name");
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        // Get the layout inflater
         final LayoutInflater inflater = getActivity().getLayoutInflater();
         final View main_view = inflater.inflate(R.layout.dialog_guest_edit, null);
         final AutoCompleteTextView txtView = (AutoCompleteTextView) main_view.findViewById(R.id.guest_list_edit_etxt);
+        
+        final AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                .setView(main_view)
+                .setTitle(R.string.edit)
+                .setPositiveButton(R.string.ok, null) //Set to null. We override the onclick
+                .setNegativeButton(R.string.cancel, null)
+                .create();
 
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(main_view)
-                // Add action buttons
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(final DialogInterface dialog) {
+
+                Button buttonOk = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                buttonOk.setOnClickListener(new View.OnClickListener() {
+
                     @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        listener.onItemClick(txtView.getText().toString());
+                    public void onClick(View view) {
+
+                        //я вполне допускаю, что price может быть == 0. Например вы вносите в список клубничку, которую сорвете у себя на даче,
+                        // вам надо не забыть её сорвать, а следовательно внести список, но стоимость её будет == 0
+                        if (txtView.getText().toString().isEmpty()) {
+                            Toast toast = Toast.makeText(getContext(),
+                                    R.string.alertGuestNameIsEmpty, Toast.LENGTH_SHORT);
+                            toast.show();
+                        } else {
+                            listener.onItemClick(txtView.getText().toString());
+                            //если всё хорошо, то можно закрывать диалог
+                            dialog.dismiss();
+                        }
                     }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
+                });
+
+                Button buttonCancel = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+                buttonCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
                         EditGuestDialogFragment.this.getDialog().cancel();
                     }
-                })
-                .setTitle(R.string.edit);
+                });
+            }
+        });
 
         //исправляем баги AutoCompleteTextView советами со Stackoverflow
-        AlertDialog alert = builder.create();
         txtView.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -72,7 +99,7 @@ public class EditGuestDialogFragment extends DialogFragment {
         txtView.dismissDropDown();
         txtView.setSelection(txtView.getText().length());
 
-        return alert;
+        return dialog;
     }
 
     public void setListener(OnItemClickListener listener) {

@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
@@ -66,20 +67,21 @@ public class GuestListFragment extends Fragment {
             if (menuItem.getItemId() == R.id.action_edit) {
                 final ArrayList<Integer> indexes = (ArrayList<Integer>) mMultiSelector.getSelectedPositions();
                 if (indexes.size() == 1) {
-                    EditGuestDialogFragment dialog =  EditGuestDialogFragment.newInstance(guestList.get(indexes.get(0)).getGuestName());
+                    EditGuestDialogFragment dialog = EditGuestDialogFragment.newInstance(guestList.get(indexes.get(0)).getGuestName());
                     dialog.setListener(new EditGuestDialogFragment.OnItemClickListener() {
                         @Override
                         public void onItemClick(String text) {
                             Guest guest = guestList.get(indexes.get(0));
                             guest.setGuestName(text);
                             adapter.notifyItemChanged(indexes.get(0));
+
                         }
                     });
                     dialog.show(getFragmentManager(), "guestEditDialog");
                 }
                 return true;
             }
-        return false;
+            return false;
         }
 
 
@@ -147,6 +149,7 @@ public class GuestListFragment extends Fragment {
         outState.putBundle(TAG, mMultiSelector.saveSelectionStates());
         super.onSaveInstanceState(outState);
     }
+
     //получаем нашего нового гостя
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -177,7 +180,7 @@ public class GuestListFragment extends Fragment {
         mRecyclerView.setAdapter(adapter);
     }
 
-    //эти внутренние классы для адаптера и ViewHolder предлагает сюда поместить автор библиотеки для множественного выбора
+    //эти внутренние классы для адаптера и ViewHolder предлагает сюда поместить автор библиотеки для MultiSelection,
     //потому что это значительно упрощает работу с MultiSelector
     private class GuestViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
 

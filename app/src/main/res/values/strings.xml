@@ -21,6 +21,8 @@
     <string name="delete">Удалить</string>
     <string name="edit">Редактировать</string>
     <string name="enter_party_name">Введите название вечеринки</string>
+    <string name="alertGuestNameIsEmpty">Заполните имя гостя</string>
+    <string name="alertSomeFieldsAreEmpty">Заполните все поля</string>
     <integer name="com_vk_sdk_AppId">5747918</integer>
 
 </resources>

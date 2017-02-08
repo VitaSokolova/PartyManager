@@ -16,6 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
@@ -35,6 +37,7 @@ public class ItemsListFragment extends Fragment {
     private TextView wholeSumTxt;
     private ArrayList<Item> itemList;
     private ItemAdapter adapter;
+    private ActionMode actionMode;
     double sumPerOne = 0;
     int wholeSum = 0;
 
@@ -65,17 +68,20 @@ public class ItemsListFragment extends Fragment {
                 return true;
             }
 
-            //TODO:сделать редактирование
+            //редактирование
             if (menuItem.getItemId() == R.id.action_edit) {
                 final ArrayList<Integer> indexes = (ArrayList<Integer>) mMultiSelector.getSelectedPositions();
                 if (indexes.size() == 1) {
                     final Item editableItem = itemList.get(indexes.get(0));
 
-                    EditItemDialogFragment dialog =  EditItemDialogFragment.newInstance(editableItem.getName(), editableItem.getWhoBrings(), editableItem.getQuantity(), editableItem.getPrice());
+                    EditItemDialogFragment dialog = EditItemDialogFragment.newInstance(editableItem.getName(), editableItem.getWhoBrings(), editableItem.getQuantity(), editableItem.getPrice());
 
                     dialog.setListener(new EditItemDialogFragment.OnItemClickListener() {
                         @Override
                         public void onItemClick(String whatToBuy, Guest whoBuy, int quantity, int price) {
+                            //я вполне допускаю, что price может быть == 0. Например вы вносите в список клубничку, которую сорвете у себя на даче,
+                            // вам надо не забыть её сорвать, а следовательно внести список, но стоимость её будет == 0
+
                             removeItemFromSum(editableItem);
                             editableItem.setName(whatToBuy);
                             editableItem.setWhoBrings(whoBuy);
@@ -84,6 +90,7 @@ public class ItemsListFragment extends Fragment {
                             addItemToSum(editableItem);
                             adapter.notifyItemChanged(indexes.get(0));
                         }
+
                     });
                     dialog.show(getFragmentManager(), "guestEditDialog");
                 }
@@ -150,11 +157,13 @@ public class ItemsListFragment extends Fragment {
 
         super.onActivityCreated(savedInstanceState);
     }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putBundle(TAG, mMultiSelector.saveSelectionStates());
         super.onSaveInstanceState(outState);
     }
+
     public static ItemsListFragment newInstance() {
         return new ItemsListFragment();
     }
@@ -236,6 +245,9 @@ public class ItemsListFragment extends Fragment {
                 // Selection is active; toggle activation
                 setActivated(!isActivated());
                 mMultiSelector.setSelected(ItemViewHolder.this, isActivated());
+                if (mMultiSelector.getSelectedPositions().size() == 0) {
+                    actionMode.finish();
+                }
             } else {
                 // Selection not active
             }
@@ -243,7 +255,7 @@ public class ItemsListFragment extends Fragment {
 
         @Override
         public boolean onLongClick(View view) {
-            ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
+            actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
             mMultiSelector.setSelected(ItemViewHolder.this, true);
             return true;
 

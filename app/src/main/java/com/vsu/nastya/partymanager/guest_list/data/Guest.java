@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 
 public class Guest implements Serializable {
+
     private String guestName;
 
     public Guest(String guestName) {
