@@ -94,6 +94,10 @@ public class GuestListFragment extends Fragment {
         }
     };
 
+    public static GuestListFragment newInstance() {
+        return new GuestListFragment();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -161,9 +165,6 @@ public class GuestListFragment extends Fragment {
         this.adapter.notifyItemInserted(this.guestList.size());
     }
 
-    public static GuestListFragment newInstance() {
-        return new GuestListFragment();
-    }
 
     //инициализирует RecyclerView
     private void initRecycler() {
