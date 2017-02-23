@@ -22,28 +22,26 @@ public class User {
     private VKAccessToken token;
     private ArrayList<Party> partyList;
 
-    private User() {}
-
-    /*public User(String name, String vkId) {
-        this.name = name;
-        this.vkId = vkId;
-
-        this.partyList = new ArrayList<Party>();
-    }
-
-    public User(String name, String vkId, VKAccessToken token, ArrayList<Party> partyList) {
-        this.name = name;
-        this.vkId = vkId;
-        this.partyList = partyList;
-        this.token = token;
-    }*/
+   /* private User() {}
 
     public static User getInstance() {
         if (user == null) {
                 user = new User();
         }
         return user;
+    }*/
+
+    public User() {}
+
+    public User(String firstName, String lastName, String vkId, VKAccessToken token, ArrayList<Party> partyList) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.vkId = vkId;
+        this.token = token;
+        this.partyList = partyList;
     }
+
+    public static void setUser() {}
 
     public String getFirstName() {
         return firstName;
