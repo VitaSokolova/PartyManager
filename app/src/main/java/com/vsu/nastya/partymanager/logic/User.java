@@ -1,5 +1,6 @@
 package com.vsu.nastya.partymanager.logic;
 
+import com.vk.sdk.VKAccessToken;
 import com.vsu.nastya.partymanager.party_list.Party;
 
 import java.util.ArrayList;
@@ -12,28 +13,52 @@ import java.util.ArrayList;
 //в голову пришел Singleton, но это надо обсудить
 
 public class User {
-    private String name;
+
+    private static User user;
+
+    private String firstName;
+    private String lastName;
     private String vkId;
+    private VKAccessToken token;
     private ArrayList<Party> partyList;
 
-    public User(String name, String vkId) {
+    private User() {}
+
+    /*public User(String name, String vkId) {
         this.name = name;
         this.vkId = vkId;
+
         this.partyList = new ArrayList<Party>();
     }
 
-    public User(String name, String vkId, ArrayList<Party> partyList) {
+    public User(String name, String vkId, VKAccessToken token, ArrayList<Party> partyList) {
         this.name = name;
         this.vkId = vkId;
         this.partyList = partyList;
+        this.token = token;
+    }*/
+
+    public static User getInstance() {
+        if (user == null) {
+                user = new User();
+        }
+        return user;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String surname) {
+        this.lastName = surname;
     }
 
     public String getVkId() {
@@ -51,4 +76,13 @@ public class User {
     public void setPartyList(ArrayList<Party> partyList) {
         this.partyList = partyList;
     }
+
+    public VKAccessToken getToken() {
+        return token;
+    }
+
+    public void setToken(VKAccessToken token) {
+        this.token = token;
+    }
+
 }
