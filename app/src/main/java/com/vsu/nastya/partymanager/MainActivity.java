@@ -3,6 +3,7 @@ package com.vsu.nastya.partymanager;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
             VKScope.FRIENDS,
     };
 
+    private static final String VK_ERROR = "vk_error";
+    private static final String FIREBASE_ERROR = "firebase_error";
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference usersReference;
     private DatabaseReference databaseReference;
@@ -73,20 +76,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
+        VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken token) {
                 // Пользователь успешно авторизовался
-
-                if (ifUserExists(token.userId)) {
-                    //Заполнить user данными из базы
-                    getUserFromDatabase(token.userId); //пока не работает как надо
-                } else {
-                    createUser(token);
-                }
-                Toast toast = Toast.makeText(MainActivity.this, "Успешная авторизация", Toast.LENGTH_SHORT);
-                toast.show();
-
+                onSignIn(token);
                 PartyListActivity.start(MainActivity.this);
             }
 
@@ -95,26 +89,39 @@ public class MainActivity extends AppCompatActivity {
                 // Произошла ошибка авторизации (например, пользователь запретил авторизацию)
                 Toast toast = Toast.makeText(MainActivity.this, "Ошибка: " + error, Toast.LENGTH_SHORT);
                 toast.show();
+                Log.d(VK_ERROR, "onError: " + error);
             }
-        }));
+        });
     }
 
-    private boolean ifUserExists(String id) {
-        DatabaseReference userRef = usersReference.child(id);
-        final boolean[] exists = new boolean[1];
+    /**
+     * В данном методе происходит занесение нового пользователя в базу данных firebase или
+     * получение дынных о пользователе из базы, если он уже там существует.
+     * @param token - приходит от VK при успешной авторизации пользователя.
+     */
+    private void onSignIn(final VKAccessToken token) {
+        DatabaseReference userRef = usersReference.child(token.userId);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                exists[0] = snapshot.exists();
+                if (snapshot.exists()) {
+                    getUserFromDatabase(token.userId);
+                } else {
+                    createUser(token);
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                //как то обработать
+                // Обычно вызывается, когда нет прав на чтение данных из базы
+                Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
             }
         });
-        return exists[0];
     }
 
+    /**
+     * Получение информации из базы о юзере по его vk id.
+     * @param id - vk id.
+     */
     private void getUserFromDatabase(String id) {
         DatabaseReference userRef = usersReference.child(id);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -124,11 +131,18 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                //как то обработать
+                // Обычно вызывается, когда нет прав на чтение данных из базы
+                Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
             }
         });
     }
 
+    /**
+     * Создание нового пользователя.
+     * Данные о пользователе запрашиваются у vk (id, first_name, last_name).
+     * Создается объект User. Затем информация заносится в базу.
+     * @param token - приходит от VK при успешной авторизации пользователя.
+     */
     private void createUser(final VKAccessToken token) {
         user = new User();
         VKParameters vkParameters = new VKParameters();
@@ -140,9 +154,8 @@ public class MainActivity extends AppCompatActivity {
         request.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
-
                 try {
-                    JSONObject json = (JSONObject)((JSONArray) response.json.get("response")).get(0);
+                    JSONObject json = (JSONObject) ((JSONArray) response.json.get("response")).get(0);
                     user.setFirstName((String) json.get("first_name"));
                     user.setLastName((String) json.get("last_name"));
                 } catch (JSONException e) {
@@ -154,11 +167,13 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onError(VKError error) {
-                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                super.onError(error);
+                Log.d(VK_ERROR, "onError: " + error);
             }
             @Override
             public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
-                //как то обработать
+                super.attemptFailed(request, attemptNumber, totalAttempts);
+                Log.d(VK_ERROR, "attemptFailed " + request + " " + attemptNumber + " " + totalAttempts);
             }
         });
     }
