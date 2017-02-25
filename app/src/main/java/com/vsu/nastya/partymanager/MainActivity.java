@@ -1,5 +1,6 @@
 package com.vsu.nastya.partymanager;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -43,7 +44,11 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference usersReference;
     private DatabaseReference databaseReference;
-    private User user;
+
+    public static void start(Context context) {
+        Intent intent = new Intent(context, MainActivity.class);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +58,11 @@ public class MainActivity extends AppCompatActivity {
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference();
         usersReference = databaseReference.child("users");
+
+        if (VKSdk.isLoggedIn()) {
+            onSignIn(VKAccessToken.currentToken());
+            PartyListActivity.start(MainActivity.this);
+        }
     }
 
     @Override
@@ -81,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
             public void onResult(VKAccessToken token) {
                 // Пользователь успешно авторизовался
                 onSignIn(token);
-                PartyListActivity.start(MainActivity.this);
             }
 
             @Override
@@ -96,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * В данном методе происходит занесение нового пользователя в базу данных firebase или
-     * получение дынных о пользователе из базы, если он уже там существует.
+     * получение данных о пользователе из базы, если он уже там существует.
      * @param token - приходит от VK при успешной авторизации пользователя.
      */
     private void onSignIn(final VKAccessToken token) {
@@ -109,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     createUser(token);
                 }
+                PartyListActivity.start(MainActivity.this);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -127,7 +137,12 @@ public class MainActivity extends AppCompatActivity {
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                user = snapshot.getValue(User.class);
+                User user = snapshot.getValue(User.class);
+                User.getInstance().init(user.getFirstName(),
+                        user.getLastName(),
+                        user.getVkId(),
+                        user.getToken(),
+                        user.getPartyList());
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -144,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
      * @param token - приходит от VK при успешной авторизации пользователя.
      */
     private void createUser(final VKAccessToken token) {
-        user = new User();
+        final User user = User.getInstance();
         VKParameters vkParameters = new VKParameters();
         vkParameters.put(VKApiConst.FIELDS, "id, first_name, last_name");
         vkParameters.put(VKApiConst.USER_IDS, token.userId);

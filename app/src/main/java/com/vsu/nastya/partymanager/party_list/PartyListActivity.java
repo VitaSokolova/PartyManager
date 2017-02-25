@@ -20,6 +20,8 @@ import android.widget.TextView;
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
+import com.vk.sdk.VKSdk;
+import com.vsu.nastya.partymanager.MainActivity;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.logic.DateWorker;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
@@ -85,6 +87,11 @@ public class PartyListActivity extends AppCompatActivity{
         }
     };
 
+    public static void start(Context context) {
+        Intent intent = new Intent(context, PartyListActivity.class);
+        context.startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,9 +148,22 @@ public class PartyListActivity extends AppCompatActivity{
         }
     }
 
-    public static void start(Context context) {
-        Intent intent = new Intent(context, PartyListActivity.class);
-        context.startActivity(intent);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.parametrs_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout_menu_item:
+                logOut();
+                return true;  //Прописать действия
+            default:
+                return false;
+        }
     }
 
     private void initView() {
@@ -167,6 +187,11 @@ public class PartyListActivity extends AppCompatActivity{
                 startActivityForResult(new Intent(PartyListActivity.this, AddPartyActivity.class), ADD_PARTY_REQUEST_CODE);
             }
         });
+    }
+
+    private void logOut() {
+        VKSdk.logout();
+        MainActivity.start(this);
     }
 
     // ViewHolder для списка вечеринок

@@ -14,26 +14,23 @@ import java.util.ArrayList;
 
 public class User {
 
-    private static User user;
-
     private String firstName;
     private String lastName;
     private String vkId;
     private VKAccessToken token;
     private ArrayList<Party> partyList;
 
-   /* private User() {}
+    private User() {}
+
+    private static class UserHolder {
+        private static final User INSTANCE = new User();
+    }
 
     public static User getInstance() {
-        if (user == null) {
-                user = new User();
-        }
-        return user;
-    }*/
+        return UserHolder.INSTANCE;
+    }
 
-    public User() {}
-
-    public User(String firstName, String lastName, String vkId, VKAccessToken token, ArrayList<Party> partyList) {
+    public void init(String firstName, String lastName, String vkId, VKAccessToken token, ArrayList<Party> partyList) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.vkId = vkId;
