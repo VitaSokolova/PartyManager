@@ -20,6 +20,11 @@ import android.widget.TextView;
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.vk.sdk.VKSdk;
 import com.vsu.nastya.partymanager.MainActivity;
 import com.vsu.nastya.partymanager.R;
@@ -27,6 +32,7 @@ import com.vsu.nastya.partymanager.logic.DateWorker;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -41,6 +47,10 @@ public class PartyListActivity extends AppCompatActivity{
     private PartiesAdapter adapter;
     private RecyclerView recyclerView;
     private MultiSelector multiSelector = new MultiSelector();
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference partiesReference;
+    private DatabaseReference databaseReference;
+    private ChildEventListener partyAddListener;
 
     private ActionMode actionMode;
     private ModalMultiSelectorCallback callback = new ModalMultiSelectorCallback(multiSelector) {
@@ -101,6 +111,20 @@ public class PartyListActivity extends AppCompatActivity{
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        attachDatabaseReadListener();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        partiesList.clear();
+        adapter.notifyDataSetChanged();
+        detachDatabaseReadListener();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBundle(TAG, multiSelector.saveSelectionStates());
         super.onSaveInstanceState(outState);
@@ -133,8 +157,7 @@ public class PartyListActivity extends AppCompatActivity{
             case ADD_PARTY_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     Party party = (Party) data.getSerializableExtra("party");
-                    partiesList.add(party);
-                    adapter.notifyItemInserted(adapter.getItemCount());
+                    partiesReference.push().setValue(party);
                 }
                 break;
             case EDIT_PARTY_REQUEST_CODE:
@@ -143,6 +166,10 @@ public class PartyListActivity extends AppCompatActivity{
                     int position = data.getIntExtra("position", 0);
                     partiesList.set(position, party);
                     adapter.notifyItemChanged(position);
+                   /* HashMap<String, Object> task = new HashMap<>();
+                    task.put("name", party.getName());
+                    task.put("date", party.getDate());
+                    partiesReference.child().updateChildren(task);*/
                 }
                 break;
         }
@@ -160,18 +187,21 @@ public class PartyListActivity extends AppCompatActivity{
         switch (item.getItemId()) {
             case R.id.logout_menu_item:
                 logOut();
-                return true;  //Прописать действия
+                return true;
             default:
                 return false;
         }
     }
 
     private void initView() {
+        //Firebase
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference();
+        partiesReference = databaseReference.child("parties");
+
         //инициализируем список вечеринок
         partiesList = new ArrayList<>();
         recyclerView = (RecyclerView) findViewById(R.id.partylist_parties_recycler);
-        //Вита добавила открытие активити с тремя фрагментами по нажатию на вечеринку
-        // TODO: доделать передачу на эти фрагменты нужных данных
 
         adapter = new PartiesAdapter();
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
@@ -192,6 +222,40 @@ public class PartyListActivity extends AppCompatActivity{
     private void logOut() {
         VKSdk.logout();
         MainActivity.start(this);
+    }
+
+    private void attachDatabaseReadListener() {
+        if (partyAddListener == null) {
+            partyAddListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Party party = dataSnapshot.getValue(Party.class);
+                    if (party != null) {
+                        partiesList.add(party);
+                        adapter.notifyItemInserted(partiesList.size()-1);
+                    }
+                }
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {}
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+                @Override
+                public void onCancelled(DatabaseError databaseError) {}
+            };
+
+            partiesReference.addChildEventListener(partyAddListener);
+        }
+    }
+
+    private void detachDatabaseReadListener() {
+        if (partyAddListener != null) {
+            partiesReference.removeEventListener(partyAddListener);
+            partyAddListener = null;
+        }
     }
 
     // ViewHolder для списка вечеринок

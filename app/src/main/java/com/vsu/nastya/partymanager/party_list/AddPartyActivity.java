@@ -23,6 +23,11 @@ import com.vsu.nastya.partymanager.pickers.DatePickerFragment;
 import com.vsu.nastya.partymanager.pickers.TimePickerFragment;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 /**
  * Окно для добавления новой вечеринки
@@ -81,7 +86,7 @@ public class AddPartyActivity extends AppCompatActivity implements DatePickerDia
            /* Если надо поменять информацию о существующей вечеринке,
             заполняем поля старой информацией о вечеринке */
             Party party = (Party) intent.getSerializableExtra("party");
-            calendar = party.getDate();
+            calendar = DateWorker.getCalendarFromMilliseconds(party.getDate());
             partyName.setText(party.getName());
             pos = intent.getIntExtra("position", 0);
         } else {
@@ -118,7 +123,7 @@ public class AddPartyActivity extends AppCompatActivity implements DatePickerDia
             public void onClick(View view) {
                 if (!partyName.getText().toString().equals("")) {
                     //Заполняем информацию о вечеринке
-                    Party party = new Party(partyName.getText().toString(), calendar);
+                    Party party = new Party(partyName.getText().toString(), calendar.getTimeInMillis());
                     Intent intent = new Intent();
                     intent.putExtra("party", party);
                     intent.putExtra("position", pos);
