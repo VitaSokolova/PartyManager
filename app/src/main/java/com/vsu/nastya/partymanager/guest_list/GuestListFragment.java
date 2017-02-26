@@ -139,7 +139,7 @@ public class GuestListFragment extends Fragment {
             if (mMultiSelector.isSelectable()) {
                 if (mActionModeCallback != null) {
                     mActionModeCallback.setClearOnPrepare(false);
-                    ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
+                    actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
                 }
 
             }

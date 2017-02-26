@@ -31,7 +31,6 @@ public class DateWorker {
     }
 
     public static String getTimeAsString(long sec){
-       // Date date = new Date(sec);
         Locale myLocale = Locale.getDefault();
         SimpleDateFormat simpleDateFormat =  new SimpleDateFormat("H:mm", myLocale);
         return simpleDateFormat.format(sec);

@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         usersReference = databaseReference.child("users");
 
         if (VKSdk.isLoggedIn()) {
+            PartyListActivity.start(MainActivity.this);
             onSignIn(VKAccessToken.currentToken());
         }
     }
@@ -89,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResult(VKAccessToken token) {
                 // Пользователь успешно авторизовался
+                PartyListActivity.start(MainActivity.this);
                 onSignIn(token);
             }
 
@@ -117,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     createUser(token);
                 }
-                PartyListActivity.start(MainActivity.this);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {

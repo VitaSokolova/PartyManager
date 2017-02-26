@@ -140,7 +140,7 @@ public class PartyListActivity extends AppCompatActivity{
             if (multiSelector.isSelectable()) {
                 if (callback != null) {
                     callback.setClearOnPrepare(false);
-                    startSupportActionMode(callback);
+                    actionMode = startSupportActionMode(callback);
                 }
             }
         }
