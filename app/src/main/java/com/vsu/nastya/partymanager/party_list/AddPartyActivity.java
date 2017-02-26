@@ -23,11 +23,6 @@ import com.vsu.nastya.partymanager.pickers.DatePickerFragment;
 import com.vsu.nastya.partymanager.pickers.TimePickerFragment;
 
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
 
 /**
  * Окно для добавления новой вечеринки

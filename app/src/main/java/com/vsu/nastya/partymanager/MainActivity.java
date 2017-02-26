@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (VKSdk.isLoggedIn()) {
             onSignIn(VKAccessToken.currentToken());
-            PartyListActivity.start(MainActivity.this);
         }
     }
 

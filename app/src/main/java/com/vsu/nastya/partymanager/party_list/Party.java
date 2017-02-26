@@ -5,14 +5,14 @@ import com.vsu.nastya.partymanager.item_list.data.Item;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
  * Created by nastya on 06.12.16.
  */
-public class Party implements Serializable{
+public class Party implements Serializable {
+
+    private String key;
     private String name;
     private long date;
     private ArrayList<Item> items;
@@ -56,6 +56,14 @@ public class Party implements Serializable{
 
     public void setGuests(ArrayList<Guest> guests) {
         this.guests = guests;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 }
 
