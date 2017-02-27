@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
@@ -26,6 +27,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.vk.sdk.VKSdk;
 import com.vsu.nastya.partymanager.MainActivity;
 import com.vsu.nastya.partymanager.R;
@@ -49,6 +51,7 @@ public class PartyListActivity extends AppCompatActivity{
     private MultiSelector multiSelector = new MultiSelector();
     private DatabaseReference partiesReference;
     private ChildEventListener partyAddListener;
+    private ProgressBar progressBar;
 
     private ActionMode actionMode;
     private ModalMultiSelectorCallback callback = new ModalMultiSelectorCallback(multiSelector) {
@@ -115,8 +118,12 @@ public class PartyListActivity extends AppCompatActivity{
             partiesList.clear();
             adapter.notifyDataSetChanged();
         }
+        progressBar.setVisibility(ProgressBar.VISIBLE);
         attachDatabaseReadListener();
+        attachStopProgressBarListener();
     }
+
+
 
     @Override
     protected void onPause() {
@@ -218,6 +225,9 @@ public class PartyListActivity extends AppCompatActivity{
                 startActivityForResult(new Intent(PartyListActivity.this, AddPartyActivity.class), ADD_PARTY_REQUEST_CODE);
             }
         });
+
+        progressBar = (ProgressBar) findViewById(R.id.partyList_progressBar);
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
     }
 
     /**
@@ -292,6 +302,20 @@ public class PartyListActivity extends AppCompatActivity{
             partiesReference.removeEventListener(partyAddListener);
             partyAddListener = null;
         }
+    }
+
+    private void attachStopProgressBarListener() {
+        partiesReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                progressBar.setVisibility(ProgressBar.INVISIBLE);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Обычно вызывается, когда нет прав на чтение данных из базы
+                Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
+            }
+        });
     }
 
     // ViewHolder для списка вечеринок
