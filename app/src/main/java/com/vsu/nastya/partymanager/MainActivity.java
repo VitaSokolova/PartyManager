@@ -23,12 +23,15 @@ import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
+import com.vsu.nastya.partymanager.logic.Friend;
 import com.vsu.nastya.partymanager.logic.User;
 import com.vsu.nastya.partymanager.party_list.PartyListActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * Экран со списком всех вечеринок
@@ -107,10 +110,12 @@ public class MainActivity extends AppCompatActivity {
     /**
      * В данном методе происходит занесение нового пользователя в базу данных firebase или
      * получение данных о пользователе из базы, если он уже там существует.
+     *
      * @param token - приходит от VK при успешной авторизации пользователя.
      */
     private void onSignIn(final VKAccessToken token) {
         DatabaseReference userRef = usersReference.child(token.userId);
+
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -119,7 +124,9 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     createUser(token);
                 }
+                getFriendsList(token);
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // Обычно вызывается, когда нет прав на чтение данных из базы
@@ -130,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Получение информации из базы о юзере по его vk id.
+     *
      * @param id - vk id.
      */
     private void getUserFromDatabase(String id) {
@@ -138,12 +146,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 User user = snapshot.getValue(User.class);
-                User.getInstance().init(user.getFirstName(),
+                User.getInstance().init (user.getFirstName(),
                         user.getLastName(),
                         user.getVkId(),
                         user.getToken(),
                         user.getPartyList());
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // Обычно вызывается, когда нет прав на чтение данных из базы
@@ -156,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
      * Создание нового пользователя.
      * Данные о пользователе запрашиваются у vk (id, first_name, last_name).
      * Создается объект User. Затем информация заносится в базу.
+     *
      * @param token - приходит от VK при успешной авторизации пользователя.
      */
     private void createUser(final VKAccessToken token) {
@@ -164,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
         vkParameters.put(VKApiConst.FIELDS, "id, first_name, last_name");
         vkParameters.put(VKApiConst.USER_IDS, token.userId);
         vkParameters.put(VKApiConst.NAME_CASE, "nom");
+
         VKRequest request = new VKRequest("users.get", vkParameters);
 
         request.executeWithListener(new VKRequest.VKRequestListener() {
@@ -180,11 +191,59 @@ public class MainActivity extends AppCompatActivity {
                 user.setToken(token);
                 usersReference.child(user.getVkId()).setValue(user);
             }
+
             @Override
             public void onError(VKError error) {
                 super.onError(error);
                 Log.d(VK_ERROR, "onError: " + error);
             }
+
+            @Override
+            public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+                super.attemptFailed(request, attemptNumber, totalAttempts);
+                Log.d(VK_ERROR, "attemptFailed " + request + " " + attemptNumber + " " + totalAttempts);
+            }
+        });
+    }
+
+    private void getFriendsList(final VKAccessToken token) {
+
+
+        VKParameters vkParameters = new VKParameters();
+        vkParameters.put(VKApiConst.FIELDS, "id, first_name, last_name");
+        vkParameters.put(VKApiConst.USER_ID, token.userId);
+        vkParameters.put(VKApiConst.NAME_CASE, "nom");
+        VKRequest request = new VKRequest("friends.get", vkParameters);
+
+        request.executeWithListener(new VKRequest.VKRequestListener() {
+            @Override
+            public void onComplete(VKResponse response) {
+                try {
+                    User user = User.getInstance();
+                    JSONObject root = (JSONObject)  response.json.get("response");
+                    JSONArray friends = root.getJSONArray("items");
+
+                    for (int i = 0; i < friends.length(); i++) {
+                        Friend friend = new Friend();
+                        JSONObject properties = friends.getJSONObject(i);
+                        friend.setVkId(String.valueOf(properties.get("id")));
+                        friend.setFirstName((String) properties.get("first_name"));
+                        friend.setLastName((String) properties.get("last_name"));
+                        user.addFriend(friend);
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+               // usersReference.child(user.getVkId()).setValue(???);
+            }
+
+            @Override
+            public void onError(VKError error) {
+                super.onError(error);
+                Log.d(VK_ERROR, "onError: " + error);
+            }
+
             @Override
             public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
                 super.attemptFailed(request, attemptNumber, totalAttempts);

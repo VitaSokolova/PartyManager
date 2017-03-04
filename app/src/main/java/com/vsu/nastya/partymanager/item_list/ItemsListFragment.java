@@ -2,6 +2,7 @@ package com.vsu.nastya.partymanager.item_list;
 
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 public class ItemsListFragment extends Fragment {
     public static String TAG = "itemListFragment";
     private RecyclerView mRecyclerView;
-    private ImageButton addItemFAB;
+    private FloatingActionButton addItemFAB;
     private TextView wholeSumTxt;
     private ArrayList<Item> itemList;
     private ItemAdapter adapter;
@@ -115,7 +116,7 @@ public class ItemsListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_items_list, container, false);
         //находим
         this.mRecyclerView = (RecyclerView) view.findViewById(R.id.items_list_recycler_view);
-        this.addItemFAB = (ImageButton) view.findViewById(R.id.items_list_add_item_fab);
+        this.addItemFAB = (FloatingActionButton) view.findViewById(R.id.items_list_add_item_fab);
         this.wholeSumTxt = (TextView) view.findViewById(R.id.items_list_res_sum_number_txt);
         //инициализируем
         initRecycler();

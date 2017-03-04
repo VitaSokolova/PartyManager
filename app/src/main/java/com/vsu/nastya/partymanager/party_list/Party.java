@@ -24,6 +24,8 @@ public class Party implements Serializable {
     public Party(String partyName, long date) {
         this.name = partyName;
         this.date = date;
+        this.items = new ArrayList<>();
+        this.guests = new ArrayList<>();
     }
 
     public long getDate() {

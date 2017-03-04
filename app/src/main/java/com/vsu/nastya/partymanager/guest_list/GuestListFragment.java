@@ -2,6 +2,7 @@ package com.vsu.nastya.partymanager.guest_list;
 
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,10 +18,12 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 
@@ -32,12 +35,18 @@ import java.util.ArrayList;
  */
 public class GuestListFragment extends Fragment {
     public static String TAG = "guestListFragment";
+
     private RecyclerView mRecyclerView;
-    private ImageButton addGuestFab;
+    private FloatingActionButton addGuestFab;
     private ArrayList<Guest> guestList;
     private GuestAdapter adapter;
     private MultiSelector mMultiSelector = new MultiSelector();
     private ActionMode actionMode;
+
+    private FirebaseDatabase fireBaseDatabase;
+    private DatabaseReference itemsDatabaseReference;
+    private ChildEventListener childEventListner;
+
     private ModalMultiSelectorCallback mActionModeCallback = new ModalMultiSelectorCallback(mMultiSelector) {
         //открывается наше меню
         @Override
@@ -103,11 +112,14 @@ public class GuestListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_guest_list, container, false);
 
+       this.fireBaseDatabase = FirebaseDatabase.getInstance();
+        this.itemsDatabaseReference = fireBaseDatabase.getReference().child("parties");
+
         this.guestList = new ArrayList<>();
         this.adapter = new GuestAdapter();
 
         this.mRecyclerView = (RecyclerView) view.findViewById(R.id.guest_list_recycler_view);
-        this.addGuestFab = (ImageButton) view.findViewById(R.id.guest_list_add_fab);
+        this.addGuestFab = (FloatingActionButton) view.findViewById(R.id.guest_list_add_fab);
 
         initRecycler();
 

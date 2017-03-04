@@ -177,6 +177,8 @@ public class PartyListActivity extends AppCompatActivity{
                     HashMap<String, Object> task = new HashMap<>();
                     task.put("name", newParty.getName());
                     task.put("date", newParty.getDate());
+                   // task.put("items", newParty.getItems());
+                   // task.put("guests", newParty.getGuests());
                     partiesReference.child(partiesList.get(position).getKey()).updateChildren(task);
                 }
                 break;

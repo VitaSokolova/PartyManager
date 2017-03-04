@@ -1,0 +1,51 @@
+{
+  "project_info": {
+    "project_number": "141454303977",
+    "firebase_url": "https://partymanager-7c0f4.firebaseio.com",
+    "project_id": "partymanager-7c0f4",
+    "storage_bucket": "partymanager-7c0f4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:141454303977:android:16aacffe1d17debd",
+        "android_client_info": {
+          "package_name": "com.vsu.nastya.partymanager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "141454303977-afp6458q1rmu83ecp5bbeqapjn1hhb3s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vsu.nastya.partymanager",
+            "certificate_hash": "9DD5FF4E41C07133B62BECF8972105A158A1F4B3"
+          }
+        },
+        {
+          "client_id": "141454303977-1s1rp2gse1f7o96qofk7ne47qjsm28u1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "141454303977-1s1rp2gse1f7o96qofk7ne47qjsm28u1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

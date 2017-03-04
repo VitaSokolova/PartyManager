@@ -19,11 +19,14 @@ public class User {
     private String vkId;
     private VKAccessToken token;
     private ArrayList<Party> partyList;
+    private ArrayList<Friend> friendsList = new ArrayList<>();
 
-    private User() {}
+    private User() {
+    }
 
     private static class UserHolder {
-        private static final User INSTANCE = new User();
+        private static User INSTANCE = new User();
+
     }
 
     public static User getInstance() {
@@ -38,7 +41,8 @@ public class User {
         this.partyList = partyList;
     }
 
-    public static void setUser() {}
+    public static void setUser() {
+    }
 
     public String getFirstName() {
         return firstName;
@@ -80,4 +84,19 @@ public class User {
         this.token = token;
     }
 
+    public ArrayList<Friend> getFriendsList() {
+        return friendsList;
+    }
+
+    public void setFriendsList(ArrayList<Friend> friendsList) {
+        this.friendsList = friendsList;
+    }
+
+    public void addFriend(Friend friend) {
+        friendsList.add(friend);
+    }
+
+//    public String[] getFriendsNames() {
+//
+//    }
 }

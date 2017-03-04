@@ -12,6 +12,9 @@ import android.widget.Toast;
 
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
+import com.vsu.nastya.partymanager.logic.User;
+
+import java.util.ArrayList;
 
 /**
  * Created by Вита on 08.12.2016.
@@ -33,9 +36,8 @@ public class AddGuestActivity extends AppCompatActivity {
         this.autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.add_guest_autocomplete_txt);
         // TODO: Надо получить массив строк из списка друзей вконтакте для автозаполнения
 
-        String[] friends = new String[]{"Виктория Соколова", "Анастасия Киселёва", "Женя Сатуров"};
         // Создаем адаптер для автозаполнения элемента AutoCompleteTextView
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, friends);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, getVkFriendsArray());
         autoCompleteTextView.setAdapter(adapter);
 
         this.addBtn.setOnClickListener(new View.OnClickListener() {
@@ -64,6 +66,16 @@ public class AddGuestActivity extends AppCompatActivity {
 
     private boolean isTextFieldEmpty() {
         return this.autoCompleteTextView.getText().toString().isEmpty();
+    }
+    private String[] getVkFriendsArray(){
+        User user = User.getInstance();
+        ArrayList arrayListFriends = user.getFriendsList();
+        String[] arrayFriends = new String[arrayListFriends.size()];
+
+        for (int i = 0; i < arrayListFriends.size(); i++) {
+            arrayFriends[i] = arrayListFriends.get(i).toString();
+        }
+        return  arrayFriends;
     }
 }
 
