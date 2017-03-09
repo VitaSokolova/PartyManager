@@ -1,5 +1,6 @@
 package com.vsu.nastya.partymanager.logic;
 
+import com.google.firebase.database.Exclude;
 import com.vk.sdk.VKAccessToken;
 import com.vsu.nastya.partymanager.party_list.Party;
 
@@ -17,28 +18,28 @@ public class User {
     private String firstName;
     private String lastName;
     private String vkId;
+    @Exclude
     private VKAccessToken token;
-    private ArrayList<Party> partyList;
+    private ArrayList<String> partiesIdList = new ArrayList<>();
+    @Exclude
     private ArrayList<Friend> friendsList = new ArrayList<>();
 
     private User() {
     }
 
     private static class UserHolder {
-        private static User INSTANCE = new User();
-
+        private static final User INSTANCE = new User();
     }
 
     public static User getInstance() {
         return UserHolder.INSTANCE;
     }
 
-    public void init(String firstName, String lastName, String vkId, VKAccessToken token, ArrayList<Party> partyList) {
+    public void init(String firstName, String lastName, String vkId, ArrayList<String> partyList) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.vkId = vkId;
-        this.token = token;
-        this.partyList = partyList;
+        this.partiesIdList = partyList;
     }
 
     public static void setUser() {
@@ -68,12 +69,12 @@ public class User {
         this.vkId = vkId;
     }
 
-    public ArrayList<Party> getPartyList() {
-        return partyList;
+    public ArrayList<String> getPartiesIdList() {
+        return partiesIdList;
     }
 
-    public void setPartyList(ArrayList<Party> partyList) {
-        this.partyList = partyList;
+    public void setPartiesIdList(ArrayList<String> partiesIdList) {
+        this.partiesIdList = partiesIdList;
     }
 
     public VKAccessToken getToken() {

@@ -32,6 +32,7 @@ import com.vk.sdk.VKSdk;
 import com.vsu.nastya.partymanager.MainActivity;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.logic.DateWorker;
+import com.vsu.nastya.partymanager.logic.User;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 
 import java.util.ArrayList;
@@ -40,17 +41,20 @@ import java.util.HashMap;
 /**
  * Окно со списоком всех вечеринок
  */
-public class PartyListActivity extends AppCompatActivity{
+public class PartyListActivity extends AppCompatActivity {
 
     private static final int ADD_PARTY_REQUEST_CODE = 1;
     private static final int EDIT_PARTY_REQUEST_CODE = 2;
     private static final String MULTI_SELECTOR = "PartyListActivity";
     private static final String FIREBASE_ERROR = "firebase_error";
+
+    private User user = User.getInstance();
     private ArrayList<Party> partiesList;
     private PartiesAdapter adapter;
     private MultiSelector multiSelector = new MultiSelector();
     private DatabaseReference partiesReference;
-    private ChildEventListener partyAddListener;
+    private DatabaseReference usersReference;
+    private ChildEventListener partyAddListener = null;
     private ProgressBar progressBar;
 
     private ActionMode actionMode;
@@ -123,8 +127,6 @@ public class PartyListActivity extends AppCompatActivity{
         attachStopProgressBarListener();
     }
 
-
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -168,6 +170,12 @@ public class PartyListActivity extends AppCompatActivity{
                     DatabaseReference reference = partiesReference.push();
                     party.setKey(reference.getKey());
                     reference.setValue(party);
+
+                    User user = User.getInstance();
+                    user.getPartiesIdList().add(party.getKey());
+
+                    String number = String.valueOf(partiesList.size());
+                    usersReference.child(User.getInstance().getVkId()).child("partiesIdList").child(number).setValue(party.getKey());
                 }
                 break;
             case EDIT_PARTY_REQUEST_CODE:
@@ -177,8 +185,8 @@ public class PartyListActivity extends AppCompatActivity{
                     HashMap<String, Object> task = new HashMap<>();
                     task.put("name", newParty.getName());
                     task.put("date", newParty.getDate());
-                   // task.put("items", newParty.getItems());
-                   // task.put("guests", newParty.getGuests());
+                    // task.put("items", newParty.getItems());
+                    // task.put("guests", newParty.getGuests());
                     partiesReference.child(partiesList.get(position).getKey()).updateChildren(task);
                 }
                 break;
@@ -208,6 +216,7 @@ public class PartyListActivity extends AppCompatActivity{
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference();
         partiesReference = databaseReference.child("parties");
+        usersReference = databaseReference.child("users");
 
         // Инициализируем список вечеринок
         partiesList = new ArrayList<>();
@@ -230,6 +239,8 @@ public class PartyListActivity extends AppCompatActivity{
 
         progressBar = (ProgressBar) findViewById(R.id.partyList_progressBar);
         progressBar.setVisibility(ProgressBar.INVISIBLE);
+
+        attachDatabaseReadListener();
     }
 
     /**
@@ -242,7 +253,7 @@ public class PartyListActivity extends AppCompatActivity{
 
     private int getPositionByKey(String key) {
         for (Party p : partiesList) {
-            if (p.getKey().equals(key)){
+            if (p.getKey().equals(key)) {
                 return partiesList.indexOf(p);
             }
         }
@@ -259,11 +270,13 @@ public class PartyListActivity extends AppCompatActivity{
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Party party = dataSnapshot.getValue(Party.class);
-                    if (party != null) {
+                    if ((party!=null)&&(user.getPartiesIdList().contains(party.getKey()))) {
                         partiesList.add(party);
-                        adapter.notifyItemInserted(partiesList.size()-1);
+                        adapter.notifyItemInserted(partiesList.size());
                     }
+
                 }
+
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                     Party party = dataSnapshot.getValue(Party.class);
@@ -275,6 +288,7 @@ public class PartyListActivity extends AppCompatActivity{
                         }
                     }
                 }
+
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
                     Party party = dataSnapshot.getValue(Party.class);
@@ -286,15 +300,17 @@ public class PartyListActivity extends AppCompatActivity{
                         }
                     }
                 }
+
                 @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
+
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                     // Обычно вызывается, когда нет прав на чтение данных из базы
                     Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
                 }
             };
-
             partiesReference.addChildEventListener(partyAddListener);
         }
     }

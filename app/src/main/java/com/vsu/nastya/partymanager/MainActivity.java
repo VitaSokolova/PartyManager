@@ -31,8 +31,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-
 /**
  * Экран со списком всех вечеринок
  */
@@ -63,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
         usersReference = databaseReference.child("users");
 
         if (VKSdk.isLoggedIn()) {
-            PartyListActivity.start(MainActivity.this);
             onSignIn(VKAccessToken.currentToken());
+
         }
     }
 
@@ -149,8 +147,8 @@ public class MainActivity extends AppCompatActivity {
                 User.getInstance().init (user.getFirstName(),
                         user.getLastName(),
                         user.getVkId(),
-                        user.getToken(),
-                        user.getPartyList());
+                        user.getPartiesIdList());
+                PartyListActivity.start(MainActivity.this);
             }
 
             @Override
@@ -190,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 user.setVkId(token.userId);
                 user.setToken(token);
                 usersReference.child(user.getVkId()).setValue(user);
+
             }
 
             @Override
