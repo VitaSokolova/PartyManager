@@ -104,8 +104,9 @@ public class PartyListActivity extends AppCompatActivity {
     };
 
     public static void start(Context context) {
-        Intent intent = new Intent(context, PartyListActivity.class);
-        context.startActivity(intent);
+        context.startActivity(new Intent(context, PartyListActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     }
 
     @Override
