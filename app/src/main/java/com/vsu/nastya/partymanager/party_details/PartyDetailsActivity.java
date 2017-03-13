@@ -9,13 +9,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.vsu.nastya.partymanager.R;
+import com.vsu.nastya.partymanager.party_list.Party;
 
 /**
  * Окно с вкладками (где смотрим и изменям любую информацию о вечеринке)
  */
 public class PartyDetailsActivity extends AppCompatActivity {
+    public Party currentParty;
 
-    public static void start(Context context){
+    public static void start(Context context) {
         Intent intent = new Intent(context, PartyDetailsActivity.class);
         context.startActivity(intent);
     }
@@ -24,10 +26,12 @@ public class PartyDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_party_details);
+        currentParty = (Party) getIntent().getSerializableExtra("party");
         initView();
     }
 
-    private  void initView(){
+    private void initView() {
+
         ViewPager pager = (ViewPager) findViewById(R.id.details_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
         PartyDetailsPagerAdapter adapter = new PartyDetailsPagerAdapter(fragmentManager);
@@ -39,5 +43,9 @@ public class PartyDetailsActivity extends AppCompatActivity {
         tabs.getTabAt(0).setIcon(R.drawable.ic_pin_drop_white_24dp);
         tabs.getTabAt(1).setIcon(R.drawable.ic_shopping_cart_white_24dp);
         tabs.getTabAt(2).setIcon(R.drawable.ic_group_white_24dp);
+    }
+
+    public Party getCurrentParty() {
+        return currentParty;
     }
 }

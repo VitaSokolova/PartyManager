@@ -10,21 +10,28 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.item_list.data.Item;
+import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
+import com.vsu.nastya.partymanager.party_list.Party;
 
 import java.util.ArrayList;
 
@@ -33,14 +40,21 @@ import java.util.ArrayList;
  */
 public class ItemsListFragment extends Fragment {
     public static String TAG = "itemListFragment";
+    private static final String FIREBASE_ERROR = "firebase_error";
+
+    private Party currentParty;
     private RecyclerView mRecyclerView;
     private FloatingActionButton addItemFAB;
     private TextView wholeSumTxt;
-    private ArrayList<Item> itemList;
     private ItemAdapter adapter;
     private ActionMode actionMode;
     double sumPerOne = 0;
     int wholeSum = 0;
+
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference partyItemsReference;
+    private ChildEventListener itemEventListener = null;
+
 
     private MultiSelector mMultiSelector = new MultiSelector();
     private ModalMultiSelectorCallback mActionModeCallback = new ModalMultiSelectorCallback(mMultiSelector) {
@@ -57,12 +71,15 @@ public class ItemsListFragment extends Fragment {
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             if (menuItem.getItemId() == R.id.action_delete) {
                 //проходимся по всему списку, если элемент присутствует в MultiSelector, удаляем его
-                for (int i = itemList.size(); i >= 0; i--) {
+                for (int i = currentParty.getItems().size(); i >= 0; i--) {
                     if (mMultiSelector.isSelected(i, 0)) {
                         //TODO:удалить еще и из базы и вообще навсегда
-                        removeItemFromSum(itemList.get(i));
-                        itemList.remove(i);
+                        removeItemFromSum(currentParty.getItems().get(i));
+                        partyItemsReference.child(String.valueOf(i)).removeValue();
+                        currentParty.getItems().remove(i);
                         mRecyclerView.getAdapter().notifyItemRemoved(i);
+
+                        //currentParty.getItems().get(i)));
                     }
                 }
                 actionMode.finish();
@@ -73,7 +90,7 @@ public class ItemsListFragment extends Fragment {
             if (menuItem.getItemId() == R.id.action_edit) {
                 final ArrayList<Integer> indexes = (ArrayList<Integer>) mMultiSelector.getSelectedPositions();
                 if (indexes.size() == 1) {
-                    final Item editableItem = itemList.get(indexes.get(0));
+                    final Item editableItem = currentParty.getItems().get(indexes.get(0));
 
                     EditItemDialogFragment dialog = EditItemDialogFragment.newInstance(editableItem.getName(), editableItem.getWhoBrings(), editableItem.getQuantity(), editableItem.getPrice());
 
@@ -110,14 +127,28 @@ public class ItemsListFragment extends Fragment {
         }
     };
 
+    public static ItemsListFragment newInstance() {
+        return new ItemsListFragment();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        //получаем информацию о вечеринке от родительской активити
+        PartyDetailsActivity activity = (PartyDetailsActivity) getActivity();
+        this.currentParty = activity.getCurrentParty();
+
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = firebaseDatabase.getReference();
+        partyItemsReference = databaseReference.child("parties").child(this.currentParty.getKey()).child("items");
+
         View view = inflater.inflate(R.layout.fragment_items_list, container, false);
-        //находим
+
+        //находим вьюшки
         this.mRecyclerView = (RecyclerView) view.findViewById(R.id.items_list_recycler_view);
         this.addItemFAB = (FloatingActionButton) view.findViewById(R.id.items_list_add_item_fab);
         this.wholeSumTxt = (TextView) view.findViewById(R.id.items_list_res_sum_number_txt);
+
         //инициализируем
         initRecycler();
         initSum();
@@ -129,6 +160,8 @@ public class ItemsListFragment extends Fragment {
                 startActivityForResult(intent, 2);
             }
         });
+
+        attachDatabaseReadListener();
 
         return view;
     }
@@ -165,19 +198,39 @@ public class ItemsListFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-    public static ItemsListFragment newInstance() {
-        return new ItemsListFragment();
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) {
+            return;
+        }
+        Item newItem = (Item) data.getSerializableExtra("item");
+
+        String index = String.valueOf(currentParty.getItems().size());
+        DatabaseReference reference = partyItemsReference.child(index);
+        newItem.setKey(reference.getKey());
+        reference.setValue(newItem);
+
+        this.currentParty.getItems().add(newItem);
+        this.adapter.notifyItemInserted(this.currentParty.getItems().size());
+        //пересчитываем сумму
+        addItemToSum(newItem);
+
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        detachDatabaseReadListener();
+    }
+
+    private void getItemsFromDatabase() {
+
+    }
+
+    /**
+     * настраивает работу адаптера и RecyclerView
+     */
     private void initRecycler() {
-
-        //TODO: вытащить это список из экземпляра User, но пока пусть так
-        this.itemList = new ArrayList<>();
-        this.itemList.add(new Item("Очень вкусный тортик", 2, new Guest("Вита"), 400));
-        this.itemList.add(new Item("Фрукты", 1, new Guest("Настя"), 500));
-        this.itemList.add(new Item("Сок", 4, new Guest("Вита"), 80));
-        this.itemList.add(new Item("Салфетки", 1, new Guest("Вита"), 50));
-
 
         this.adapter = new ItemAdapter();
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -186,9 +239,12 @@ public class ItemsListFragment extends Fragment {
         this.mRecyclerView.setAdapter(adapter);
     }
 
+    /**
+     * рассчитыват сумму, складывающуюся из стоимости каждой покупки в списке
+     */
     private void initSum() {
 
-        for (Item item : itemList) {
+        for (Item item : currentParty.getItems()) {
             wholeSum += item.getPrice() * item.getQuantity();
         }
         this.wholeSumTxt.setText(String.valueOf(wholeSum));
@@ -206,17 +262,97 @@ public class ItemsListFragment extends Fragment {
         this.wholeSumTxt.setText(String.valueOf(wholeSum));
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data == null) {
-            return;
+    /**
+     * метод получает позицию покупки по ее ключу
+     */
+    private int getPositionByKey(String key) {
+        for (Item p : currentParty.getItems()) {
+            if (p.getKey().equals(key)) {
+                return currentParty.getItems().indexOf(p);
+            }
         }
-        Item newItem = (Item) data.getSerializableExtra("item");
-        this.itemList.add(newItem);
-        this.adapter.notifyItemInserted(this.itemList.size());
-        //пересчитываем сумму
-        addItemToSum(newItem);
+        return -1;
+    }
 
+    /**
+     * метод для запуска слушателя, который слушает изменение данных в бд
+     */
+    private void attachDatabaseReadListener() {
+        if (itemEventListener == null) {
+            itemEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Item item = dataSnapshot.getValue(Item.class);
+                    //этот же кусочек исполняетс для загрузки покупок из вечеринки впервые
+                    if (item != null) {
+                        currentParty.getItems().add(item);
+                        adapter.notifyItemInserted(currentParty.getItems().size());
+                    }
+
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    Item item = dataSnapshot.getValue(Item.class);
+                    if (item != null) {
+                        int position = getPositionByKey(item.getKey());
+                        if (position != -1) {
+                            currentParty.getItems().set(position, item);
+                            adapter.notifyItemChanged(position);
+                        }
+                    }
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    Item item = dataSnapshot.getValue(Item.class);
+                    Log.v("TAG", item.getKey());
+                    if (item != null) {
+                        int position = getPositionByKey(item.getKey());
+                        if (position != -1) {
+                            currentParty.getItems().remove(position);
+                            adapter.notifyItemRemoved(position);
+                        }
+                    }
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Обычно вызывается, когда нет прав на чтение данных из базы
+                    Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
+                }
+            };
+            partyItemsReference.addChildEventListener(itemEventListener);
+        }
+    }
+
+
+    /**
+     * метод для остановки слушателя, который слушает изменение данных в бд
+     */
+    private void detachDatabaseReadListener() {
+        if (itemEventListener != null) {
+            partyItemsReference.removeEventListener(itemEventListener);
+            itemEventListener = null;
+        }
+    }
+
+    private void attachStopProgressBarListener() {
+        partyItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //progressBar.setVisibility(ProgressBar.INVISIBLE);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Обычно вызывается, когда нет прав на чтение данных из базы
+                Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
+            }
+        });
     }
 
     private class ItemViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -272,10 +408,9 @@ public class ItemsListFragment extends Fragment {
             return new ItemViewHolder(itemView);
         }
 
-
         @Override
         public void onBindViewHolder(ItemViewHolder holder, int position) {
-            Item item = (Item) itemList.get(position);
+            Item item = (Item) currentParty.getItems().get(position);
 
             holder.itemName.setText(item.getName());
             holder.quantity.setText(String.valueOf(item.getQuantity()));
@@ -286,7 +421,7 @@ public class ItemsListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return itemList.size();
+            return currentParty.getItems().size();
         }
     }
 

@@ -5,6 +5,7 @@ import com.vsu.nastya.partymanager.item_list.data.Item;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -15,8 +16,8 @@ public class Party implements Serializable {
     private String key;
     private String name;
     private long date;
-    private ArrayList<Item> items;
-    private ArrayList<Guest> guests;
+    private ArrayList<Item> items =  new ArrayList<>();
+    private ArrayList<Guest> guests = new ArrayList<>();
     //Еще потом добавим place и messages
 
     public Party() {}
@@ -24,8 +25,6 @@ public class Party implements Serializable {
     public Party(String partyName, long date) {
         this.name = partyName;
         this.date = date;
-        this.items = new ArrayList<>();
-        this.guests = new ArrayList<>();
     }
 
     public long getDate() {
@@ -44,7 +43,7 @@ public class Party implements Serializable {
         this.name = party;
     }
 
-    public List<Item> getItems() {
+    public ArrayList<Item> getItems() {
         return items;
     }
 
@@ -52,7 +51,7 @@ public class Party implements Serializable {
         this.items = items;
     }
 
-    public List<Guest> getGuests() {
+    public ArrayList<Guest> getGuests() {
         return guests;
     }
 
@@ -67,5 +66,9 @@ public class Party implements Serializable {
     public void setKey(String key) {
         this.key = key;
     }
+
+//    public static Party makePartyFromHashMap(HashMap<String, Object> hashMap){
+//
+//    }
 }
 

@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (VKSdk.isLoggedIn()) {
             onSignIn(VKAccessToken.currentToken());
-
         }
     }
 

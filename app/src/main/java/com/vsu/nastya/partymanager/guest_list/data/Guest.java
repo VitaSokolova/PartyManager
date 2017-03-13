@@ -10,6 +10,9 @@ public class Guest implements Serializable {
 
     private String guestName;
 
+    public Guest() {
+    }
+
     public Guest(String guestName) {
         this.guestName = guestName;
     }

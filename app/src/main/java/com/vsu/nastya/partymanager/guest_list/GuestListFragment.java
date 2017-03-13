@@ -26,6 +26,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
+import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
+import com.vsu.nastya.partymanager.party_list.Party;
 
 import java.util.ArrayList;
 
@@ -36,6 +38,7 @@ import java.util.ArrayList;
 public class GuestListFragment extends Fragment {
     public static String TAG = "guestListFragment";
 
+    private Party currentParty;
     private RecyclerView mRecyclerView;
     private FloatingActionButton addGuestFab;
     private ArrayList<Guest> guestList;
@@ -110,9 +113,13 @@ public class GuestListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //получаем информацию о вечеринке от родительской активити
+        PartyDetailsActivity activity = (PartyDetailsActivity) getActivity();
+        this.currentParty = activity.getCurrentParty();
+
         View view = inflater.inflate(R.layout.fragment_guest_list, container, false);
 
-       this.fireBaseDatabase = FirebaseDatabase.getInstance();
+        this.fireBaseDatabase = FirebaseDatabase.getInstance();
         this.itemsDatabaseReference = fireBaseDatabase.getReference().child("parties");
 
         this.guestList = new ArrayList<>();
@@ -181,11 +188,7 @@ public class GuestListFragment extends Fragment {
     //инициализирует RecyclerView
     private void initRecycler() {
         //TODO: вытащить это список из экземпляра User, но пока пусть так
-        guestList.add(new Guest("Вита"));
-        guestList.add(new Guest("Настя"));
-        guestList.add(new Guest("Вова"));
-        guestList.add(new Guest("Аня"));
-
+        guestList = this.currentParty.getGuests();
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);

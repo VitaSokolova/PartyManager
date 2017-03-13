@@ -27,6 +27,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.vk.sdk.VKSdk;
 import com.vsu.nastya.partymanager.MainActivity;
@@ -37,6 +38,7 @@ import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Окно со списоком всех вечеринок
@@ -269,8 +271,10 @@ public class PartyListActivity extends AppCompatActivity {
             partyAddListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                   // HashMap<String, Object> hashMap = (HashMap<String, Object>) dataSnapshot.getValue();
                     Party party = dataSnapshot.getValue(Party.class);
                     if ((party!=null)&&(user.getPartiesIdList().contains(party.getKey()))) {
+
                         partiesList.add(party);
                         adapter.notifyItemInserted(partiesList.size());
                     }
@@ -368,7 +372,11 @@ public class PartyListActivity extends AppCompatActivity {
                     actionMode.finish();
                 }
             } else {
-                PartyDetailsActivity.start(PartyListActivity.this);
+                int index = getAdapterPosition();
+
+                Intent intent = new Intent(getApplicationContext(), PartyDetailsActivity.class);
+                intent.putExtra("party", partiesList.get(index));
+                view.getContext().startActivity(intent);
             }
         }
 
