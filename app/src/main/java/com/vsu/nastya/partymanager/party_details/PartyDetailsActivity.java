@@ -40,9 +40,9 @@ public class PartyDetailsActivity extends AppCompatActivity {
         TabLayout tabs = (TabLayout) findViewById(R.id.details_tabs);
         tabs.setupWithViewPager(pager);
 
-        tabs.getTabAt(0).setIcon(R.drawable.ic_pin_drop_white_24dp);
-        tabs.getTabAt(1).setIcon(R.drawable.ic_shopping_cart_white_24dp);
-        tabs.getTabAt(2).setIcon(R.drawable.ic_group_white_24dp);
+        tabs.getTabAt(0).setIcon(R.drawable.ic_shopping_cart_white_24dp);
+        tabs.getTabAt(1).setIcon(R.drawable.ic_group_white_24dp);
+        tabs.getTabAt(2).setIcon(R.drawable.ic_pin_drop_white_24dp);
     }
 
     public Party getCurrentParty() {

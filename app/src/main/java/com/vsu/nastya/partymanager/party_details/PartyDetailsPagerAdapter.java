@@ -23,11 +23,11 @@ public class PartyDetailsPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position){
         switch (position){
             case 0:
-                return PartyInfoFragment.newInstance();
-            case 1:
                 return ItemsListFragment.newInstance();
-            case 2:
+            case 1:
                 return GuestListFragment.newInstance();
+            case 2:
+                return PartyInfoFragment.newInstance();
             default:
                 return ItemsListFragment.newInstance();
         }

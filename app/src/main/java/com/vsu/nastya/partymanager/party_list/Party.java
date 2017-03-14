@@ -18,6 +18,7 @@ public class Party implements Serializable {
     private long date;
     private ArrayList<Item> items =  new ArrayList<>();
     private ArrayList<Guest> guests = new ArrayList<>();
+    private String place;
     //Еще потом добавим place и messages
 
     public Party() {}
@@ -67,7 +68,15 @@ public class Party implements Serializable {
         this.key = key;
     }
 
-//    public static Party makePartyFromHashMap(HashMap<String, Object> hashMap){
+    public String getPlace() {
+        return place;
+    }
+
+    public void setPlace(String place) {
+        this.place = place;
+    }
+
+    //    public static Party makePartyFromHashMap(HashMap<String, Object> hashMap){
 //
 //    }
 }
