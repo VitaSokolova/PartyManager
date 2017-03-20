@@ -66,4 +66,17 @@ public class Item implements Serializable {
     public void setKey(String key) {
         this.key = key;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        boolean retVal = false;
+
+        if (obj instanceof Item){
+            Item ptr = (Item) obj;
+            //еще бы whoBrings сравнить
+            retVal = (ptr.name.equals(this.name))&&(ptr.quantity==this.quantity)&&(ptr.price==this.price);
+        }
+
+        return retVal;
+    }
 }

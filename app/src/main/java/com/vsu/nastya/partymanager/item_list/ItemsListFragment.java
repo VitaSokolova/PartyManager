@@ -26,6 +26,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
@@ -34,6 +35,7 @@ import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Вита on 08.12.2016.
@@ -74,12 +76,11 @@ public class ItemsListFragment extends Fragment {
                 for (int i = currentParty.getItems().size(); i >= 0; i--) {
                     if (mMultiSelector.isSelected(i, 0)) {
                         //TODO:удалить еще и из базы и вообще навсегда
-                        removeItemFromSum(currentParty.getItems().get(i));
-                        partyItemsReference.child(String.valueOf(i)).removeValue();
+                        Item item = currentParty.getItems().get(i);
+                        removeItemFromSum(item);
                         currentParty.getItems().remove(i);
                         mRecyclerView.getAdapter().notifyItemRemoved(i);
-
-                        //currentParty.getItems().get(i)));
+                        partyItemsReference.setValue(currentParty.getItems());
                     }
                 }
                 actionMode.finish();
@@ -207,7 +208,7 @@ public class ItemsListFragment extends Fragment {
 
         String index = String.valueOf(currentParty.getItems().size());
         DatabaseReference reference = partyItemsReference.child(index);
-        newItem.setKey(reference.getKey());
+        newItem.setKey(index);
         reference.setValue(newItem);
 
         this.currentParty.getItems().add(newItem);
@@ -284,7 +285,8 @@ public class ItemsListFragment extends Fragment {
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Item item = dataSnapshot.getValue(Item.class);
                     //этот же кусочек исполняетс для загрузки покупок из вечеринки впервые
-                    if (item != null) {
+                    boolean b = currentParty.getItems().contains(item);
+                    if ((item != null)&&(!currentParty.getItems().contains(item))) {
                         currentParty.getItems().add(item);
                         adapter.notifyItemInserted(currentParty.getItems().size());
                     }
@@ -294,6 +296,8 @@ public class ItemsListFragment extends Fragment {
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                     Item item = dataSnapshot.getValue(Item.class);
+//                    GenericTypeIndicator<ArrayList<Item>> t = new GenericTypeIndicator<ArrayList<Item>>(){};
+//                    List items = dataSnapshot.getValue(t);
                     if (item != null) {
                         int position = getPositionByKey(item.getKey());
                         if (position != -1) {

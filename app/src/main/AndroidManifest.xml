@@ -42,9 +42,6 @@
         <activity android:name=".party_list.AddPartyActivity" />
         <activity android:name=".party_details.PartyDetailsActivity" />
         <activity android:name=".guest_list.AddGuestActivity" />
-        <activity
-            android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"/>
     </application>
 
 </manifest>

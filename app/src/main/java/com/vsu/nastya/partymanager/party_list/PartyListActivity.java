@@ -177,8 +177,9 @@ public class PartyListActivity extends AppCompatActivity {
                     User user = User.getInstance();
                     user.getPartiesIdList().add(party.getKey());
 
-                    String number = String.valueOf(partiesList.size());
-                    usersReference.child(User.getInstance().getVkId()).child("partiesIdList").child(number).setValue(party.getKey());
+                    //String number = String.valueOf(partiesList.size());
+//                    usersReference.child(User.getInstance().getVkId()).child("partiesIdList").push();
+//                    reference.setValue(party.getKey());
                 }
                 break;
             case EDIT_PARTY_REQUEST_CODE:
@@ -272,10 +273,9 @@ public class PartyListActivity extends AppCompatActivity {
             partyAddListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                   // HashMap<String, Object> hashMap = (HashMap<String, Object>) dataSnapshot.getValue();
+//                    HashMap<String, Object> hashMap = (HashMap<String, Object>) dataSnapshot.getValue();
                     Party party = dataSnapshot.getValue(Party.class);
                     if ((party!=null)&&(user.getPartiesIdList().contains(party.getKey()))) {
-
                         partiesList.add(party);
                         adapter.notifyItemInserted(partiesList.size());
                     }
