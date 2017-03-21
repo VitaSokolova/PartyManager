@@ -114,9 +114,12 @@ public class PartyListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_party_list);
         initView();
+    }
 
-        attachDatabaseReadListener();
-        attachStopProgressBarListener();
+    @Override
+    protected void onStart() {
+        super.onStart();
+       // attachDatabaseReadListener();
     }
 
     @Override
@@ -130,7 +133,7 @@ public class PartyListActivity extends AppCompatActivity {
         }
         progressBar.setVisibility(ProgressBar.VISIBLE);
         attachDatabaseReadListener();
-
+        attachStopProgressBarListener();
     }
 
     @Override
@@ -247,6 +250,7 @@ public class PartyListActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.partyList_progressBar);
         progressBar.setVisibility(ProgressBar.INVISIBLE);
 
+        //attachDatabaseReadListener();
     }
 
     /**
@@ -282,7 +286,6 @@ public class PartyListActivity extends AppCompatActivity {
                         partiesList.add(party);
                         adapter.notifyItemInserted(partiesList.size());
                     }
-
                 }
 
                 @Override
@@ -297,8 +300,7 @@ public class PartyListActivity extends AppCompatActivity {
                     }
                 }
 
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                @Override public void onChildRemoved(DataSnapshot dataSnapshot) {
                     Party party = dataSnapshot.getValue(Party.class);
                     if (party != null) {
                         int position = getPositionByKey(party.getKey());
@@ -320,7 +322,6 @@ public class PartyListActivity extends AppCompatActivity {
                 }
             };
             partiesReference.addChildEventListener(partyAddListener);
-            attachStopProgressBarListener();
         }
     }
 
