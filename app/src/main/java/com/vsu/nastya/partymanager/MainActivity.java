@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
         usersReference = databaseReference.child("users");
 
         if (VKSdk.isLoggedIn()) {
-            PartyListActivity.start(MainActivity.this);
             onSignIn(VKAccessToken.currentToken());
         }
     }
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                         user.getLastName(),
                         user.getVkId(),
                         user.getPartiesIdList());
-                /*PartyListActivity.start(MainActivity.this);*/
+                PartyListActivity.start(MainActivity.this);
             }
 
             @Override
@@ -188,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 user.setVkId(token.userId);
                 user.setToken(token);
                 usersReference.child(user.getVkId()).setValue(user);
+                PartyListActivity.start(MainActivity.this);
             }
 
             @Override
