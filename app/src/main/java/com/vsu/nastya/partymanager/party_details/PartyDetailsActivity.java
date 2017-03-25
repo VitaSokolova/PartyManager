@@ -17,6 +17,8 @@ import com.vsu.nastya.partymanager.party_list.Party;
 public class PartyDetailsActivity extends AppCompatActivity {
     public Party currentParty;
 
+    private static final int OFFSET_SCREEN_PAGE_LIMIT = 2;
+
     public static void start(Context context) {
         Intent intent = new Intent(context, PartyDetailsActivity.class);
         context.startActivity(intent);
@@ -36,6 +38,7 @@ public class PartyDetailsActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         PartyDetailsPagerAdapter adapter = new PartyDetailsPagerAdapter(fragmentManager);
         pager.setAdapter(adapter);
+        pager.setOffscreenPageLimit(OFFSET_SCREEN_PAGE_LIMIT);
 
         TabLayout tabs = (TabLayout) findViewById(R.id.details_tabs);
         tabs.setupWithViewPager(pager);
