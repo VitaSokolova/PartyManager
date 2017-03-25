@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.vsu.nastya.partymanager.guest_list.GuestListFragment;
 import com.vsu.nastya.partymanager.item_list.ItemsListFragment;
+import com.vsu.nastya.partymanager.party_info.PartyInfoFragment;
 
 /**
  * Created by nastya on 08.12.16.

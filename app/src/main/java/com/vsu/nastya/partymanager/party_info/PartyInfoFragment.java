@@ -1,35 +1,40 @@
-package com.vsu.nastya.partymanager.party_details;
+package com.vsu.nastya.partymanager.party_info;
 
+import android.support.v4.app.LoaderManager;
 import android.content.Context;
-import android.content.Intent;
+import android.support.v4.content.Loader;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.text.TextDirectionHeuristicCompat;
-import android.support.v4.util.Pair;
-import android.support.v4.widget.TextViewCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -40,6 +45,7 @@ import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -48,14 +54,16 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 /**
- * Окно для просмотра и изменения основной информации о вечеринке (название, место, дата, время)
+ * Окно для выбора места проведения вечеринки (карта google и поле ввода).
  */
 public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
-        ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMapClickListener {
+        ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMapClickListener, TextWatcher,
+        TextView.OnEditorActionListener, View.OnClickListener {
 
     private static final int PERMISSION_REQUEST_CODE = 1;
     private static final String SECURITY_ERROR = "security_error";
     private static final String GEOCODER_ERROR = "geocoder_error";
+    private static final String PREDICTION_QUERY = "query";
 
     private Party currentParty;
 
@@ -65,7 +73,10 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     private GoogleMap map;
     private Marker currentMarker;
 
-    private TextView textView;
+    private GoogleApiClient googleApiClient;
+    private AutoCompleteTextView autoTextView;
+    private ArrayAdapter<String> adapter;
+
     private PartyDetailsActivity activity;
 
     private DatabaseReference partiesReference;
@@ -78,27 +89,14 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_party_info, container, false);
-        textView = (TextView) view.findViewById(R.id.party_info_text);
         mapView = (MapView) view.findViewById(R.id.party_info_map_view);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-        //получаем информацию о вечеринке от родительской активити
-        PartyDetailsActivity activity = (PartyDetailsActivity) getActivity();
-        this.currentParty = activity.getCurrentParty();
-
-        geocoder = new Geocoder(activity, Locale.getDefault());
-
-        partiesReference = FirebaseDatabase.getInstance().getReference().child("parties");
-
+        init(view);
         return view;
     }
 
@@ -106,6 +104,18 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         activity = (PartyDetailsActivity) getActivity();
+
+        if (googleApiClient == null) {
+            googleApiClient = new GoogleApiClient
+                    .Builder(activity)
+                    .addApi(Places.GEO_DATA_API)
+                    .addApi(Places.PLACE_DETECTION_API)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+        googleApiClient.connect();
+        adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, new ArrayList<String>());
+        autoTextView.setAdapter(adapter);
     }
 
     @Override
@@ -136,9 +146,66 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
                 .position(latLng));
         place = getPlaceName(latLng);
         if (place != null) {
-            textView.setText(place);
+            autoTextView.setText(place);
             updatePartyInfo(place);
         }
+        autoTextView.setSelection(autoTextView.getText().length());
+        autoTextView.setCursorVisible(true);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.party_info_text) {
+            AutoCompleteTextView textView = (AutoCompleteTextView) v;
+            textView.setSelection(textView.getText().length());
+            textView.setCursorVisible(true);
+        }
+    }
+
+    /**
+     * Метод, обрабатывающий нажатие кнопки поиска на клавиатуре.
+     * Скрывает клавиатуру, перемещает камеру к введенному местоположению, ставит на это место маркер.
+     */
+    @Override
+    public boolean onEditorAction(TextView text, int actionId, KeyEvent event) {
+        boolean handled = false;
+        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            place = text.getText().toString();
+            updatePartyInfo(place);
+
+            if (!place.equals("")) {
+                handled = true;
+                updatePartyInfo(place);
+                hideKeyboard();
+                text.setCursorVisible(false);
+                ((AutoCompleteTextView) text).dismissDropDown();
+                LatLng latLng = getCoordinates(text.getText().toString());
+                if (latLng != null) {
+                    if (currentMarker != null) {
+                        currentMarker.remove();
+                    }
+                    currentMarker = map.addMarker(new MarkerOptions()
+                            .position(latLng));
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+                }
+            }
+        }
+        return handled;
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        Bundle bundle = new Bundle();
+        bundle.putString(PREDICTION_QUERY, autoTextView.getText().toString());
+        getLoaderManager().restartLoader(0, bundle, callbacks);
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
     }
 
     @Override
@@ -150,6 +217,21 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
 
             Toast.makeText(activity, "Permission denied!", Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void init(View view) {
+        //получаем информацию о вечеринке от родительской активити
+        PartyDetailsActivity activity = (PartyDetailsActivity) getActivity();
+        this.currentParty = activity.getCurrentParty();
+
+        geocoder = new Geocoder(activity, Locale.getDefault());
+        
+        partiesReference = FirebaseDatabase.getInstance().getReference().child("parties");
+        autoTextView = (AutoCompleteTextView) view.findViewById(R.id.party_info_text);
+        autoTextView.addTextChangedListener(this);
+        autoTextView.setOnEditorActionListener(this);
+        autoTextView.setOnClickListener(this);
+        autoTextView.setCursorVisible(false);
     }
 
     /**
@@ -188,13 +270,35 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
      * Получение адреса по координатам.
      */
     private String getPlaceName(LatLng latLng) {
+        String placeName = null;
         try {
-            Address address = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1).get(0);
-            return address.getAddressLine(0);
+            List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+            if (addresses != null && addresses.size() != 0) {
+                Address address = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1).get(0);
+                placeName = address.getAddressLine(0);
+            }
         } catch (IOException e) {
             Log.d(GEOCODER_ERROR, "Geocoder Error: " + e);
         }
-        return null;
+        return placeName;
+    }
+
+    /**
+     * Получения координат по названию места.
+     */
+    private LatLng getCoordinates(String placeName) {
+        LatLng latLng = null;
+        try {
+            List<Address> addresses = geocoder.getFromLocationName(placeName, 1);
+            if (addresses != null && addresses.size() != 0 ) {
+                double lat = addresses.get(0).getLatitude();
+                double lon = addresses.get(0).getLongitude();
+                latLng = new LatLng(lat, lon);
+            }
+        } catch (IOException e) {
+            Log.d(GEOCODER_ERROR, "Geocoder Error: " + e);
+        }
+        return latLng;
     }
 
     /**
@@ -211,7 +315,7 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     /**
      * Устанавливаем маркер на карту, если для текущей вечеринки было выбрано место проведения.
      * Если не выбрано, просто приближаем карту к последнему известному местоположению пользователя или,
-     * если если не известно, то к дефолтному местоположению.
+     * если не известно, то к дефолтному местоположению.
      */
     private void setUpMarker() {
         LatLng latLng;
@@ -226,7 +330,7 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
                 latLng = new LatLng(lat, lon);
                 currentMarker = map.addMarker(new MarkerOptions()
                         .position(latLng));
-                textView.setText(getPlaceName(latLng));
+                autoTextView.setText(getPlaceName(latLng));
             } catch (IOException e) {
                 latLng = getDefaultCoordinates();
                 Log.d(GEOCODER_ERROR, "Geocoder Error: " + e);
@@ -240,4 +344,40 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         }
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
     }
+
+    private void hideKeyboard() {
+        // Check if no view has focus:
+        View view = activity.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    /**
+     * Callbacks к PredictionLoader.
+     */
+    private LoaderManager.LoaderCallbacks<List<String>> callbacks = new LoaderManager.LoaderCallbacks<List<String>>() {
+        @Override
+        public Loader<List<String>> onCreateLoader(int id, Bundle args) {
+            return new PredictionsLoader(activity, googleApiClient, args.getString(PREDICTION_QUERY));
+        }
+
+        /**
+         * Полученныe от серевера подсказки мест добавляются в адаптер AutocompleteTextView.
+         * @param data список подсказок.
+         */
+        @Override
+        public void onLoadFinished(Loader<List<String>> loader, List<String> data) {
+            adapter.clear();
+            adapter.addAll(data);
+            adapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onLoaderReset(Loader<List<String>> loader) {
+
+        }
+    };
+
 }

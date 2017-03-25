@@ -39,7 +39,9 @@
             android:theme="@style/VK.Transparent" />
         <activity android:name=".party_list.PartyListActivity" />
         <activity android:name=".party_list.AddPartyActivity" />
-        <activity android:name=".party_details.PartyDetailsActivity" />
+        <activity
+            android:name=".party_details.PartyDetailsActivity"
+            android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".guest_list.AddGuestActivity" />
         <activity android:name=".SingInProcessActivity"/>
     </application>
