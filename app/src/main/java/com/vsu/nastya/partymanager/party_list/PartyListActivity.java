@@ -118,6 +118,12 @@ public class PartyListActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        // attachDatabaseReadListener();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         /* При возобновлении активити очищаем каждый раз список вечеринок,
@@ -171,14 +177,12 @@ public class PartyListActivity extends AppCompatActivity {
             case ADD_PARTY_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     Party party = (Party) data.getSerializableExtra("party");
-
-                    // Заносим в базу новую вечеринку в список всех вечеринок
                     DatabaseReference reference = partiesReference.push();
-                    party.setKey(reference.getKey());  //Записываем ключ, который дал вечеринке firebase
+                    party.setKey(reference.getKey());
                     reference.setValue(party);
 
                     User user = User.getInstance();
-                    user.getPartiesIdList().add(party.getKey()); //Сохраняем ключ вечеринки у текущего юзера
+                    user.getPartiesIdList().add(party.getKey());
 
                     // Заносим в базу новую вечеринку в список у текущего юзера
                     String partyIndex = String.valueOf(partiesList.size());
@@ -191,11 +195,11 @@ public class PartyListActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     Party newParty = (Party) data.getSerializableExtra("party");
                     int position = data.getIntExtra("position", 0);
-
-                    // Заносим в базу изменения о вечеринке (название и дату проведения)
                     HashMap<String, Object> task = new HashMap<>();
                     task.put("name", newParty.getName());
                     task.put("date", newParty.getDate());
+                    task.put("items", newParty.getItems());
+                    task.put("guests", newParty.getGuests());
                     partiesReference.child(partiesList.get(position).getKey()).updateChildren(task);
                 }
                 break;
@@ -249,6 +253,7 @@ public class PartyListActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.partyList_progressBar);
         progressBar.setVisibility(ProgressBar.INVISIBLE);
 
+        //attachDatabaseReadListener();
     }
 
     /**
@@ -259,11 +264,6 @@ public class PartyListActivity extends AppCompatActivity {
         MainActivity.start(this);
     }
 
-    /**
-     * Получение номера позиции вечеринки в списке объекта user по ключу вечеринки в базе.
-     * @param key ключ вечеринки в базе firebase.
-     * @return позиция вечеринки в списке юзера (если не найдено, вернет -1).
-     */
     private int getPositionByKey(String key) {
         for (Party p : partiesList) {
             if (p.getKey().equals(key)) {
@@ -283,9 +283,9 @@ public class PartyListActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                  HashMap<String, Object> hashMap = (HashMap<String, Object>) dataSnapshot.getValue();
+//                    HashMap<String, Object> hashMap = (HashMap<String, Object>) dataSnapshot.getValue();
                     Party party = dataSnapshot.getValue(Party.class);
-                    if ((party != null) && user.getPartiesIdList().contains(party.getKey())) {
+                    if ((party != null) && (user.getPartiesIdList().contains(party.getKey()))) {
                         partiesList.add(party);
                         adapter.notifyItemInserted(partiesList.size());
                     }
@@ -310,7 +310,7 @@ public class PartyListActivity extends AppCompatActivity {
                         int position = getPositionByKey(party.getKey());
                         if (position != -1) {
                             // Удаляем вечеринку из списка вечеринок
-                            String key  = partiesList.get(position).getKey();
+                            String key = partiesList.get(position).getKey();
                             partiesList.remove(position);
 
                             // Удаляем id этой вечеринки
@@ -325,9 +325,8 @@ public class PartyListActivity extends AppCompatActivity {
                             for (String id : partiesIds) {
                                 partiesIdReference.child(String.valueOf(partiesIds.indexOf(id))).setValue(id);
                             }
-
-                            adapter.notifyItemRemoved(position);
                         }
+                        adapter.notifyItemRemoved(position);
                     }
                 }
 
@@ -435,6 +434,4 @@ public class PartyListActivity extends AppCompatActivity {
             return partiesList.size();
         }
     }
-
-
 }

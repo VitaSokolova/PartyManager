@@ -19,7 +19,7 @@ public class Party implements Serializable {
     private ArrayList<Item> items =  new ArrayList<>();
     private ArrayList<Guest> guests = new ArrayList<>();
     private String place;
-    //Еще потом добавим place и messages
+    //Еще потом добавим messages
 
     public Party() {}
 

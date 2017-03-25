@@ -10,8 +10,7 @@ import java.io.Serializable;
  * Created by Вита on 01.12.2016.
  */
 public class Item implements Serializable {
-    @Exclude
-    private String key;
+
     private String name;
     private int quantity;
     private Guest whoBrings;
@@ -57,14 +56,6 @@ public class Item implements Serializable {
 
     public void setPrice(int price) {
         this.price = price;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
     }
 
     @Override

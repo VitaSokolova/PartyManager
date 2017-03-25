@@ -90,8 +90,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResult(VKAccessToken token) {
                 // Пользователь успешно авторизовался
-                PartyListActivity.start(MainActivity.this);
+
                 onSignIn(token);
+                PartyListActivity.start(MainActivity.this);
             }
 
             @Override
