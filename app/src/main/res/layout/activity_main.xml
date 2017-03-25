@@ -11,11 +11,13 @@
 
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="55dp"
         android:id="@+id/loginActv_login_button"
-        android:text="@string/loginToAccount"
-        android:ems="17"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:background="@drawable/circle_btn_background"
+        android:ems="17"
+        android:text="@string/loginToAccount"
+        android:textColor="@color/vk_white"/>
 </RelativeLayout>
