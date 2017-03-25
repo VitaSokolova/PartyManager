@@ -10,6 +10,7 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,10 +23,13 @@ import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
 import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
+import com.vsu.nastya.partymanager.item_list.data.Item;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
 
@@ -37,6 +41,7 @@ import java.util.ArrayList;
  */
 public class GuestListFragment extends Fragment {
     public static String TAG = "guestListFragment";
+    private static final String FIREBASE_ERROR = "firebase_error";
 
     private Party currentParty;
     private RecyclerView mRecyclerView;
@@ -46,9 +51,8 @@ public class GuestListFragment extends Fragment {
     private MultiSelector mMultiSelector = new MultiSelector();
     private ActionMode actionMode;
 
-    private FirebaseDatabase fireBaseDatabase;
-    private DatabaseReference itemsDatabaseReference;
-    private ChildEventListener childEventListner;
+    private DatabaseReference guestsDatabaseReference;
+    private ChildEventListener guestsEventListner;
 
     private ModalMultiSelectorCallback mActionModeCallback = new ModalMultiSelectorCallback(mMultiSelector) {
         //открывается наше меню
@@ -119,8 +123,8 @@ public class GuestListFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_guest_list, container, false);
 
-        this.fireBaseDatabase = FirebaseDatabase.getInstance();
-        this.itemsDatabaseReference = fireBaseDatabase.getReference().child("parties");
+        FirebaseDatabase fireBaseDatabase = FirebaseDatabase.getInstance();
+        this.guestsDatabaseReference = fireBaseDatabase.getReference().child("parties").child(currentParty.getKey()).child("guests");
 
         this.guestList = new ArrayList<>();
         this.adapter = new GuestAdapter();
@@ -196,6 +200,57 @@ public class GuestListFragment extends Fragment {
         mRecyclerView.setAdapter(adapter);
     }
 
+    private void attachDatabaseReadListener() {
+        if (guestsEventListner == null) {
+            guestsEventListner = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Guest guest = dataSnapshot.getValue(Guest.class);
+                    //этот же кусочек исполняетс для загрузки покупок из вечеринки впервые
+                    if ((guest != null) && (!currentParty.getGuests().contains(guest))) {
+                        currentParty.getGuests().add(guest);
+                        adapter.notifyItemInserted(currentParty.getGuests().size());
+                    }
+
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    Guest guest = dataSnapshot.getValue(Guest.class);
+                    if (guest != null) {
+                        int position = currentParty.getGuests().indexOf(guest);
+                        if (position != -1) {
+                            currentParty.getGuests().set(position, guest);
+                            adapter.notifyItemChanged(position);
+                        }
+                    }
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    Guest guest = dataSnapshot.getValue(Guest.class);
+                    if (guest != null) {
+                        int position = currentParty.getGuests().indexOf(guest);
+                        if (position != -1) {
+                            currentParty.getGuests().remove(position);
+                            adapter.notifyItemRemoved(position);
+                        }
+                    }
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Обычно вызывается, когда нет прав на чтение данных из базы
+                    Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
+                }
+            };
+            guestsDatabaseReference.addChildEventListener(guestsEventListner);
+        }
+    }
     //эти внутренние классы для адаптера и ViewHolder предлагает сюда поместить автор библиотеки для MultiSelection,
     //потому что это значительно упрощает работу с MultiSelector
     private class GuestViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
