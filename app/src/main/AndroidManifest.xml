@@ -25,8 +25,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity
-            android:name=".MainActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,6 +43,7 @@
             android:name=".party_details.PartyDetailsActivity"
             android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".guest_list.AddGuestActivity" />
+        <activity android:name=".SingInProcessActivity"/>
     </application>
 
 </manifest>
