@@ -60,6 +60,7 @@ public class PredictionsLoader extends AsyncTaskLoader<List<String>> {
             // Get the details of this prediction and copy it into a new PlaceAutocomplete object.
             data.add(prediction.getFullText(null).toString());
         }
+        autocompletePredictions.release();
         return data;
     }
 }

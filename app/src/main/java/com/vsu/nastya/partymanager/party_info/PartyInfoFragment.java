@@ -24,10 +24,11 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
@@ -58,28 +59,34 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
  */
 public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMapClickListener, TextWatcher,
-        TextView.OnEditorActionListener, View.OnClickListener {
+        TextView.OnEditorActionListener, View.OnClickListener, CompoundButton.OnCheckedChangeListener{
 
     private static final int PERMISSION_REQUEST_CODE = 1;
     private static final String SECURITY_ERROR = "security_error";
     private static final String GEOCODER_ERROR = "geocoder_error";
     private static final String PREDICTION_QUERY = "query";
+    private static final float MAP_SCALE = 16;
 
     private Party currentParty;
+    private boolean initial = true;
 
+    // Google Map
     private String place;
     private Geocoder geocoder;
     private MapView mapView;
     private GoogleMap map;
     private Marker currentMarker;
-
     private GoogleApiClient googleApiClient;
+
+    // Search line
     private AutoCompleteTextView autoTextView;
     private ArrayAdapter<String> adapter;
+    private ToggleButton confirmButton;
 
     private PartyDetailsActivity activity;
 
-    private DatabaseReference partiesReference;
+    // Firebase
+    private DatabaseReference partyReference;
 
     public PartyInfoFragment() {
     }
@@ -92,11 +99,11 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_party_info, container, false);
+        init(view);
         mapView = (MapView) view.findViewById(R.id.party_info_map_view);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-        init(view);
         return view;
     }
 
@@ -147,18 +154,34 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         place = getPlaceName(latLng);
         if (place != null) {
             autoTextView.setText(place);
-            updatePartyInfo(place);
         }
         autoTextView.setSelection(autoTextView.getText().length());
         autoTextView.setCursorVisible(true);
+        confirmButton.setClickable(true);
+        confirmButton.setChecked(false);
     }
 
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.party_info_text) {
             AutoCompleteTextView textView = (AutoCompleteTextView) v;
-            textView.setSelection(textView.getText().length());
             textView.setCursorVisible(true);
+        }
+    }
+
+    /**
+     * По нажатию на confirmButton пользователь подтверждает место проведения вечеринки.
+     * Карта перемещается в выбранное место, данные о месте проведения отправляются на сервер.
+     */
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (buttonView.getId() == R.id.party_info_confirm_button) {
+            if (isChecked) {
+                setMarker(autoTextView.getText().toString());
+                buttonView.setClickable(false);
+                updatePartyInfo(place);
+                autoTextView.setCursorVisible(false);
+            }
         }
     }
 
@@ -171,23 +194,11 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         boolean handled = false;
         if (actionId == EditorInfo.IME_ACTION_SEARCH) {
             place = text.getText().toString();
-            updatePartyInfo(place);
-
             if (!place.equals("")) {
                 handled = true;
-                updatePartyInfo(place);
                 hideKeyboard();
-                text.setCursorVisible(false);
-                ((AutoCompleteTextView) text).dismissDropDown();
-                LatLng latLng = getCoordinates(text.getText().toString());
-                if (latLng != null) {
-                    if (currentMarker != null) {
-                        currentMarker.remove();
-                    }
-                    currentMarker = map.addMarker(new MarkerOptions()
-                            .position(latLng));
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
-                }
+                ((AutoCompleteTextView)text).dismissDropDown();
+                setMarker(text.getText().toString());
             }
         }
         return handled;
@@ -199,9 +210,15 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        Bundle bundle = new Bundle();
-        bundle.putString(PREDICTION_QUERY, autoTextView.getText().toString());
-        getLoaderManager().restartLoader(0, bundle, callbacks);
+        if (!initial) {
+            Bundle bundle = new Bundle();
+            bundle.putString(PREDICTION_QUERY, autoTextView.getText().toString());
+            getLoaderManager().restartLoader(0, bundle, callbacks);
+            confirmButton.setChecked(false);
+            confirmButton.setClickable(true);
+        } else {
+            initial = false;
+        }
     }
 
     @Override
@@ -225,13 +242,21 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         this.currentParty = activity.getCurrentParty();
 
         geocoder = new Geocoder(activity, Locale.getDefault());
-        
-        partiesReference = FirebaseDatabase.getInstance().getReference().child("parties");
+
+        partyReference = FirebaseDatabase.getInstance().getReference().child("parties").child(currentParty.getKey());
+        place = currentParty.getPlace();
+
         autoTextView = (AutoCompleteTextView) view.findViewById(R.id.party_info_text);
         autoTextView.addTextChangedListener(this);
         autoTextView.setOnEditorActionListener(this);
         autoTextView.setOnClickListener(this);
         autoTextView.setCursorVisible(false);
+        if (place != null) {
+            autoTextView.setText(place);
+        }
+
+        confirmButton = (ToggleButton) view.findViewById(R.id.party_info_confirm_button);
+        confirmButton.setOnCheckedChangeListener(this);
     }
 
     /**
@@ -309,17 +334,17 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         currentParty.setPlace(place);
         HashMap<String, Object> task = new HashMap<>();
         task.put("place", currentParty.getPlace());
-        partiesReference.child(currentParty.getKey()).updateChildren(task);
+        partyReference.updateChildren(task);
     }
 
     /**
-     * Устанавливаем маркер на карту, если для текущей вечеринки было выбрано место проведения.
+     * Настройка маркера: устанавливаем маркер на карту, если для текущей вечеринки было выбрано место проведения.
      * Если не выбрано, просто приближаем карту к последнему известному местоположению пользователя или,
      * если не известно, то к дефолтному местоположению.
      */
     private void setUpMarker() {
         LatLng latLng;
-        if ((place = currentParty.getPlace()) == null) {
+        if (place == null) {
             if ((latLng = getLastKnownCoordinates()) == null) {
                 latLng = getDefaultCoordinates();
             }
@@ -330,7 +355,6 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
                 latLng = new LatLng(lat, lon);
                 currentMarker = map.addMarker(new MarkerOptions()
                         .position(latLng));
-                autoTextView.setText(getPlaceName(latLng));
             } catch (IOException e) {
                 latLng = getDefaultCoordinates();
                 Log.d(GEOCODER_ERROR, "Geocoder Error: " + e);
@@ -342,7 +366,23 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         } catch (SecurityException e) {
             Log.d(SECURITY_ERROR, "SecurityException: " + e);
         }
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, MAP_SCALE));
+    }
+
+    /**
+     * Ставим маркер на карту.
+     * @param text адрес, для которого ставится маркер.
+     */
+    private void setMarker(String text) {
+        LatLng latLng = getCoordinates(text);
+        if (latLng != null) {
+            if (currentMarker != null) {
+                currentMarker.remove();
+            }
+            currentMarker = map.addMarker(new MarkerOptions()
+                    .position(latLng));
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, MAP_SCALE));
+        }
     }
 
     private void hideKeyboard() {
@@ -360,7 +400,8 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     private LoaderManager.LoaderCallbacks<List<String>> callbacks = new LoaderManager.LoaderCallbacks<List<String>>() {
         @Override
         public Loader<List<String>> onCreateLoader(int id, Bundle args) {
-            return new PredictionsLoader(activity, googleApiClient, args.getString(PREDICTION_QUERY));
+            PredictionsLoader loader = new PredictionsLoader(activity, googleApiClient, args.getString(PREDICTION_QUERY));
+            return loader;
         }
 
         /**
@@ -379,5 +420,4 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
 
         }
     };
-
 }

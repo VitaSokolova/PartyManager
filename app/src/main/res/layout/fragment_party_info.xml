@@ -4,20 +4,45 @@
     android:layout_height="match_parent"
     tools:context="com.vsu.nastya.partymanager.party_info.PartyInfoFragment">
 
-    <AutoCompleteTextView
-        android:id="@+id/party_info_text"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:textSize="18sp"
-        android:padding="16dp"
-        android:inputType="textAutoComplete"
-        android:imeOptions="actionSearch"/>
+        android:layout_height="55dp"
+        android:orientation="horizontal"
+        android:id="@+id/party_info_linear">
+
+        <AutoCompleteTextView
+            android:id="@+id/party_info_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="55dp"
+            android:layout_marginEnd="55dp"
+            android:gravity="center_vertical"
+            android:imeOptions="actionSearch"
+            android:inputType="textAutoComplete"
+            android:padding="16dp"
+            android:textSize="18sp" />
+
+        <ToggleButton
+            android:id="@+id/party_info_confirm_button"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:adjustViewBounds="true"
+            android:background="@drawable/ic_circle_bg"
+            android:checked="true"
+            android:padding="2dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/confirm_button"
+            android:textOff=""
+            android:textOn="" />
+    </RelativeLayout>
 
     <com.google.android.gms.maps.MapView
+        android:id="@+id/party_info_map_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/party_info_text"
-        android:apiKey="@string/google_maps_key"
-        android:id="@+id/party_info_map_view" />
+        android:layout_below="@id/party_info_linear"
+        android:apiKey="@string/google_maps_key" />
+
 </RelativeLayout>
