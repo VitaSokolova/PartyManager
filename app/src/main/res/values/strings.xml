@@ -25,5 +25,6 @@
     <string name="alertGuestNameIsEmpty">Заполните имя гостя</string>
     <string name="alertSomeFieldsAreEmpty">Заполните все поля</string>
     <string name="logout">Выйти</string>
+    <string name="place_is_set">Место проведения установлено</string>
     <integer name="com_vk_sdk_AppId">5747918</integer>
 </resources>

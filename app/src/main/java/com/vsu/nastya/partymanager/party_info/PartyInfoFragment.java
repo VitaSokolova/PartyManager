@@ -39,8 +39,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
@@ -64,6 +68,7 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     private static final int PERMISSION_REQUEST_CODE = 1;
     private static final String SECURITY_ERROR = "security_error";
     private static final String GEOCODER_ERROR = "geocoder_error";
+    private static final String FIREBASE_ERROR = "firebase_error";
     private static final String PREDICTION_QUERY = "query";
     private static final float MAP_SCALE = 16;
 
@@ -87,6 +92,8 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
 
     // Firebase
     private DatabaseReference partyReference;
+    private DatabaseReference placeReference;
+    private ValueEventListener placeListener;
 
     public PartyInfoFragment() {
     }
@@ -123,6 +130,18 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         googleApiClient.connect();
         adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, new ArrayList<String>());
         autoTextView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        attachDatabaseReadListener();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        detachDatabaseReadListener();
     }
 
     @Override
@@ -179,8 +198,10 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
             if (isChecked) {
                 setMarker(autoTextView.getText().toString());
                 buttonView.setClickable(false);
+                place = autoTextView.getText().toString();
                 updatePartyInfo(place);
                 autoTextView.setCursorVisible(false);
+                Toast.makeText(activity, getResources().getString(R.string.place_is_set), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -244,6 +265,7 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         geocoder = new Geocoder(activity, Locale.getDefault());
 
         partyReference = FirebaseDatabase.getInstance().getReference().child("parties").child(currentParty.getKey());
+        placeReference = partyReference.child("place");
         place = currentParty.getPlace();
 
         autoTextView = (AutoCompleteTextView) view.findViewById(R.id.party_info_text);
@@ -391,6 +413,44 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    /**
+     * Отслеживание изменения в базе места проведения вечеринки.
+     */
+    private void attachDatabaseReadListener() {
+        if (placeListener == null) {
+
+            placeListener = new ValueEventListener() {
+
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    place = (String) dataSnapshot.getValue();
+                    if (place != null) {
+                        autoTextView.setText(place);
+                        setMarker(place);
+                    } else {
+                        autoTextView.setText("");
+                    }
+                    confirmButton.setChecked(true);
+                    confirmButton.setClickable(false);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Обычно вызывается, когда нет прав на чтение данных из базы
+                    Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
+                }
+            };
+            placeReference.addValueEventListener(placeListener);
+        }
+    }
+
+    private void detachDatabaseReadListener() {
+        if (placeListener != null) {
+            placeReference.removeEventListener(placeListener);
+            placeListener = null;
         }
     }
 
