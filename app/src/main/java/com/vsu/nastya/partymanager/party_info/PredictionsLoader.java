@@ -58,9 +58,25 @@ public class PredictionsLoader extends AsyncTaskLoader<List<String>> {
 
         for (AutocompletePrediction prediction : autocompletePredictions) {
             // Get the details of this prediction and copy it into a new PlaceAutocomplete object.
-            data.add(prediction.getFullText(null).toString());
+            String address = getAddress(prediction.getFullText(null).toString());
+            data.add(address);
         }
         autocompletePredictions.release();
         return data;
+    }
+
+    /**
+     * Получение адреса из полной строки (подсказки) в формате: Улица, Город или
+     * Улица, номер дома, Город.
+     */
+    private String getAddress (String prediction) {
+        String [] str = prediction.split(",");
+        if (str.length == 4) {
+            return str[0] + ", " + str[1];
+        } else if (str.length == 5) {
+            return  str[0] + ", " + str[1] + ", " + str[2];
+        } else {
+            return prediction;
+        }
     }
 }
