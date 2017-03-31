@@ -73,7 +73,7 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     private static final float MAP_SCALE = 16;
 
     private Party currentParty;
-    private boolean initial = true;
+    private boolean doNotCallListener = false;
 
     // Google Map
     private String place;
@@ -158,7 +158,7 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         }
 
         this.map = googleMap;
-        setUpMarker();
+        //setUpMarker();
         map.setOnMapClickListener(this);
         mapView.onResume();
     }
@@ -196,10 +196,11 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (buttonView.getId() == R.id.party_info_confirm_button) {
             if (isChecked) {
-                setMarker(autoTextView.getText().toString());
-                buttonView.setClickable(false);
                 place = autoTextView.getText().toString();
+                setMarker(place);
+                hidePredictions();
                 updatePartyInfo(place);
+                buttonView.setClickable(false);
                 autoTextView.setCursorVisible(false);
                 Toast.makeText(activity, getResources().getString(R.string.place_is_set), Toast.LENGTH_SHORT).show();
             }
@@ -231,14 +232,14 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if (!initial) {
+        if (!doNotCallListener) {
             Bundle bundle = new Bundle();
             bundle.putString(PREDICTION_QUERY, autoTextView.getText().toString());
             getLoaderManager().restartLoader(0, bundle, callbacks);
             confirmButton.setChecked(false);
             confirmButton.setClickable(true);
         } else {
-            initial = false;
+            autoTextView.dismissDropDown();
         }
     }
 
@@ -266,18 +267,15 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
 
         partyReference = FirebaseDatabase.getInstance().getReference().child("parties").child(currentParty.getKey());
         placeReference = partyReference.child("place");
-        place = currentParty.getPlace();
 
         autoTextView = (AutoCompleteTextView) view.findViewById(R.id.party_info_text);
         autoTextView.addTextChangedListener(this);
         autoTextView.setOnEditorActionListener(this);
         autoTextView.setOnClickListener(this);
         autoTextView.setCursorVisible(false);
-        if (place != null) {
-            autoTextView.setText(place);
-        }
 
         confirmButton = (ToggleButton) view.findViewById(R.id.party_info_confirm_button);
+        confirmButton.setClickable(false);
         confirmButton.setOnCheckedChangeListener(this);
     }
 
@@ -322,7 +320,7 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
             List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
             if (addresses != null && addresses.size() != 0) {
                 Address address = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1).get(0);
-                placeName = address.getAddressLine(0);
+                placeName = address.getAddressLine(0) + ", " + address.getAddressLine(1);
             }
         } catch (IOException e) {
             Log.d(GEOCODER_ERROR, "Geocoder Error: " + e);
@@ -360,29 +358,14 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     }
 
     /**
-     * Настройка маркера: устанавливаем маркер на карту, если для текущей вечеринки было выбрано место проведения.
-     * Если не выбрано, просто приближаем карту к последнему известному местоположению пользователя или,
+     * Настройка карты: просто приближаем карту к последнему известному местоположению пользователя или,
      * если не известно, то к дефолтному местоположению.
      */
-    private void setUpMarker() {
+    private void setUpMap() {
         LatLng latLng;
-        if (place == null) {
-            if ((latLng = getLastKnownCoordinates()) == null) {
+        if ((latLng = getLastKnownCoordinates()) == null) {
                 latLng = getDefaultCoordinates();
-            }
-        } else {
-            try {
-                double lat = geocoder.getFromLocationName(place, 1).get(0).getLatitude();
-                double lon = geocoder.getFromLocationName(place, 1).get(0).getLongitude();
-                latLng = new LatLng(lat, lon);
-                currentMarker = map.addMarker(new MarkerOptions()
-                        .position(latLng));
-            } catch (IOException e) {
-                latLng = getDefaultCoordinates();
-                Log.d(GEOCODER_ERROR, "Geocoder Error: " + e);
-            }
         }
-
         try {
             map.setMyLocationEnabled(true);
         } catch (SecurityException e) {
@@ -416,6 +399,12 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         }
     }
 
+    private void hidePredictions() {
+        adapter.clear();
+        adapter.notifyDataSetChanged();
+        autoTextView.dismissDropDown();
+    }
+
     /**
      * Отслеживание изменения в базе места проведения вечеринки.
      */
@@ -428,13 +417,15 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     place = (String) dataSnapshot.getValue();
                     if (place != null) {
+                        doNotCallListener = true;
                         autoTextView.setText(place);
+                        doNotCallListener = false;
                         setMarker(place);
                     } else {
-                        autoTextView.setText("");
+                        setUpMap();
+                        confirmButton.setChecked(false);
+                        confirmButton.setClickable(true);
                     }
-                    confirmButton.setChecked(true);
-                    confirmButton.setClickable(false);
                 }
 
                 @Override
@@ -477,7 +468,6 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
 
         @Override
         public void onLoaderReset(Loader<List<String>> loader) {
-
         }
     };
 }
