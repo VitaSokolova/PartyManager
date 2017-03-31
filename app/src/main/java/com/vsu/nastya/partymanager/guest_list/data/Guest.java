@@ -49,5 +49,4 @@ public class Guest implements Serializable {
         this.vkId = vkId;
     }
 
-
 }

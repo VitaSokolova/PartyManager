@@ -13,7 +13,7 @@ import java.util.ArrayList;
 //создала я этот класс и крепко задумалась о том как получать из него эти данные из всех точек
 //в голову пришел Singleton, но это надо обсудить
 
-public class User {
+public class User{
 
     private String firstName;
     private String lastName;
@@ -97,6 +97,9 @@ public class User {
         friendsList.add(friend);
     }
 
+    public String getFullName() {
+        return this.firstName + " " + this.lastName;
+    }
 //    public String[] getFriendsNames() {
 //
 //    }

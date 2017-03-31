@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.logic.Friend;
+import com.vsu.nastya.partymanager.logic.VkFriendsWorker;
 
 import java.util.ArrayList;
 
@@ -72,14 +73,13 @@ public class EditItemDialogFragment extends DialogFragment {
         initData();
         initQuantitySeekBar();
         initPriceSeekBar();
-
         showData();
 
 
         final AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setView(main_view)
                 .setTitle(R.string.edit)
-                .setPositiveButton(R.string.ok, null) //Set to null. We override the onclick
+                .setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel, null)
                 .create();
 
@@ -102,7 +102,7 @@ public class EditItemDialogFragment extends DialogFragment {
                             toast.show();
                         } else {
                             String name = whoBuyAutoCompleteView.getText().toString();
-                            listener.onItemClick(nameTxtView.getText().toString(), new Guest(name, getVkFriendIdByName(name)), quantity, price);
+                            listener.onItemClick(nameTxtView.getText().toString(), new Guest(name, VkFriendsWorker.getVkFriendIdByName(name, arrayListFriends)), quantity, price);
                             //если всё хорошо, то можно закрывать диалог
                             dialog.dismiss();
                         }
@@ -146,7 +146,7 @@ public class EditItemDialogFragment extends DialogFragment {
         this.quantityNumberTxt.setText(String.valueOf(this.quantity));
         this.priceNumberTxt.setText(String.valueOf(this.price));
         // Создаем адаптер для автозаполнения элемента AutoCompleteTextView
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.support_simple_spinner_dropdown_item, getVkFriendsArray());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.support_simple_spinner_dropdown_item, VkFriendsWorker.getVkFriendsArray(arrayListFriends));
         whoBuyAutoCompleteView.setAdapter(adapter);
 
         //исправляем баги AutoCompleteTextView советами со Stackoverflow
@@ -210,26 +210,5 @@ public class EditItemDialogFragment extends DialogFragment {
 
     public void setListener(EditItemDialogFragment.OnItemClickListener listener) {
         this.listener = listener;
-    }
-
-    public String[] getVkFriendsArray() {
-        String[] arrayFriends = new String[arrayListFriends.size()];
-        for (int i = 0; i < arrayListFriends.size(); i++) {
-            arrayFriends[i] = arrayListFriends.get(i).toString();
-        }
-        return arrayFriends;
-    }
-
-    /**
-     * @param name текст из поля ввода
-     * @return id этого друга
-     */
-    public String getVkFriendIdByName(String name) {
-        for (Friend friend : arrayListFriends) {
-            if (friend.toString().equals(name)) {
-                return friend.getVkId();
-            }
-        }
-        return null;
     }
 }
