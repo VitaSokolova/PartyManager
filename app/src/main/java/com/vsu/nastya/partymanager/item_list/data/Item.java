@@ -65,7 +65,7 @@ public class Item implements Serializable {
         if (obj instanceof Item){
             Item ptr = (Item) obj;
             //еще бы whoBrings сравнить
-            retVal = (ptr.name.equals(this.name))&&(ptr.quantity==this.quantity)&&(ptr.price==this.price);
+            retVal = (ptr.name.equals(this.name))&&(ptr.whoBrings.equals(this.whoBrings))&&(ptr.quantity==this.quantity)&&(ptr.price==this.price);
         }
 
         return retVal;

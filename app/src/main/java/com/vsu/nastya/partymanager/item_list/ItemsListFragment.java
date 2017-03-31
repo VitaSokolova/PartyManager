@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
@@ -49,10 +50,12 @@ public class ItemsListFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private FloatingActionButton addItemFAB;
     private TextView wholeSumTxt;
+    private TextView sumPerOneTxt;
     private ItemAdapter adapter;
     private ActionMode actionMode;
-    double sumPerOne = 0;
-    int wholeSum = 0;
+    private ProgressBar progressBar;
+    private int sumPerOne = 0;
+    private int wholeSum = 0;
 
     private DatabaseReference partyItemsReference;
     private ChildEventListener itemEventListener = null;
@@ -79,6 +82,7 @@ public class ItemsListFragment extends Fragment {
                         removeItemFromSum(item);
                         currentParty.getItems().remove(i);
                         mRecyclerView.getAdapter().notifyItemRemoved(i);
+                        partyItemsReference.removeValue();
                         partyItemsReference.setValue(currentParty.getItems());
                     }
                 }
@@ -147,9 +151,11 @@ public class ItemsListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_items_list, container, false);
 
         //находим вьюшки
+        // this.progressBar = (ProgressBar) view.findViewById(R.id.items_list_progressBar);
         this.mRecyclerView = (RecyclerView) view.findViewById(R.id.items_list_recycler_view);
         this.addItemFAB = (FloatingActionButton) view.findViewById(R.id.items_list_add_item_fab);
         this.wholeSumTxt = (TextView) view.findViewById(R.id.items_list_res_sum_number_txt);
+        this.sumPerOneTxt = (TextView) view.findViewById(R.id.items_list_personal_sum_number_txt);
 
         //инициализируем
         initRecycler();
@@ -175,8 +181,10 @@ public class ItemsListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // progressBar.setVisibility(ProgressBar.INVISIBLE);
         attachDatabaseReadListener();
-        attachStopProgressBarListener();
+        // attachStopProgressBarListener();
+        refreshSumPerOne();
     }
 
     @Override
@@ -254,19 +262,28 @@ public class ItemsListFragment extends Fragment {
         for (Item item : currentParty.getItems()) {
             wholeSum += item.getPrice() * item.getQuantity();
         }
+        sumPerOne = wholeSum / currentParty.getGuests().size();
         this.wholeSumTxt.setText(String.valueOf(wholeSum));
-
-        //TODO: как только мы получим вечеринку на эту активити, можно будет запросить количество гостей и заполнить второй текствью с суммой на человека
+        this.sumPerOneTxt.setText(String.valueOf(sumPerOne));
     }
 
     private void addItemToSum(Item item) {
         wholeSum += item.getPrice() * item.getQuantity();
         this.wholeSumTxt.setText(String.valueOf(wholeSum));
+        sumPerOne = wholeSum / currentParty.getGuests().size();
+        this.sumPerOneTxt.setText(String.valueOf(sumPerOne));
     }
 
     private void removeItemFromSum(Item item) {
         wholeSum -= item.getPrice() * item.getQuantity();
         this.wholeSumTxt.setText(String.valueOf(wholeSum));
+        sumPerOne = wholeSum / currentParty.getGuests().size();
+        this.sumPerOneTxt.setText(String.valueOf(sumPerOne));
+    }
+
+    private void refreshSumPerOne() {
+        sumPerOne = wholeSum / currentParty.getGuests().size();
+        this.sumPerOneTxt.setText(String.valueOf(sumPerOne));
     }
 
     /**
@@ -279,7 +296,7 @@ public class ItemsListFragment extends Fragment {
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Item item = dataSnapshot.getValue(Item.class);
                     //этот же кусочек исполняетс для загрузки покупок из вечеринки впервые
-                    if ((item != null) && (!currentParty.getItems().contains(item))) {
+                    if ((!currentParty.getItems().contains(item))) {
                         currentParty.getItems().add(item);
                         adapter.notifyItemInserted(currentParty.getItems().size());
                     }
@@ -318,19 +335,19 @@ public class ItemsListFragment extends Fragment {
                 }
 
 
-            @Override
-            public void onChildMoved (DataSnapshot dataSnapshot, String s){
-            }
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
 
-            @Override
-            public void onCancelled (DatabaseError databaseError){
-                // Обычно вызывается, когда нет прав на чтение данных из базы
-                Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
-            }
-        } ;
-        partyItemsReference.addChildEventListener(itemEventListener);
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Обычно вызывается, когда нет прав на чтение данных из базы
+                    Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
+                }
+            };
+            partyItemsReference.addChildEventListener(itemEventListener);
+        }
     }
-}
 
 
     /**
@@ -346,7 +363,7 @@ public class ItemsListFragment extends Fragment {
     private void attachStopProgressBarListener() {
         partyItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //progressBar.setVisibility(ProgressBar.INVISIBLE);
+//                progressBar.setVisibility(ProgressBar.INVISIBLE);
             }
 
             @Override
@@ -357,74 +374,74 @@ public class ItemsListFragment extends Fragment {
         });
     }
 
-private class ItemViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
+    private class ItemViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
 
-    public TextView itemName;
-    public TextView quantity;
-    public TextView quantityInPrice;
-    public TextView price;
-    public TextView whoBrings;
+        public TextView itemName;
+        public TextView quantity;
+        public TextView quantityInPrice;
+        public TextView price;
+        public TextView whoBrings;
 
-    public ItemViewHolder(View itemView) {
-        super(itemView, mMultiSelector);
-        this.itemName = (TextView) itemView.findViewById(R.id.item_name_txt);
-        this.quantity = (TextView) itemView.findViewById(R.id.item_quantity_txt);
-        this.quantityInPrice = (TextView) itemView.findViewById(R.id.item_quantity_in_price_txt);
-        this.price = (TextView) itemView.findViewById(R.id.item_price_txt);
-        this.whoBrings = (TextView) itemView.findViewById(R.id.item_who_brings_name_txt);
+        public ItemViewHolder(View itemView) {
+            super(itemView, mMultiSelector);
+            this.itemName = (TextView) itemView.findViewById(R.id.item_name_txt);
+            this.quantity = (TextView) itemView.findViewById(R.id.item_quantity_txt);
+            this.quantityInPrice = (TextView) itemView.findViewById(R.id.item_quantity_in_price_txt);
+            this.price = (TextView) itemView.findViewById(R.id.item_price_txt);
+            this.whoBrings = (TextView) itemView.findViewById(R.id.item_who_brings_name_txt);
 
-        itemView.setLongClickable(true);
-        itemView.setOnClickListener(this);
-        itemView.setOnLongClickListener(this);
-    }
+            itemView.setLongClickable(true);
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
+        }
 
-    @Override
-    public void onClick(View view) {
-        if (mMultiSelector.isSelectable()) {
-            // Selection is active; toggle activation
-            setActivated(!isActivated());
-            mMultiSelector.setSelected(ItemViewHolder.this, isActivated());
-            if (mMultiSelector.getSelectedPositions().size() == 0) {
-                actionMode.finish();
+        @Override
+        public void onClick(View view) {
+            if (mMultiSelector.isSelectable()) {
+                // Selection is active; toggle activation
+                setActivated(!isActivated());
+                mMultiSelector.setSelected(ItemViewHolder.this, isActivated());
+                if (mMultiSelector.getSelectedPositions().size() == 0) {
+                    actionMode.finish();
+                }
+            } else {
+                // Selection not active
             }
-        } else {
-            // Selection not active
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
+            mMultiSelector.setSelected(ItemViewHolder.this, true);
+            return true;
+
         }
     }
 
-    @Override
-    public boolean onLongClick(View view) {
-        actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
-        mMultiSelector.setSelected(ItemViewHolder.this, true);
-        return true;
+    private class ItemAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
+
+        @Override
+        public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_appearence, parent, false);
+            return new ItemViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(ItemViewHolder holder, int position) {
+            Item item = (Item) currentParty.getItems().get(position);
+
+            holder.itemName.setText(item.getName());
+            holder.quantity.setText(String.valueOf(item.getQuantity()));
+            holder.quantityInPrice.setText(String.valueOf(item.getQuantity()));
+            holder.whoBrings.setText(item.getWhoBrings().getGuestName());
+            holder.price.setText(String.valueOf(item.getPrice()));
+        }
+
+        @Override
+        public int getItemCount() {
+            return currentParty.getItems().size();
+        }
     }
-}
-
-private class ItemAdapter extends RecyclerView.Adapter<ItemViewHolder> {
-
-
-    @Override
-    public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_appearence, parent, false);
-        return new ItemViewHolder(itemView);
-    }
-
-    @Override
-    public void onBindViewHolder(ItemViewHolder holder, int position) {
-        Item item = (Item) currentParty.getItems().get(position);
-
-        holder.itemName.setText(item.getName());
-        holder.quantity.setText(String.valueOf(item.getQuantity()));
-        holder.quantityInPrice.setText(String.valueOf(item.getQuantity()));
-        holder.whoBrings.setText(item.getWhoBrings().getGuestName());
-        holder.price.setText(String.valueOf(item.getPrice()));
-    }
-
-    @Override
-    public int getItemCount() {
-        return currentParty.getItems().size();
-    }
-}
 
 }

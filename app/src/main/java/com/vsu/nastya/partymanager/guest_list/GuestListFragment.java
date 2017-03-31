@@ -16,9 +16,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
@@ -27,9 +27,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
-import com.vsu.nastya.partymanager.item_list.data.Item;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
 
@@ -50,9 +50,10 @@ public class GuestListFragment extends Fragment {
     private GuestAdapter adapter;
     private MultiSelector mMultiSelector = new MultiSelector();
     private ActionMode actionMode;
-
+    private ProgressBar progressBar;
+    private FirebaseDatabase firebaseDatabase;
     private DatabaseReference guestsDatabaseReference;
-    private ChildEventListener guestsEventListner;
+    private ChildEventListener guestsEventListener;
 
     private ModalMultiSelectorCallback mActionModeCallback = new ModalMultiSelectorCallback(mMultiSelector) {
         //открывается наше меню
@@ -73,6 +74,7 @@ public class GuestListFragment extends Fragment {
                         //TODO:удалить еще и из базы и вообще навсегда
                         guestList.remove(i);
                         mRecyclerView.getAdapter().notifyItemRemoved(i);
+                        guestsDatabaseReference.setValue(currentParty.getGuests());
                     }
                 }
                 actionMode.finish();
@@ -90,6 +92,7 @@ public class GuestListFragment extends Fragment {
                             Guest guest = guestList.get(indexes.get(0));
                             guest.setGuestName(text);
                             adapter.notifyItemChanged(indexes.get(0));
+                            guestsDatabaseReference.child(String.valueOf(indexes.get(0))).setValue(guest);
 
                         }
                     });
@@ -123,12 +126,13 @@ public class GuestListFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_guest_list, container, false);
 
-        FirebaseDatabase fireBaseDatabase = FirebaseDatabase.getInstance();
-        this.guestsDatabaseReference = fireBaseDatabase.getReference().child("parties").child(currentParty.getKey()).child("guests");
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        this.guestsDatabaseReference = firebaseDatabase.getReference().child("parties").child(currentParty.getKey()).child("guests");
 
         this.guestList = new ArrayList<>();
         this.adapter = new GuestAdapter();
 
+        progressBar = (ProgressBar) view.findViewById(R.id.guest_list_progressBar);
         this.mRecyclerView = (RecyclerView) view.findViewById(R.id.guest_list_recycler_view);
         this.addGuestFab = (FloatingActionButton) view.findViewById(R.id.guest_list_add_fab);
 
@@ -148,6 +152,20 @@ public class GuestListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
+        attachDatabaseReadListener();
+      //  attachStopProgressBarListener();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        detachDatabaseReadListener();
     }
 
     @Override
@@ -177,19 +195,25 @@ public class GuestListFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-    //получаем нашего нового гостя
+    /**
+     * получаем нашего нового гостя
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data == null) {
             return;
         }
         Guest newGuest = (Guest) data.getSerializableExtra("guest");
+        guestsDatabaseReference.child(String.valueOf(currentParty.getGuests().size())).setValue(newGuest);
         this.guestList.add(newGuest);
         this.adapter.notifyItemInserted(this.guestList.size());
+
+        addPartyIdToGuestPartyList(newGuest);
     }
 
-
-    //инициализирует RecyclerView
+    /**
+     * инициализирует RecyclerView
+     */
     private void initRecycler() {
         //TODO: вытащить это список из экземпляра User, но пока пусть так
         guestList = this.currentParty.getGuests();
@@ -200,14 +224,41 @@ public class GuestListFragment extends Fragment {
         mRecyclerView.setAdapter(adapter);
     }
 
+    /**
+     * метод ищем в базе приложения пользователя с номером гостя и добавляет в его список вечеринок номер нашей вечеринки
+     *
+     * @param newGuest приглашенный гость
+     */
+    private void addPartyIdToGuestPartyList(Guest newGuest) {
+        DatabaseReference rootDatabaseReference = firebaseDatabase.getReference();
+        if (newGuest.getVkId() != null) {
+            final DatabaseReference guestPartiesDatabaseRef = rootDatabaseReference.child("users").child(newGuest.getVkId()).child("partiesIdList");
+            guestPartiesDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    long count = dataSnapshot.getChildrenCount();
+                    guestPartiesDatabaseRef.child(String.valueOf(count)).setValue(currentParty.getKey());
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+    }
+
+    /**
+     * снимаем слушателя с базы
+     */
     private void attachDatabaseReadListener() {
-        if (guestsEventListner == null) {
-            guestsEventListner = new ChildEventListener() {
+        if (guestsEventListener == null) {
+            guestsEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Guest guest = dataSnapshot.getValue(Guest.class);
-                    //этот же кусочек исполняетс для загрузки покупок из вечеринки впервые
-                    if ((guest != null) && (!currentParty.getGuests().contains(guest))) {
+                    //этот же кусочек исполняетс для загрузки гостей вечеринки впервые
+                    if ((!currentParty.getGuests().contains(guest))) {
                         currentParty.getGuests().add(guest);
                         adapter.notifyItemInserted(currentParty.getGuests().size());
                     }
@@ -248,9 +299,32 @@ public class GuestListFragment extends Fragment {
                     Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
                 }
             };
-            guestsDatabaseReference.addChildEventListener(guestsEventListner);
+            guestsDatabaseReference.addChildEventListener(guestsEventListener);
         }
     }
+
+    private void detachDatabaseReadListener() {
+        if (guestsEventListener != null) {
+            guestsDatabaseReference.removeEventListener(guestsEventListener);
+            guestsEventListener = null;
+        }
+    }
+
+    private void attachStopProgressBarListener() {
+        guestsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                progressBar.setVisibility(ProgressBar.INVISIBLE);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Обычно вызывается, когда нет прав на чтение данных из базы
+                Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
+            }
+        });
+    }
+
     //эти внутренние классы для адаптера и ViewHolder предлагает сюда поместить автор библиотеки для MultiSelection,
     //потому что это значительно упрощает работу с MultiSelector
     private class GuestViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {

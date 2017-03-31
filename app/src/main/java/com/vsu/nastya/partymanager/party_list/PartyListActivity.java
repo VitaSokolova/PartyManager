@@ -189,6 +189,9 @@ public class PartyListActivity extends AppCompatActivity {
                     usersReference.child(User.getInstance().getVkId()).
                             child("partiesIdList").
                             child(partyIndex).setValue(party.getKey());
+//                    usersReference.child(User.getInstance().getVkId()).
+//                            child("partiesCount").
+//                            child(partyIndex);
                 }
                 break;
             case EDIT_PARTY_REQUEST_CODE:
