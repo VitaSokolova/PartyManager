@@ -192,9 +192,6 @@ public class PartyListActivity extends AppCompatActivity {
                     usersReference.child(User.getInstance().getVkId()).
                             child("partiesIdList").
                             child(partyIndex).setValue(party.getKey());
-//                    usersReference.child(User.getInstance().getVkId()).
-//                            child("partiesCount").
-//                            child(partyIndex);
                 }
                 break;
             case EDIT_PARTY_REQUEST_CODE:
@@ -204,8 +201,6 @@ public class PartyListActivity extends AppCompatActivity {
                     HashMap<String, Object> task = new HashMap<>();
                     task.put("name", newParty.getName());
                     task.put("date", newParty.getDate());
-                    task.put("items", newParty.getItems());
-                    task.put("guests", newParty.getGuests());
                     partiesReference.child(partiesList.get(position).getKey()).updateChildren(task);
                 }
                 break;
@@ -258,8 +253,6 @@ public class PartyListActivity extends AppCompatActivity {
 
         progressBar = (ProgressBar) findViewById(R.id.partyList_progressBar);
         progressBar.setVisibility(ProgressBar.INVISIBLE);
-
-        //attachDatabaseReadListener();
     }
 
     /**
