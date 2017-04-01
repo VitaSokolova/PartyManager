@@ -32,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.vk.sdk.VKSdk;
 import com.vsu.nastya.partymanager.MainActivity;
 import com.vsu.nastya.partymanager.R;
+import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.logic.DateWorker;
 import com.vsu.nastya.partymanager.logic.User;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
@@ -177,11 +178,13 @@ public class PartyListActivity extends AppCompatActivity {
             case ADD_PARTY_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     Party party = (Party) data.getSerializableExtra("party");
+                    User user = User.getInstance();
+                    party.getGuests().add(new Guest(user.getVkId(), user.getFullName()));
                     DatabaseReference reference = partiesReference.push();
                     party.setKey(reference.getKey());
                     reference.setValue(party);
 
-                    User user = User.getInstance();
+
                     user.getPartiesIdList().add(party.getKey());
 
                     // Заносим в базу новую вечеринку в список у текущего юзера
@@ -189,6 +192,9 @@ public class PartyListActivity extends AppCompatActivity {
                     usersReference.child(User.getInstance().getVkId()).
                             child("partiesIdList").
                             child(partyIndex).setValue(party.getKey());
+//                    usersReference.child(User.getInstance().getVkId()).
+//                            child("partiesCount").
+//                            child(partyIndex);
                 }
                 break;
             case EDIT_PARTY_REQUEST_CODE:

@@ -2,9 +2,10 @@ package com.vsu.nastya.partymanager.item_list;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +16,11 @@ import android.widget.Toast;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.item_list.data.Item;
+import com.vsu.nastya.partymanager.logic.Friend;
+import com.vsu.nastya.partymanager.logic.User;
+import com.vsu.nastya.partymanager.logic.VkFriendsWorker;
+
+import java.util.ArrayList;
 
 /**
  * Created by Вита on 01.12.2016.
@@ -22,8 +28,10 @@ import com.vsu.nastya.partymanager.item_list.data.Item;
 
 public class AddItemActivity extends AppCompatActivity {
 
+    private ArrayList<Friend> arrayListFriends;
+
     private EditText nameEditTxt;
-    private AutoCompleteTextView whoBuyEditTxt;
+    private AutoCompleteTextView whoBuyAutoCompleteTxt;
     private SeekBar quantitySeekBar;
     private SeekBar averagePriceSeekBar;
     private TextView quantityTxt;
@@ -46,10 +54,12 @@ public class AddItemActivity extends AppCompatActivity {
     }
 
     private void initView() {
-
+        arrayListFriends = User.getInstance().getFriendsList();
         nameEditTxt = (EditText) findViewById(R.id.item_name_edtxt);
-        whoBuyEditTxt = (AutoCompleteTextView) findViewById(R.id.item_who_autocomplete);
-        //TODO: надо закинуть в список для автодополнения гостей текущей вечеринки.
+        whoBuyAutoCompleteTxt = (AutoCompleteTextView) findViewById(R.id.item_who_autocomplete);
+        // Создаем адаптер для автозаполнения элемента AutoCompleteTextView
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, VkFriendsWorker.getVkFriendsArray(arrayListFriends));
+        whoBuyAutoCompleteTxt.setAdapter(adapter);
 
         addItemButton = (Button) findViewById(R.id.add_item_btn);
 
@@ -134,8 +144,8 @@ public class AddItemActivity extends AppCompatActivity {
     private Item getItemFromFields() {
 
         String itemName = String.valueOf(this.nameEditTxt.getText());
-        String who = String.valueOf(this.whoBuyEditTxt.getText());
-        Guest guest = new Guest(who);
+        String who = String.valueOf(this.whoBuyAutoCompleteTxt.getText());
+        Guest guest = new Guest(VkFriendsWorker.getVkFriendIdByName(who, arrayListFriends), who);
 
         Item item = new Item(itemName, quantityNumber, guest, priceNumber);
 

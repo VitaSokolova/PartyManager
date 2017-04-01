@@ -12,7 +12,9 @@ import android.widget.Toast;
 
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
+import com.vsu.nastya.partymanager.logic.Friend;
 import com.vsu.nastya.partymanager.logic.User;
+import com.vsu.nastya.partymanager.logic.VkFriendsWorker;
 
 import java.util.ArrayList;
 
@@ -24,7 +26,7 @@ public class AddGuestActivity extends AppCompatActivity {
 
     private Button addBtn;
     private AutoCompleteTextView autoCompleteTextView;
-
+    private ArrayList<Friend> arrayListFriends;
     private Guest newGuest;
 
     @Override
@@ -32,12 +34,15 @@ public class AddGuestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_guest);
 
+        //список друзей из контакта для автодополнения
+        User user = User.getInstance();
+        this.arrayListFriends = user.getFriendsList();
+
         this.addBtn = (Button) findViewById(R.id.add_guest_btn);
         this.autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.add_guest_autocomplete_txt);
-        // TODO: Надо получить массив строк из списка друзей вконтакте для автозаполнения
 
         // Создаем адаптер для автозаполнения элемента AutoCompleteTextView
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, getVkFriendsArray());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, VkFriendsWorker.getVkFriendsArray(this.arrayListFriends));
         autoCompleteTextView.setAdapter(adapter);
 
         this.addBtn.setOnClickListener(new View.OnClickListener() {
@@ -48,9 +53,8 @@ public class AddGuestActivity extends AppCompatActivity {
                             R.string.alertGuestNameIsEmpty, Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
-
-                    // этого гостя мы потом правильно создадим по указанным полям
-                    newGuest = new Guest(getTextFromField());
+                    String name = getTextFromField();
+                    newGuest = new Guest(VkFriendsWorker.getVkFriendIdByName(name, arrayListFriends), name);
                     Intent intent = new Intent();
                     intent.putExtra("guest", newGuest);
                     setResult(RESULT_OK, intent);
@@ -66,16 +70,6 @@ public class AddGuestActivity extends AppCompatActivity {
 
     private boolean isTextFieldEmpty() {
         return this.autoCompleteTextView.getText().toString().isEmpty();
-    }
-    private String[] getVkFriendsArray(){
-        User user = User.getInstance();
-        ArrayList arrayListFriends = user.getFriendsList();
-        String[] arrayFriends = new String[arrayListFriends.size()];
-
-        for (int i = 0; i < arrayListFriends.size(); i++) {
-            arrayFriends[i] = arrayListFriends.get(i).toString();
-        }
-        return  arrayFriends;
     }
 }
 

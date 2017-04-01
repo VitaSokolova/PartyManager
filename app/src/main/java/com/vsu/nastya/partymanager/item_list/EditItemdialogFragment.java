@@ -7,6 +7,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +17,10 @@ import android.widget.Toast;
 
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
+import com.vsu.nastya.partymanager.logic.Friend;
+import com.vsu.nastya.partymanager.logic.VkFriendsWorker;
+
+import java.util.ArrayList;
 
 /**
  * Created by Вита on 30.01.2017.
@@ -27,7 +32,7 @@ public class EditItemDialogFragment extends DialogFragment {
     private OnItemClickListener listener;
 
     private EditText nameTxtView;
-    private AutoCompleteTextView whoBuyTxtView;
+    private AutoCompleteTextView whoBuyAutoCompleteView;
     private TextView quantityNumberTxt;
     private TextView priceNumberTxt;
     private SeekBar quantitySeekBar;
@@ -37,6 +42,8 @@ public class EditItemDialogFragment extends DialogFragment {
     private Guest whoBuy;
     private int quantity;
     private int price;
+
+    private ArrayList<Friend> arrayListFriends;
 
     public interface OnItemClickListener {
         void onItemClick(String whatToBuy, Guest whoBuy, int quantity, int price);
@@ -66,14 +73,13 @@ public class EditItemDialogFragment extends DialogFragment {
         initData();
         initQuantitySeekBar();
         initPriceSeekBar();
-
         showData();
 
 
         final AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setView(main_view)
                 .setTitle(R.string.edit)
-                .setPositiveButton(R.string.ok, null) //Set to null. We override the onclick
+                .setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel, null)
                 .create();
 
@@ -90,12 +96,13 @@ public class EditItemDialogFragment extends DialogFragment {
 
                         //я вполне допускаю, что price может быть == 0. Например вы вносите в список клубничку, которую сорвете у себя на даче,
                         // вам надо не забыть её сорвать, а следовательно внести список, но стоимость её будет == 0
-                        if (nameTxtView.getText().toString().isEmpty() || (whoBuyTxtView.getText().toString().isEmpty()) || (quantity == 0)) {
+                        if (nameTxtView.getText().toString().isEmpty() || (whoBuyAutoCompleteView.getText().toString().isEmpty()) || (quantity == 0)) {
                             Toast toast = Toast.makeText(getContext(),
                                     R.string.alertSomeFieldsAreEmpty, Toast.LENGTH_SHORT);
                             toast.show();
                         } else {
-                            listener.onItemClick(nameTxtView.getText().toString(), new Guest(whoBuyTxtView.getText().toString()), quantity, price);
+                            String name = whoBuyAutoCompleteView.getText().toString();
+                            listener.onItemClick(nameTxtView.getText().toString(), new Guest(name, VkFriendsWorker.getVkFriendIdByName(name, arrayListFriends)), quantity, price);
                             //если всё хорошо, то можно закрывать диалог
                             dialog.dismiss();
                         }
@@ -118,7 +125,7 @@ public class EditItemDialogFragment extends DialogFragment {
     //отыскиваем все вьюшки, задействованные в коде
     private void initViews(View main_view) {
         this.nameTxtView = (EditText) main_view.findViewById(R.id.item_name_edtxt);
-        this.whoBuyTxtView = (AutoCompleteTextView) main_view.findViewById(R.id.item_who_autocomplete);
+        this.whoBuyAutoCompleteView = (AutoCompleteTextView) main_view.findViewById(R.id.item_who_autocomplete);
         this.quantitySeekBar = (SeekBar) main_view.findViewById(R.id.item_quantity_seekbar);
         this.priceSeekBar = (SeekBar) main_view.findViewById(R.id.item_price_seekbar);
         this.quantityNumberTxt = (TextView) main_view.findViewById(R.id.item_quantity_number_txt);
@@ -138,17 +145,20 @@ public class EditItemDialogFragment extends DialogFragment {
         this.nameTxtView.setText(this.whatToBuy);
         this.quantityNumberTxt.setText(String.valueOf(this.quantity));
         this.priceNumberTxt.setText(String.valueOf(this.price));
+        // Создаем адаптер для автозаполнения элемента AutoCompleteTextView
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.support_simple_spinner_dropdown_item, VkFriendsWorker.getVkFriendsArray(arrayListFriends));
+        whoBuyAutoCompleteView.setAdapter(adapter);
 
         //исправляем баги AutoCompleteTextView советами со Stackoverflow
-        whoBuyTxtView.postDelayed(new Runnable() {
+        whoBuyAutoCompleteView.postDelayed(new Runnable() {
             @Override
             public void run() {
-                whoBuyTxtView.showDropDown();
+                whoBuyAutoCompleteView.showDropDown();
             }
         }, 500);
-        whoBuyTxtView.setText(this.whoBuy.getGuestName());
-        whoBuyTxtView.dismissDropDown();
-        whoBuyTxtView.setSelection(whoBuyTxtView.getText().length());
+        whoBuyAutoCompleteView.setText(this.whoBuy.getGuestName());
+        whoBuyAutoCompleteView.dismissDropDown();
+        whoBuyAutoCompleteView.setSelection(whoBuyAutoCompleteView.getText().length());
     }
 
     //этот метод инициализирует SeekBar, отвечающий за количество
