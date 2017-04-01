@@ -26,5 +26,6 @@
     <string name="alertSomeFieldsAreEmpty">Заполните все поля</string>
     <string name="logout">Выйти</string>
     <string name="place_is_set">Место проведения установлено</string>
+    <string name="network_is_not_available">Нет подключения к интернету</string>
     <integer name="com_vk_sdk_AppId">5747918</integer>
 </resources>

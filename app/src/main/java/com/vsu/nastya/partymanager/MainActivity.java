@@ -14,6 +14,7 @@ import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
+import com.vsu.nastya.partymanager.logic.Network;
 
 /**
  * Экран со списком всех вечеринок
@@ -44,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+
+        if (!Network.networkIsAvailable(this)) {
+            Toast.makeText(this, getResources().getString(R.string.network_is_not_available), Toast.LENGTH_LONG).show();
+        }
+
         Button loginButton = (Button) findViewById(R.id.loginActv_login_button);
 
         loginButton.setOnClickListener(new View.OnClickListener() {

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -18,6 +19,7 @@ import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
 import com.vsu.nastya.partymanager.logic.Friend;
+import com.vsu.nastya.partymanager.logic.Network;
 import com.vsu.nastya.partymanager.logic.User;
 import com.vsu.nastya.partymanager.party_list.PartyListActivity;
 
@@ -25,6 +27,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Окно, в котором показывается прогресс, пока грузятся данные.
+ */
 public class SingInProcessActivity extends AppCompatActivity {
 
     private static final String VK_ERROR = "vk_error";
@@ -42,6 +47,10 @@ public class SingInProcessActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in_process);
+
+        if (!Network.networkIsAvailable(this)) {
+            Toast.makeText(this, getResources().getString(R.string.network_is_not_available), Toast.LENGTH_LONG).show();
+        }
 
         usersReference = FirebaseDatabase.getInstance().getReference().child("users");
         onSignIn(VKAccessToken.currentToken());
