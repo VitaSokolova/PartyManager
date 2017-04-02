@@ -18,6 +18,7 @@ import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.item_list.data.Item;
 import com.vsu.nastya.partymanager.logic.Friend;
 import com.vsu.nastya.partymanager.logic.User;
+import com.vsu.nastya.partymanager.party_list.Party;
 import com.vsu.nastya.partymanager.logic.VkFriendsWorker;
 
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ import java.util.ArrayList;
 
 public class AddItemActivity extends AppCompatActivity {
 
-    private ArrayList<Friend> arrayListFriends;
-
+    private ArrayList<Guest> arrayListGuests;
+    private String[] currentPartyGuests;
     private EditText nameEditTxt;
     private AutoCompleteTextView whoBuyAutoCompleteTxt;
     private SeekBar quantitySeekBar;
@@ -49,16 +50,16 @@ public class AddItemActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.currentPartyGuests = getIntent().getStringArrayExtra("guestsNames");
         setContentView(R.layout.activity_add_item);
         initView();
     }
 
     private void initView() {
-        arrayListFriends = User.getInstance().getFriendsList();
         nameEditTxt = (EditText) findViewById(R.id.item_name_edtxt);
         whoBuyAutoCompleteTxt = (AutoCompleteTextView) findViewById(R.id.item_who_autocomplete);
         // Создаем адаптер для автозаполнения элемента AutoCompleteTextView
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, VkFriendsWorker.getVkFriendsArray(arrayListFriends));
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, this.currentPartyGuests);
         whoBuyAutoCompleteTxt.setAdapter(adapter);
 
         addItemButton = (Button) findViewById(R.id.add_item_btn);
@@ -145,7 +146,7 @@ public class AddItemActivity extends AppCompatActivity {
 
         String itemName = String.valueOf(this.nameEditTxt.getText());
         String who = String.valueOf(this.whoBuyAutoCompleteTxt.getText());
-        Guest guest = new Guest(VkFriendsWorker.getVkFriendIdByName(who, arrayListFriends), who);
+        Guest guest = new Guest(VkFriendsWorker.getVkFriendIdByName(who, User.getInstance().getFriendsList()), who);
 
         Item item = new Item(itemName, quantityNumber, guest, priceNumber);
 

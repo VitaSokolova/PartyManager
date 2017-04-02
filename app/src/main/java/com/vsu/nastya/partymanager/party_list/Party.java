@@ -16,12 +16,13 @@ public class Party implements Serializable {
     private String key;
     private String name;
     private long date;
-    private ArrayList<Item> items =  new ArrayList<>();
+    private ArrayList<Item> items = new ArrayList<>();
     private ArrayList<Guest> guests = new ArrayList<>();
     private String place;
     //Еще потом добавим messages
 
-    public Party() {}
+    public Party() {
+    }
 
     public Party(String partyName, long date) {
         this.name = partyName;
@@ -76,8 +77,12 @@ public class Party implements Serializable {
         this.place = place;
     }
 
-    //    public static Party makePartyFromHashMap(HashMap<String, Object> hashMap){
-//
-//    }
+    public String[] getGuestsNames() {
+        String[] arrayGuests = new String[guests.size()];
+        for (int i = 0; i < guests.size(); i++) {
+            arrayGuests[i] = guests.get(i).getGuestName();
+        }
+        return arrayGuests;
+    }
 }
 

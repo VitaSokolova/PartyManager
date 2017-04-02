@@ -165,6 +165,7 @@ public class ItemsListFragment extends Fragment {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), AddItemActivity.class);
                 // 2 - requestCode
+                intent.putExtra("guestsNames", currentParty.getGuestsNames());
                 startActivityForResult(intent, 2);
             }
         });
@@ -236,10 +237,6 @@ public class ItemsListFragment extends Fragment {
     public void onPause() {
         super.onPause();
         detachDatabaseReadListener();
-    }
-
-    private void getItemsFromDatabase() {
-
     }
 
     /**

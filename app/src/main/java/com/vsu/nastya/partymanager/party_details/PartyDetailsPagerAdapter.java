@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.vsu.nastya.partymanager.guest_list.GuestListFragment;
 import com.vsu.nastya.partymanager.item_list.ItemsListFragment;
+import com.vsu.nastya.partymanager.messager_list.MessageListFragment;
 import com.vsu.nastya.partymanager.party_info.PartyInfoFragment;
 
 /**
@@ -14,7 +15,7 @@ import com.vsu.nastya.partymanager.party_info.PartyInfoFragment;
 
 public class PartyDetailsPagerAdapter extends FragmentPagerAdapter {
 
-    private static final int COUNT = 3;
+    private static final int COUNT = 4;
 
     public PartyDetailsPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -28,6 +29,8 @@ public class PartyDetailsPagerAdapter extends FragmentPagerAdapter {
             case 1:
                 return GuestListFragment.newInstance();
             case 2:
+                return MessageListFragment.newInstance();
+            case 3:
                 return PartyInfoFragment.newInstance();
             default:
                 return ItemsListFragment.newInstance();
