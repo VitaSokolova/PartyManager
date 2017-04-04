@@ -39,7 +39,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -107,9 +106,6 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_party_info, container, false);
         init(view);
-        mapView = (MapView) view.findViewById(R.id.party_info_map_view);
-        mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
 
         return view;
     }
@@ -130,6 +126,15 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         googleApiClient.connect();
         adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, new ArrayList<String>());
         autoTextView.setAdapter(adapter);
+
+        mapView = (MapView) activity.findViewById(R.id.party_info_map_view);
+        mapView.onCreate(savedInstanceState);
+
+        if (arePermissionsGranted()) {
+            mapView.getMapAsync(this);
+        } else {
+            requestPermissions();
+        }
     }
 
     @Override
@@ -146,21 +151,12 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        // Проверка прав
-        if (ActivityCompat.checkSelfPermission(activity, ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(activity, ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION},
-                    PERMISSION_REQUEST_CODE);
-            return;
-        }
-
         this.map = googleMap;
-        //setUpMarker();
         map.setOnMapClickListener(this);
         mapView.onResume();
+        if (place == null) {
+            setUpMap();
+        }
     }
 
     @Override
@@ -253,8 +249,9 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         if (permissions.length == 0 ||
                 grantResults[0] == PackageManager.PERMISSION_DENIED &&
                         grantResults[1] == PackageManager.PERMISSION_DENIED) {
-
             Toast.makeText(activity, "Permission denied!", Toast.LENGTH_LONG).show();
+        } else {
+            mapView.getMapAsync(this);
         }
     }
 
@@ -279,6 +276,18 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         confirmButton.setOnCheckedChangeListener(this);
     }
 
+    private boolean arePermissionsGranted() {
+        return (ActivityCompat.checkSelfPermission(activity, ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(activity, ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED);
+    }
+
+    private void requestPermissions() {
+        this.requestPermissions(new String[]{ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION},
+                PERMISSION_REQUEST_CODE);
+    }
+
     /**
      * Получение координат последнего известного местополжения пользователя.
      * @return LatLng координаты. Если не известно - null.
@@ -294,7 +303,6 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
                 if (location != null)
                     break;
             }
-
             if (location == null) {
                 return null;
             } else {
@@ -366,12 +374,14 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         if ((latLng = getLastKnownCoordinates()) == null) {
                 latLng = getDefaultCoordinates();
         }
-        try {
-            map.setMyLocationEnabled(true);
-        } catch (SecurityException e) {
-            Log.d(SECURITY_ERROR, "SecurityException: " + e);
+        if (map != null) {
+            try {
+                map.setMyLocationEnabled(true);
+            } catch (SecurityException e) {
+                Log.d(SECURITY_ERROR, "SecurityException: " + e);
+            }
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, MAP_SCALE));
         }
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, MAP_SCALE));
     }
 
     /**
@@ -422,7 +432,6 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
                         doNotCallListener = false;
                         setMarker(place);
                     } else {
-                        setUpMap();
                         confirmButton.setChecked(false);
                         confirmButton.setClickable(true);
                     }
@@ -451,8 +460,7 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     private LoaderManager.LoaderCallbacks<List<String>> callbacks = new LoaderManager.LoaderCallbacks<List<String>>() {
         @Override
         public Loader<List<String>> onCreateLoader(int id, Bundle args) {
-            PredictionsLoader loader = new PredictionsLoader(activity, googleApiClient, args.getString(PREDICTION_QUERY));
-            return loader;
+            return new PredictionsLoader(activity, googleApiClient, args.getString(PREDICTION_QUERY));
         }
 
         /**
