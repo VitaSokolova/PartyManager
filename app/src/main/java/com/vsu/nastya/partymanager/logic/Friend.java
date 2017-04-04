@@ -1,10 +1,12 @@
 package com.vsu.nastya.partymanager.logic;
 
+import java.io.Serializable;
+
 /**
  * Created by Комп on 04.03.2017.
  */
 
-public class Friend {
+public class Friend implements Serializable {
     private String firstName;
     private String lastName;
     private String vkId;

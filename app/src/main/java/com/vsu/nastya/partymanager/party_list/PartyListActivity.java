@@ -35,6 +35,7 @@ import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.logic.DateWorker;
 import com.vsu.nastya.partymanager.logic.User;
+import com.vsu.nastya.partymanager.messager_list.FriendlyMessage;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 
 import java.util.ArrayList;
@@ -58,6 +59,7 @@ public class PartyListActivity extends AppCompatActivity {
     private MultiSelector multiSelector = new MultiSelector();
     private DatabaseReference partiesReference;
     private DatabaseReference usersReference;
+    private DatabaseReference messagesReference;
     private ChildEventListener partyAddListener = null;
     private ProgressBar progressBar;
 
@@ -182,8 +184,8 @@ public class PartyListActivity extends AppCompatActivity {
                     party.getGuests().add(new Guest(user.getVkId(), user.getFullName()));
                     DatabaseReference reference = partiesReference.push();
                     party.setKey(reference.getKey());
+                    party.setMessagesList(new ArrayList<FriendlyMessage>());
                     reference.setValue(party);
-
 
                     user.getPartiesIdList().add(party.getKey());
 
@@ -231,6 +233,7 @@ public class PartyListActivity extends AppCompatActivity {
         DatabaseReference databaseReference = firebaseDatabase.getReference();
         partiesReference = databaseReference.child("parties");
         usersReference = databaseReference.child("users");
+        messagesReference = databaseReference.child("parties").child("messages");
 
         // Инициализируем список вечеринок
         partiesList = new ArrayList<>();

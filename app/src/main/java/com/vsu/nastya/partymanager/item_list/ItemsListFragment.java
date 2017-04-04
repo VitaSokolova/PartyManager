@@ -27,17 +27,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.item_list.data.Item;
-import com.vsu.nastya.partymanager.logic.User;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Вита on 08.12.2016.
@@ -47,7 +44,7 @@ public class ItemsListFragment extends Fragment {
     private static final String FIREBASE_ERROR = "firebase_error";
 
     private Party currentParty;
-    private RecyclerView mRecyclerView;
+    private RecyclerView recyclerView;
     private FloatingActionButton addItemFAB;
     private TextView wholeSumTxt;
     private TextView sumPerOneTxt;
@@ -81,7 +78,7 @@ public class ItemsListFragment extends Fragment {
                         Item item = currentParty.getItems().get(i);
                         removeItemFromSum(item);
                         currentParty.getItems().remove(i);
-                        mRecyclerView.getAdapter().notifyItemRemoved(i);
+                        recyclerView.getAdapter().notifyItemRemoved(i);
                         partyItemsReference.removeValue();
                         partyItemsReference.setValue(currentParty.getItems());
                     }
@@ -152,7 +149,7 @@ public class ItemsListFragment extends Fragment {
 
         //находим вьюшки
         // this.progressBar = (ProgressBar) view.findViewById(R.id.items_list_progressBar);
-        this.mRecyclerView = (RecyclerView) view.findViewById(R.id.items_list_recycler_view);
+        this.recyclerView = (RecyclerView) view.findViewById(R.id.items_list_recycler_view);
         this.addItemFAB = (FloatingActionButton) view.findViewById(R.id.items_list_add_item_fab);
         this.wholeSumTxt = (TextView) view.findViewById(R.id.items_list_res_sum_number_txt);
         this.sumPerOneTxt = (TextView) view.findViewById(R.id.items_list_personal_sum_number_txt);
@@ -165,6 +162,7 @@ public class ItemsListFragment extends Fragment {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), AddItemActivity.class);
                 // 2 - requestCode
+                intent.putExtra("guestsNames", currentParty.giveMePleaseGuestsNames());
                 startActivityForResult(intent, 2);
             }
         });
@@ -238,10 +236,6 @@ public class ItemsListFragment extends Fragment {
         detachDatabaseReadListener();
     }
 
-    private void getItemsFromDatabase() {
-
-    }
-
     /**
      * настраивает работу адаптера и RecyclerView
      */
@@ -249,9 +243,9 @@ public class ItemsListFragment extends Fragment {
 
         this.adapter = new ItemAdapter();
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-        this.mRecyclerView.setLayoutManager(layoutManager);
-        this.mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        this.mRecyclerView.setAdapter(adapter);
+        this.recyclerView.setLayoutManager(layoutManager);
+        this.recyclerView.setItemAnimator(new DefaultItemAnimator());
+        this.recyclerView.setAdapter(adapter);
     }
 
     /**
@@ -298,7 +292,7 @@ public class ItemsListFragment extends Fragment {
                     //этот же кусочек исполняетс для загрузки покупок из вечеринки впервые
                     if ((!currentParty.getItems().contains(item))) {
                         currentParty.getItems().add(item);
-                        adapter.notifyItemInserted(currentParty.getItems().size());
+                        adapter.notifyItemInserted(currentParty.getItems().size() - 1);
                     }
 
                 }

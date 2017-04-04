@@ -100,7 +100,5 @@ public class User{
     public String getFullName() {
         return this.firstName + " " + this.lastName;
     }
-//    public String[] getFriendsNames() {
-//
-//    }
+
 }

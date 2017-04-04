@@ -32,18 +32,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".item_list.AddItemActivity" />
+        <activity
+            android:name=".item_list.AddItemActivity"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
         <activity
             android:name="com.vk.sdk.VKServiceActivity"
             android:label="ServiceActivity"
             android:theme="@style/VK.Transparent" />
         <activity android:name=".party_list.PartyListActivity" />
-        <activity android:name=".party_list.AddPartyActivity" />
+        <activity
+            android:name=".party_list.AddPartyActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".party_details.PartyDetailsActivity"
-            android:windowSoftInputMode="adjustPan"/>
-        <activity android:name=".guest_list.AddGuestActivity" />
-        <activity android:name=".SingInProcessActivity"/>
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".guest_list.AddGuestActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".SingInProcessActivity" />
     </application>
 
 </manifest>

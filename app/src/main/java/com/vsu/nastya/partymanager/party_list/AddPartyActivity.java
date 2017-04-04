@@ -121,7 +121,6 @@ public class AddPartyActivity extends AppCompatActivity implements DatePickerDia
                     Party party = new Party(partyName.getText().toString(), calendar.getTimeInMillis());
                     Intent intent = new Intent();
                     intent.putExtra("party", party);
-                    intent.putExtra("position", pos);
                     setResult(RESULT_OK, intent);
                     finish();
                 }

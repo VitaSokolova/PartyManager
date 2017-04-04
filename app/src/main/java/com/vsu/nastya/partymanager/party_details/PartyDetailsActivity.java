@@ -17,7 +17,7 @@ import com.vsu.nastya.partymanager.party_list.Party;
 public class PartyDetailsActivity extends AppCompatActivity {
     public Party currentParty;
 
-    private static final int OFFSET_SCREEN_PAGE_LIMIT = 2;
+    private static final int OFFSET_SCREEN_PAGE_LIMIT = 3;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, PartyDetailsActivity.class);
@@ -45,7 +45,8 @@ public class PartyDetailsActivity extends AppCompatActivity {
 
         tabs.getTabAt(0).setIcon(R.drawable.ic_shopping_cart_white_24dp);
         tabs.getTabAt(1).setIcon(R.drawable.ic_group_white_24dp);
-        tabs.getTabAt(2).setIcon(R.drawable.ic_pin_drop_white_24dp);
+        tabs.getTabAt(2).setIcon(R.drawable.ic_question_answer_white_48dp);
+        tabs.getTabAt(3).setIcon(R.drawable.ic_pin_drop_white_24dp);
     }
 
     public Party getCurrentParty() {
