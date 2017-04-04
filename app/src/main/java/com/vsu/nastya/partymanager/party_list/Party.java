@@ -2,6 +2,7 @@ package com.vsu.nastya.partymanager.party_list;
 
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.item_list.data.Item;
+import com.vsu.nastya.partymanager.messager_list.FriendlyMessage;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class Party implements Serializable {
     private long date;
     private ArrayList<Item> items = new ArrayList<>();
     private ArrayList<Guest> guests = new ArrayList<>();
+    private ArrayList<FriendlyMessage> messagesList = new ArrayList<>();
     private String place;
     //Еще потом добавим messages
 
@@ -77,7 +79,15 @@ public class Party implements Serializable {
         this.place = place;
     }
 
-    public String[] getGuestsNames() {
+    public ArrayList<FriendlyMessage> getMessagesList() {
+        return messagesList;
+    }
+
+    public void setMessagesList(ArrayList<FriendlyMessage> messagesList) {
+        this.messagesList = messagesList;
+    }
+
+    public String[] giveMePleaseGuestsNames() {
         String[] arrayGuests = new String[guests.size()];
         for (int i = 0; i < guests.size(); i++) {
             arrayGuests[i] = guests.get(i).getGuestName();
