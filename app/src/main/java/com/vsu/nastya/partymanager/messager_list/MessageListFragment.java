@@ -187,7 +187,7 @@ public class MessageListFragment extends Fragment {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Uri downloadUri = taskSnapshot.getDownloadUrl();
-                            FriendlyMessage friendlyMessage = new FriendlyMessage(null, username, downloadUri.toString());
+                            FriendlyMessage friendlyMessage = new FriendlyMessage(messageEditText.getText().toString(), username, downloadUri.toString());
                             messagesDatabaseReference.push().setValue(friendlyMessage);
                         }
 
