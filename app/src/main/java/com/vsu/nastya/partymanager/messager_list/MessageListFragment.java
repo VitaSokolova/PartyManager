@@ -11,7 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,7 +88,7 @@ public class MessageListFragment extends Fragment {
 
         // Initialize references to views
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-        messageRecyclerView = (RecyclerView) view.findViewById(R.id.messageListView);
+        messageRecyclerView = (RecyclerView) view.findViewById(R.id.messageRecyclerView);
         photoPickerButton = (ImageButton) view.findViewById(R.id.photoPickerButton);
         messageEditText = (EditText) view.findViewById(R.id.messageEditText);
         sendButton = (Button) view.findViewById(R.id.sendButton);
