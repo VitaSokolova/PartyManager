@@ -1,8 +1,6 @@
 package com.vsu.nastya.partymanager.party_info;
 
-import android.support.v4.app.LoaderManager;
 import android.content.Context;
-import android.support.v4.content.Loader;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -30,13 +28,17 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.AutocompletePredictionBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
@@ -53,6 +55,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+
+import rx.Observable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -73,6 +81,7 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
 
     private Party currentParty;
     private boolean doNotCallListener = false;
+    private Subscription subscription;
 
     // Google Map
     private String place;
@@ -99,6 +108,16 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
 
     public static PartyInfoFragment newInstance() {
         return new PartyInfoFragment();
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null) {
+            doNotCallListener = true;
+            autoTextView.setText(savedInstanceState.getString("text"));
+            doNotCallListener = false;
+        }
     }
 
     @Override
@@ -147,6 +166,20 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     public void onPause() {
         super.onPause();
         detachDatabaseReadListener();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (subscription != null) {
+            subscription.unsubscribe();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("text", autoTextView.getText().toString());
     }
 
     @Override
@@ -227,11 +260,27 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     }
 
     @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    public void onTextChanged(CharSequence query, int start, int before, int count) {
         if (!doNotCallListener) {
             Bundle bundle = new Bundle();
-            bundle.putString(PREDICTION_QUERY, autoTextView.getText().toString());
-            getLoaderManager().restartLoader(0, bundle, callbacks);
+            bundle.putString(PREDICTION_QUERY, autoTextView.getText().toString());;
+
+            if (!query.equals("")) {
+                 subscription = getPredictions(query.toString())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .flatMap(Observable::from)
+                        .map(prediction -> prediction.getFullText(null))
+                        .map(CharSequence::toString)
+                        .map(this::getAddress)
+                        .toList()
+                        .subscribe(predictions -> {
+                            adapter.clear();
+                            adapter.addAll(predictions);
+                            adapter.notifyDataSetChanged();
+                        });
+            }
+
             confirmButton.setChecked(false);
             confirmButton.setClickable(true);
         } else {
@@ -274,6 +323,38 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
         confirmButton = (ToggleButton) view.findViewById(R.id.party_info_confirm_button);
         confirmButton.setClickable(false);
         confirmButton.setOnCheckedChangeListener(this);
+    }
+
+    /**
+     *  Получение списка подсказок при вводе адреса пользователем.
+     *  Используется Google Places Api.
+     * @param query запрос пользователя.
+     * @return Observable список.
+     */
+    private Observable<AutocompletePredictionBuffer> getPredictions(String query) {
+
+        LatLngBounds latLngBounds = new LatLngBounds(new LatLng(-0,0), new LatLng(0,0));
+        PendingResult<AutocompletePredictionBuffer> result = Places.
+                GeoDataApi.getAutocompletePredictions(googleApiClient, query, latLngBounds, new AutocompleteFilter.Builder()
+                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+                .build());
+        return Observable.just(result)
+                .map(res -> res.await(60, TimeUnit.SECONDS));
+    }
+
+    /**
+     * Получение адреса из полной строки (подсказки) в формате: Улица, Город или
+     * Улица, номер дома, Город.
+     */
+    private String getAddress (String prediction) {
+        String [] str = prediction.split(",");
+        if (str.length == 4) {
+            return str[0] + ", " + str[1];
+        } else if (str.length == 5) {
+            return  str[0] + ", " + str[1] + ", " + str[2];
+        } else {
+            return prediction;
+        }
     }
 
     private boolean arePermissionsGranted() {
@@ -431,6 +512,7 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
                         autoTextView.setText(place);
                         doNotCallListener = false;
                         setMarker(place);
+
                     } else {
                         confirmButton.setChecked(false);
                         confirmButton.setClickable(true);
@@ -453,29 +535,4 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
             placeListener = null;
         }
     }
-
-    /**
-     * Callbacks к PredictionLoader.
-     */
-    private LoaderManager.LoaderCallbacks<List<String>> callbacks = new LoaderManager.LoaderCallbacks<List<String>>() {
-        @Override
-        public Loader<List<String>> onCreateLoader(int id, Bundle args) {
-            return new PredictionsLoader(activity, googleApiClient, args.getString(PREDICTION_QUERY));
-        }
-
-        /**
-         * Полученныe от серевера подсказки мест добавляются в адаптер AutocompleteTextView.
-         * @param data список подсказок.
-         */
-        @Override
-        public void onLoadFinished(Loader<List<String>> loader, List<String> data) {
-            adapter.clear();
-            adapter.addAll(data);
-            adapter.notifyDataSetChanged();
-        }
-
-        @Override
-        public void onLoaderReset(Loader<List<String>> loader) {
-        }
-    };
 }

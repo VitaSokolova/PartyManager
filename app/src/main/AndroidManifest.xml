@@ -45,7 +45,8 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".party_details.PartyDetailsActivity"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".guest_list.AddGuestActivity"
             android:windowSoftInputMode="adjustResize" />
