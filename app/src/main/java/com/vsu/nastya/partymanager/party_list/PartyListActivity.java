@@ -191,7 +191,7 @@ public class PartyListActivity extends AppCompatActivity {
 
                     // Заносим в базу новую вечеринку в список у текущего юзера
                     String partyIndex = String.valueOf(partiesList.size());
-                    usersReference.child(User.getInstance().getVkId()).
+                    usersReference.child(user.getVkId()).
                             child("partiesIdList").
                             child(partyIndex).setValue(party.getKey());
                 }

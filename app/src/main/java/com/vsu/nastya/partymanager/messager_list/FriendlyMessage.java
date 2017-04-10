@@ -24,12 +24,20 @@ public class FriendlyMessage implements Serializable {
     @Override
     public boolean equals(Object obj) {
         boolean retVal = false;
+        boolean isTextEqual = false;
+        boolean isNameEqual = false;
+        boolean isUrlEqual = false;
 
         if (obj instanceof FriendlyMessage) {
             FriendlyMessage ptr = (FriendlyMessage) obj;
-            //еще бы whoBrings сравнить
-            retVal = (ptr.text.equals(this.text)) && (ptr.name.equals(this.name)) && (((ptr.photoUrl == null) && (this.photoUrl == null)) ||
-                    (ptr.photoUrl.equals(this.photoUrl)));
+
+            isTextEqual = isStringsEqual(ptr.text, this.text);
+
+            isNameEqual = isStringsEqual(ptr.name, this.name);
+
+            isUrlEqual = isStringsEqual(ptr.photoUrl, this.photoUrl);
+
+            retVal = isTextEqual && isNameEqual && isUrlEqual;
         }
 
         return retVal;
@@ -59,5 +67,14 @@ public class FriendlyMessage implements Serializable {
         this.photoUrl = photoUrl;
     }
 
+    private boolean isStringsEqual(String s1, String s2) {
 
+        if ((s1 == null) && (s2 == null)) {
+            return true;
+        } else if ((s1 != null)) {
+            return s1.equals(this.photoUrl);
+        } else {
+            return false;
+        }
+    }
 }
