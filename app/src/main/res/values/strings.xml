@@ -28,5 +28,8 @@
     <string name="place_is_set">Место проведения установлено</string>
     <string name="network_is_not_available">Нет подключения к интернету</string>
     <string name="send_button_label">Отправить</string>
+    <string name="new_friend_in">Новый друг в</string>
+    <string name="new_item_in">Новая позиция в</string>
+    <string name="new_location_set">Новое место проведения в</string>
     <integer name="com_vk_sdk_AppId">5747918</integer>
 </resources>

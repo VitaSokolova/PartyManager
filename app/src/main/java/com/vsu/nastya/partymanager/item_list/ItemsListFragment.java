@@ -31,6 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.item_list.data.Item;
+import com.vsu.nastya.partymanager.logic.Notifications;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
 
@@ -53,6 +54,7 @@ public class ItemsListFragment extends Fragment {
     private ProgressBar progressBar;
     private int sumPerOne = 0;
     private int wholeSum = 0;
+    private boolean initialisation;
 
     private DatabaseReference partyItemsReference;
     private ChildEventListener itemEventListener = null;
@@ -180,8 +182,9 @@ public class ItemsListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         // progressBar.setVisibility(ProgressBar.INVISIBLE);
+        initialisation = true;
         attachDatabaseReadListener();
-        // attachStopProgressBarListener();
+        attachStopProgressBarListener();
         refreshSumPerOne();
     }
 
@@ -294,7 +297,9 @@ public class ItemsListFragment extends Fragment {
                         currentParty.getItems().add(item);
                         adapter.notifyItemInserted(currentParty.getItems().size() - 1);
                     }
-
+                    if (!initialisation) {
+                        Notifications.newItemAdded(getActivity(), currentParty);
+                    }
                 }
 
                 @Override
@@ -358,6 +363,7 @@ public class ItemsListFragment extends Fragment {
         partyItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             public void onDataChange(DataSnapshot dataSnapshot) {
 //                progressBar.setVisibility(ProgressBar.INVISIBLE);
+                initialisation = false;
             }
 
             @Override

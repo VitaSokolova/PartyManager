@@ -15,6 +15,10 @@ import com.vsu.nastya.partymanager.party_info.PartyInfoFragment;
 
 public class PartyDetailsPagerAdapter extends FragmentPagerAdapter {
 
+    public static final int ITEMS_TAB = 0;
+    public static final int GUESTS_TAB = 1;
+    public static final int MESSAGES_TAB = 2;
+    public static final int LOCATION_TAB = 3;
     private static final int COUNT = 4;
 
     public PartyDetailsPagerAdapter(FragmentManager fm) {
@@ -24,13 +28,13 @@ public class PartyDetailsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position){
         switch (position){
-            case 0:
+            case ITEMS_TAB:
                 return ItemsListFragment.newInstance();
-            case 1:
+            case GUESTS_TAB:
                 return GuestListFragment.newInstance();
-            case 2:
+            case MESSAGES_TAB:
                 return MessageListFragment.newInstance();
-            case 3:
+            case LOCATION_TAB:
                 return PartyInfoFragment.newInstance();
             default:
                 return ItemsListFragment.newInstance();

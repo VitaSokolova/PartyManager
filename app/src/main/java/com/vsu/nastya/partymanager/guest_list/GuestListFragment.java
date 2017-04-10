@@ -30,6 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
+import com.vsu.nastya.partymanager.logic.Notifications;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
 
@@ -43,6 +44,7 @@ public class GuestListFragment extends Fragment {
     public static String TAG = "guestListFragment";
     private static final String FIREBASE_ERROR = "firebase_error";
 
+    private boolean initialization;
     private Party currentParty;
     private RecyclerView mRecyclerView;
     private FloatingActionButton addGuestFab;
@@ -120,6 +122,7 @@ public class GuestListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         //получаем информацию о вечеринке от родительской активити
         PartyDetailsActivity activity = (PartyDetailsActivity) getActivity();
         this.currentParty = activity.getCurrentParty();
@@ -158,8 +161,9 @@ public class GuestListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         progressBar.setVisibility(ProgressBar.INVISIBLE);
+        initialization = true;
         attachDatabaseReadListener();
-      //  attachStopProgressBarListener();
+        attachStopProgressBarListener();
     }
 
     @Override
@@ -258,11 +262,13 @@ public class GuestListFragment extends Fragment {
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Guest guest = dataSnapshot.getValue(Guest.class);
                     //этот же кусочек исполняетс для загрузки гостей вечеринки впервые
-                    if ((!currentParty.getGuests().contains(guest))) {
+                    if (!currentParty.getGuests().contains(guest)) {
                         currentParty.getGuests().add(guest);
                         adapter.notifyItemInserted(currentParty.getGuests().size());
                     }
-
+                    if (!initialization) {
+                        Notifications.newGuestAdded(getActivity(), currentParty);
+                    }
                 }
 
                 @Override
@@ -313,8 +319,8 @@ public class GuestListFragment extends Fragment {
     private void attachStopProgressBarListener() {
         guestsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             public void onDataChange(DataSnapshot dataSnapshot) {
-
                 progressBar.setVisibility(ProgressBar.INVISIBLE);
+                initialization = false;
             }
 
             @Override
