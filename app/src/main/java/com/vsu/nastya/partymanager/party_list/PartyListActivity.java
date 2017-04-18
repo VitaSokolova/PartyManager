@@ -118,6 +118,7 @@ public class PartyListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_party_list);
         initView();
+        User user = User.getInstance();
     }
 
     @Override
@@ -227,7 +228,7 @@ public class PartyListActivity extends AppCompatActivity {
         }
     }
 
-    private void initView() {
+    private void   initView() {
         //Firebase
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference();

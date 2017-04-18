@@ -68,12 +68,14 @@ public class SingInProcessActivity extends AppCompatActivity {
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+
                 if (snapshot.exists()) {
-                    getUserFromDatabase(token.userId);
+                    getUserFromDatabase(token);
                 } else {
                     createUser(token);
                 }
                 getFriendsList(token);
+                PartyListActivity.start(SingInProcessActivity.this);
             }
 
             @Override
@@ -87,19 +89,24 @@ public class SingInProcessActivity extends AppCompatActivity {
     /**
      * Получение информации из базы о юзере по его vk id.
      *
-     * @param id - vk id.
+     * @param token - vk token.
      */
-    private void getUserFromDatabase(String id) {
+    private void getUserFromDatabase(final VKAccessToken token) {
+        String id = token.userId;
         DatabaseReference userRef = usersReference.child(id);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 User user = snapshot.getValue(User.class);
-                User.getInstance().init (user.getFirstName(),
-                        user.getLastName(),
-                        user.getVkId(),
-                        user.getPartiesIdList());
-                PartyListActivity.start(SingInProcessActivity.this);
+                if (user.getVkId() == null) {
+                    User.getInstance().setPartiesIdList(user.getPartiesIdList());
+                    createUser(token);
+                } else {
+                    User.getInstance().init(user.getFirstName(),
+                            user.getLastName(),
+                            user.getVkId(),
+                            user.getPartiesIdList());
+                }
             }
 
             @Override
@@ -118,7 +125,7 @@ public class SingInProcessActivity extends AppCompatActivity {
      * @param token - приходит от VK при успешной авторизации пользователя.
      */
     private void createUser(final VKAccessToken token) {
-        final User user = User.getInstance();
+
         VKParameters vkParameters = new VKParameters();
         vkParameters.put(VKApiConst.FIELDS, "id, first_name, last_name");
         vkParameters.put(VKApiConst.USER_IDS, token.userId);
@@ -129,6 +136,7 @@ public class SingInProcessActivity extends AppCompatActivity {
         request.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
+                User user = User.getInstance();
                 try {
                     JSONObject json = (JSONObject) ((JSONArray) response.json.get("response")).get(0);
                     user.setFirstName((String) json.get("first_name"));
@@ -139,7 +147,7 @@ public class SingInProcessActivity extends AppCompatActivity {
                 user.setVkId(token.userId);
                 user.setToken(token);
                 usersReference.child(user.getVkId()).setValue(user);
-                PartyListActivity.start(SingInProcessActivity.this);
+
             }
 
             @Override
@@ -169,7 +177,7 @@ public class SingInProcessActivity extends AppCompatActivity {
             public void onComplete(VKResponse response) {
                 try {
                     User user = User.getInstance();
-                    JSONObject root = (JSONObject)  response.json.get("response");
+                    JSONObject root = (JSONObject) response.json.get("response");
                     JSONArray friends = root.getJSONArray("items");
 
                     for (int i = 0; i < friends.length(); i++) {

@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.logic.Friend;
+import com.vsu.nastya.partymanager.logic.User;
 import com.vsu.nastya.partymanager.logic.VkFriendsWorker;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class EditItemDialogFragment extends DialogFragment {
     private SeekBar quantitySeekBar;
     private SeekBar priceSeekBar;
 
+    private String[] currentPartyGuests;
     private String whatToBuy;
     private Guest whoBuy;
     private int quantity;
@@ -46,16 +48,17 @@ public class EditItemDialogFragment extends DialogFragment {
     private ArrayList<Friend> arrayListFriends;
 
     public interface OnItemClickListener {
-        void onItemClick(String whatToBuy, Guest whoBuy, int quantity, int price);
+        void onItemClick(String whatToBuy, String whoBuy, int quantity, int price);
     }
 
-    public static EditItemDialogFragment newInstance(String whatToBuy, Guest whoBuy, int quantity, int price) {
+    public static EditItemDialogFragment newInstance(String whatToBuy, Guest whoBuy, int quantity, int price, String[] currentPartyGuests) {
         EditItemDialogFragment frag = new EditItemDialogFragment();
         Bundle args = new Bundle();
         args.putString("whatToBuy", whatToBuy);
         args.putSerializable("whoBuy", whoBuy);
         args.putInt("quantity", quantity);
         args.putInt("price", price);
+        args.putStringArray("currentPartyGuests", currentPartyGuests);
         frag.setArguments(args);
         frag.setCancelable(false);
         return frag;
@@ -102,7 +105,7 @@ public class EditItemDialogFragment extends DialogFragment {
                             toast.show();
                         } else {
                             String name = whoBuyAutoCompleteView.getText().toString();
-                            listener.onItemClick(nameTxtView.getText().toString(), new Guest(name, VkFriendsWorker.getVkFriendIdByName(name, arrayListFriends)), quantity, price);
+                            listener.onItemClick(nameTxtView.getText().toString(), name, quantity, price);
                             //если всё хорошо, то можно закрывать диалог
                             dialog.dismiss();
                         }
@@ -134,6 +137,7 @@ public class EditItemDialogFragment extends DialogFragment {
 
     //заполняем поля теми данными, что переданы при вызове диалога
     private void initData() {
+        this.currentPartyGuests = getArguments().getStringArray("currentPartyGuests");
         this.whatToBuy = getArguments().getString("whatToBuy");
         this.whoBuy = (Guest) getArguments().getSerializable("whoBuy");
         this.quantity = getArguments().getInt("quantity");
@@ -146,7 +150,8 @@ public class EditItemDialogFragment extends DialogFragment {
         this.quantityNumberTxt.setText(String.valueOf(this.quantity));
         this.priceNumberTxt.setText(String.valueOf(this.price));
         // Создаем адаптер для автозаполнения элемента AutoCompleteTextView
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.support_simple_spinner_dropdown_item, VkFriendsWorker.getVkFriendsArray(arrayListFriends));
+        User user = User.getInstance();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.support_simple_spinner_dropdown_item, this.currentPartyGuests);
         whoBuyAutoCompleteView.setAdapter(adapter);
 
         //исправляем баги AutoCompleteTextView советами со Stackoverflow

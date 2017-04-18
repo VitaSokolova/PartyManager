@@ -32,10 +32,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
         return new MyViewHolder(itemView);
     }
 
+
+
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         FriendlyMessage message = messages.get(position);
         boolean isPhoto = message.getPhotoUrl() != null;
+
         //если сообщение от нашего пользователя
         if (message.getName().equals(User.getInstance().getFullName())) {
             RelativeLayout.LayoutParams paramsAuthor = (RelativeLayout.LayoutParams) holder.authorTextView.getLayoutParams();
@@ -49,7 +52,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
             RelativeLayout.LayoutParams paramsPhoto = (RelativeLayout.LayoutParams) holder.photoImageView.getLayoutParams();
             paramsPhoto.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             holder.photoImageView.setLayoutParams(paramsPhoto);
-
 
         }
         if (isPhoto) {

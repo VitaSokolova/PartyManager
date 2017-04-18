@@ -77,6 +77,7 @@ public class GuestListFragment extends Fragment {
                         guestList.remove(i);
                         mRecyclerView.getAdapter().notifyItemRemoved(i);
                         guestsDatabaseReference.setValue(currentParty.getGuests());
+
                     }
                 }
                 actionMode.finish();
@@ -88,15 +89,12 @@ public class GuestListFragment extends Fragment {
                 final ArrayList<Integer> indexes = (ArrayList<Integer>) mMultiSelector.getSelectedPositions();
                 if (indexes.size() == 1) {
                     EditGuestDialogFragment dialog = EditGuestDialogFragment.newInstance(guestList.get(indexes.get(0)).getGuestName());
-                    dialog.setListener(new EditGuestDialogFragment.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(String text) {
-                            Guest guest = guestList.get(indexes.get(0));
-                            guest.setGuestName(text);
-                            adapter.notifyItemChanged(indexes.get(0));
-                            guestsDatabaseReference.child(String.valueOf(indexes.get(0))).setValue(guest);
+                    dialog.setListener(text -> {
+                        Guest guest = guestList.get(indexes.get(0));
+                        guest.setGuestName(text);
+                        adapter.notifyItemChanged(indexes.get(0));
+                        guestsDatabaseReference.child(String.valueOf(indexes.get(0))).setValue(guest);
 
-                        }
                     });
                     dialog.show(getFragmentManager(), "guestEditDialog");
                 }
@@ -135,19 +133,15 @@ public class GuestListFragment extends Fragment {
         this.guestList = new ArrayList<>();
         this.adapter = new GuestAdapter();
 
-        progressBar = (ProgressBar) view.findViewById(R.id.guest_list_progressBar);
+        this.progressBar = (ProgressBar) view.findViewById(R.id.guest_list_progressBar);
         this.mRecyclerView = (RecyclerView) view.findViewById(R.id.guest_list_recycler_view);
         this.addGuestFab = (FloatingActionButton) view.findViewById(R.id.guest_list_add_fab);
 
         initRecycler();
 
-        addGuestFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), AddGuestActivity.class);
-                // 1 - requestCode
-                startActivityForResult(intent, 1);
-            }
+        addGuestFab.setOnClickListener(view1 -> {
+            Intent intent = new Intent(view1.getContext(), AddGuestActivity.class);
+            startActivityForResult(intent, 1);      // 1 - requestCode
         });
         return view;
     }
@@ -237,6 +231,8 @@ public class GuestListFragment extends Fragment {
         DatabaseReference rootDatabaseReference = firebaseDatabase.getReference();
         if (newGuest.getVkId() != null) {
             final DatabaseReference guestPartiesDatabaseRef = rootDatabaseReference.child("users").child(newGuest.getVkId()).child("partiesIdList");
+//            guestPartiesDatabaseRef.setValue(newGuest)
+//            guestPartiesDatabaseRef.child("partiesIdList");
             guestPartiesDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {

@@ -32,6 +32,8 @@ import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.item_list.data.Item;
 import com.vsu.nastya.partymanager.logic.Notifications;
+import com.vsu.nastya.partymanager.logic.User;
+import com.vsu.nastya.partymanager.logic.VkFriendsWorker;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
 
@@ -76,6 +78,7 @@ public class ItemsListFragment extends Fragment {
                 //проходимся по всему списку, если элемент присутствует в MultiSelector, удаляем его
                 for (int i = currentParty.getItems().size(); i >= 0; i--) {
                     if (mMultiSelector.isSelected(i, 0)) {
+
                         //TODO:удалить еще и из базы и вообще навсегда
                         Item item = currentParty.getItems().get(i);
                         removeItemFromSum(item);
@@ -95,17 +98,18 @@ public class ItemsListFragment extends Fragment {
                 if (indexes.size() == 1) {
                     final Item editableItem = currentParty.getItems().get(indexes.get(0));
                     final int index = indexes.get(0);
-                    EditItemDialogFragment dialog = EditItemDialogFragment.newInstance(editableItem.getName(), editableItem.getWhoBrings(), editableItem.getQuantity(), editableItem.getPrice());
+                    EditItemDialogFragment dialog = EditItemDialogFragment.newInstance(editableItem.getName(), editableItem.getWhoBrings(),
+                            editableItem.getQuantity(), editableItem.getPrice(), currentParty.giveMePleaseGuestsNames());
 
                     dialog.setListener(new EditItemDialogFragment.OnItemClickListener() {
                         @Override
-                        public void onItemClick(String whatToBuy, Guest whoBuy, int quantity, int price) {
+                        public void onItemClick(String whatToBuy, String whoBuyName, int quantity, int price) {
                             //я вполне допускаю, что price может быть == 0. Например вы вносите в список клубничку, которую сорвете у себя на даче,
                             // вам надо не забыть её сорвать, а следовательно внести список, но стоимость её будет == 0
 
                             removeItemFromSum(editableItem);
                             editableItem.setName(whatToBuy);
-                            editableItem.setWhoBrings(whoBuy);
+                            editableItem.setWhoBrings(new Guest(VkFriendsWorker.getVkFriendIdByName(whoBuyName, User.getInstance().getFriendsList()), whoBuyName));
                             editableItem.setQuantity(quantity);
                             editableItem.setPrice(price);
                             addItemToSum(editableItem);

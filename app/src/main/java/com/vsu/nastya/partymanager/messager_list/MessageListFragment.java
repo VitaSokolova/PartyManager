@@ -32,6 +32,7 @@ import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -141,7 +142,8 @@ public class MessageListFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // TODO: Send messages on click
-                FriendlyMessage friendlyMessage = new FriendlyMessage(messageEditText.getText().toString(), username, null);
+                long currentTime = Calendar.getInstance().getTimeInMillis();
+                FriendlyMessage friendlyMessage = new FriendlyMessage(messageEditText.getText().toString(), username, null, currentTime);
                 messagesDatabaseReference.push().setValue(friendlyMessage);
                 // Clear input box
                 messageEditText.setText("");
@@ -167,6 +169,7 @@ public class MessageListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         attachDatabaseReadListener();
+
     }
 
     @Override
@@ -179,14 +182,17 @@ public class MessageListFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK) {
             Uri selectedImageUri = data.getData();
+
             // если наш адрес photo/folder/4 этот метод возьмет 4
             StorageReference photoRef = chatPhotosStorageReference.child(selectedImageUri.getLastPathSegment());
+
             photoRef.putFile(selectedImageUri).addOnSuccessListener(getActivity(),
                     new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Uri downloadUri = taskSnapshot.getDownloadUrl();
-                            FriendlyMessage friendlyMessage = new FriendlyMessage(messageEditText.getText().toString(), username, downloadUri.toString());
+                            long currentTime = Calendar.getInstance().getTimeInMillis();
+                            FriendlyMessage friendlyMessage = new FriendlyMessage(messageEditText.getText().toString(), username, downloadUri.toString(), currentTime );
                             messagesDatabaseReference.push().setValue(friendlyMessage);
                         }
 
@@ -203,8 +209,7 @@ public class MessageListFragment extends Fragment {
                     FriendlyMessage message = dataSnapshot.getValue(FriendlyMessage.class);
 
                     if ((!currentParty.getMessagesList().contains(message))) {
-                        FriendlyMessage friendlyMessage = dataSnapshot.getValue(FriendlyMessage.class);
-                        currentParty.getMessagesList().add(friendlyMessage);
+                        currentParty.getMessagesList().add(message);
                         messageAdapter.notifyItemInserted(currentParty.getMessagesList().size() - 1);
                     }
                 }
@@ -213,6 +218,14 @@ public class MessageListFragment extends Fragment {
                 }
 
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    FriendlyMessage message = dataSnapshot.getValue(FriendlyMessage.class);
+                    if (message != null) {
+                        int position = currentParty.getMessagesList().indexOf(message);
+                        if (position != -1) {
+                            currentParty.getMessagesList().remove(position);
+                            messageAdapter.notifyItemRemoved(position);
+                        }
+                    }
                 }
 
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {
