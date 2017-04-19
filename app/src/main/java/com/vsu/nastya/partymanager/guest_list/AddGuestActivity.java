@@ -36,31 +36,15 @@ public class AddGuestActivity extends AppCompatActivity implements TextView.OnEd
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_guest);
-
         //список друзей из контакта для автодополнения
-        User user = User.getInstance();
-        this.arrayListFriends = user.getFriendsList();
-
-        this.addBtn = (Button) findViewById(R.id.add_guest_btn);
-        this.autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.add_guest_autocomplete_txt);
-        this.autoCompleteTextView.setOnEditorActionListener(this);
-
-        // Создаем адаптер для автозаполнения элемента AutoCompleteTextView
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, VkFriendsWorker.getVkFriendsArray(this.arrayListFriends));
-        autoCompleteTextView.setAdapter(adapter);
-
-        this.addBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addingEvent();
-            }
-        });
+        this.arrayListFriends = User.getInstance().getFriendsList();
+        initViews();
     }
 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_DONE) {
-            // обрабатываем нажатие кнопки поиска
+            // обрабатываем нажатие кнопки
             addingEvent();
             return true;
         }
@@ -88,6 +72,19 @@ public class AddGuestActivity extends AppCompatActivity implements TextView.OnEd
 
     private boolean isTextFieldEmpty() {
         return this.autoCompleteTextView.getText().toString().isEmpty();
+    }
+
+    private void initViews() {
+        this.addBtn = (Button) findViewById(R.id.add_guest_btn);
+        this.autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.add_guest_autocomplete_txt);
+        this.autoCompleteTextView.setOnEditorActionListener(this);
+
+        // Создаем адаптер для автозаполнения элемента AutoCompleteTextView
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, VkFriendsWorker.getVkFriendsArray(this.arrayListFriends));
+        autoCompleteTextView.setAdapter(adapter);
+
+        this.addBtn.setOnClickListener(view -> addingEvent());
+
     }
 }
 

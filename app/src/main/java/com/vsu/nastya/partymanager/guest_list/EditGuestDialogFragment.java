@@ -59,46 +59,29 @@ public class EditGuestDialogFragment extends DialogFragment {
             public void onShow(final DialogInterface dialog) {
 
                 Button buttonOk = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                buttonOk.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-
-                        //я вполне допускаю, что price может быть == 0. Например вы вносите в список клубничку, которую сорвете у себя на даче,
-                        // вам надо не забыть её сорвать, а следовательно внести список, но стоимость её будет == 0
-                        if (txtView.getText().toString().isEmpty()) {
-                            Toast toast = Toast.makeText(getContext(),
-                                    R.string.alertGuestNameIsEmpty, Toast.LENGTH_SHORT);
-                            toast.show();
-                        } else {
-                            listener.onItemClick(txtView.getText().toString());
-                            //если всё хорошо, то можно закрывать диалог
-                            dialog.dismiss();
-                        }
+                buttonOk.setOnClickListener(view -> {
+                    //я вполне допускаю, что price может быть == 0. Например вы вносите в список клубничку, которую сорвете у себя на даче,
+                    // вам надо не забыть её сорвать, а следовательно внести список, но стоимость её будет == 0
+                    if (txtView.getText().toString().isEmpty()) {
+                        Toast toast = Toast.makeText(getContext(),
+                                R.string.alertGuestNameIsEmpty, Toast.LENGTH_SHORT);
+                        toast.show();
+                    } else {
+                        listener.onItemClick(txtView.getText().toString());
+                        //если всё хорошо, то можно закрывать диалог
+                        dialog.dismiss();
                     }
                 });
 
                 Button buttonCancel = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
-                buttonCancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        EditGuestDialogFragment.this.getDialog().cancel();
-                    }
-                });
+                buttonCancel.setOnClickListener(view -> EditGuestDialogFragment.this.getDialog().cancel());
             }
         });
-
         //исправляем баги AutoCompleteTextView советами со Stackoverflow
-        txtView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                txtView.showDropDown();
-            }
-        }, 500);
+        txtView.postDelayed(() -> txtView.showDropDown(), 500);
         txtView.setText(name);
         txtView.dismissDropDown();
         txtView.setSelection(txtView.getText().length());
-
         return dialog;
     }
 

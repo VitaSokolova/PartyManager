@@ -30,6 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
+import com.vsu.nastya.partymanager.logic.DatabaseConsts;
 import com.vsu.nastya.partymanager.logic.Notifications;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
@@ -46,7 +47,7 @@ public class GuestListFragment extends Fragment {
 
     private boolean initialization;
     private Party currentParty;
-    private RecyclerView mRecyclerView;
+    private RecyclerView recyclerView;
     private FloatingActionButton addGuestFab;
     private ArrayList<Guest> guestList;
     private GuestAdapter adapter;
@@ -55,6 +56,7 @@ public class GuestListFragment extends Fragment {
     private ProgressBar progressBar;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference guestsDatabaseReference;
+    private DatabaseReference usersDatabaseReference;
     private ChildEventListener guestsEventListener;
 
     private ModalMultiSelectorCallback mActionModeCallback = new ModalMultiSelectorCallback(mMultiSelector) {
@@ -73,9 +75,12 @@ public class GuestListFragment extends Fragment {
                 //проходимся по всему списку, если элемент присутствует в MultiSelector, удаляем его
                 for (int i = guestList.size(); i >= 0; i--) {
                     if (mMultiSelector.isSelected(i, 0)) {
-                        //TODO:удалить еще и из базы и вообще навсегда
+                        //удаление id вечеринки из списка юзера
+                        Guest guest = guestList.get(i);
+                        removePartyIdFromUser(currentParty.getKey(), guest);
+                        //удаления юзера из полей вечеринки
                         guestList.remove(i);
-                        mRecyclerView.getAdapter().notifyItemRemoved(i);
+                        recyclerView.getAdapter().notifyItemRemoved(i);
                         guestsDatabaseReference.setValue(currentParty.getGuests());
 
                     }
@@ -84,7 +89,6 @@ public class GuestListFragment extends Fragment {
                 return true;
             }
 
-            //TODO:сделать редактирование
             if (menuItem.getItemId() == R.id.action_edit) {
                 final ArrayList<Integer> indexes = (ArrayList<Integer>) mMultiSelector.getSelectedPositions();
                 if (indexes.size() == 1) {
@@ -127,22 +131,8 @@ public class GuestListFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_guest_list, container, false);
 
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        this.guestsDatabaseReference = firebaseDatabase.getReference().child("parties").child(currentParty.getKey()).child("guests");
-
-        this.guestList = new ArrayList<>();
-        this.adapter = new GuestAdapter();
-
-        this.progressBar = (ProgressBar) view.findViewById(R.id.guest_list_progressBar);
-        this.mRecyclerView = (RecyclerView) view.findViewById(R.id.guest_list_recycler_view);
-        this.addGuestFab = (FloatingActionButton) view.findViewById(R.id.guest_list_add_fab);
-
-        initRecycler();
-
-        addGuestFab.setOnClickListener(view1 -> {
-            Intent intent = new Intent(view1.getContext(), AddGuestActivity.class);
-            startActivityForResult(intent, 1);      // 1 - requestCode
-        });
+        initDatabaseReferences();
+        initViews(view);
         return view;
     }
 
@@ -210,16 +200,49 @@ public class GuestListFragment extends Fragment {
     }
 
     /**
+     * инициализирует Views
+     */
+    private void initViews(View view) {
+        this.progressBar = (ProgressBar) view.findViewById(R.id.guest_list_progressBar);
+        this.recyclerView = (RecyclerView) view.findViewById(R.id.guest_list_recycler_view);
+        this.addGuestFab = (FloatingActionButton) view.findViewById(R.id.guest_list_add_fab);
+
+        addGuestFab.setOnClickListener(view1 -> {
+            Intent intent = new Intent(view1.getContext(), AddGuestActivity.class);
+            startActivityForResult(intent, 1);      // 1 - requestCode
+        });
+
+        initRecycler();
+    }
+
+    /**
      * инициализирует RecyclerView
      */
     private void initRecycler() {
-        //TODO: вытащить это список из экземпляра User, но пока пусть так
-        guestList = this.currentParty.getGuests();
+
+        this.guestList = new ArrayList<>();
+        this.adapter = new GuestAdapter();
+        this.guestList = this.currentParty.getGuests();
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-        mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(adapter);
+    }
+
+    /**
+     * Метод устанавливает ссылки на нужные куски базы, к которым надо нужен будет доступ
+     */
+    private void initDatabaseReferences() {
+
+        this.firebaseDatabase = FirebaseDatabase.getInstance();
+        this.guestsDatabaseReference = firebaseDatabase.getReference()
+                .child(DatabaseConsts.PARTIES)
+                .child(currentParty.getKey())
+                .child(DatabaseConsts.GUESTS);
+
+        this.usersDatabaseReference = firebaseDatabase.getReference()
+                .child(DatabaseConsts.USERS);
     }
 
     /**
@@ -249,7 +272,7 @@ public class GuestListFragment extends Fragment {
     }
 
     /**
-     * снимаем слушателя с базы
+     * прикрепляем слушателя к базе
      */
     private void attachDatabaseReadListener() {
         if (guestsEventListener == null) {
@@ -305,6 +328,9 @@ public class GuestListFragment extends Fragment {
         }
     }
 
+    /**
+     * снимаем слушателя с базы
+     */
     private void detachDatabaseReadListener() {
         if (guestsEventListener != null) {
             guestsDatabaseReference.removeEventListener(guestsEventListener);
@@ -325,6 +351,29 @@ public class GuestListFragment extends Fragment {
                 Log.d(FIREBASE_ERROR, "onCancelled: " + databaseError);
             }
         });
+    }
+
+    private void removePartyIdFromUser(String partyId, Guest guest) {
+        usersDatabaseReference.child(guest.getVkId()).child(DatabaseConsts.PARTIES_ID_LIST).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                ArrayList<String> partiesIdList = new ArrayList<>();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String id = (String) child.getValue();
+                    partiesIdList.add(id);
+                }
+                int position = partiesIdList.indexOf(partyId);
+                partiesIdList.remove(position);
+                usersDatabaseReference.child(guest.getVkId()).child(DatabaseConsts.PARTIES_ID_LIST).setValue(partiesIdList);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     //эти внутренние классы для адаптера и ViewHolder предлагает сюда поместить автор библиотеки для MultiSelection,
