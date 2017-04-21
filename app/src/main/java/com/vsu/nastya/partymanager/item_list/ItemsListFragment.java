@@ -31,6 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.item_list.data.Item;
+import com.vsu.nastya.partymanager.logic.DatabaseConsts;
 import com.vsu.nastya.partymanager.logic.Notifications;
 import com.vsu.nastya.partymanager.logic.User;
 import com.vsu.nastya.partymanager.logic.VkFriendsWorker;
@@ -53,7 +54,6 @@ public class ItemsListFragment extends Fragment {
     private TextView sumPerOneTxt;
     private ItemAdapter adapter;
     private ActionMode actionMode;
-    private ProgressBar progressBar;
     private int sumPerOne = 0;
     private int wholeSum = 0;
     private boolean initialisation;
@@ -142,37 +142,16 @@ public class ItemsListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         //получаем информацию о вечеринке от родительской активити
         PartyDetailsActivity activity = (PartyDetailsActivity) getActivity();
         this.currentParty = activity.getCurrentParty();
 
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference();
-        partyItemsReference = databaseReference.child("parties").child(this.currentParty.getKey()).child("items");
-
         View view = inflater.inflate(R.layout.fragment_items_list, container, false);
-
-        //находим вьюшки
-        // this.progressBar = (ProgressBar) view.findViewById(R.id.items_list_progressBar);
-        this.recyclerView = (RecyclerView) view.findViewById(R.id.items_list_recycler_view);
-        this.addItemFAB = (FloatingActionButton) view.findViewById(R.id.items_list_add_item_fab);
-        this.wholeSumTxt = (TextView) view.findViewById(R.id.items_list_res_sum_number_txt);
-        this.sumPerOneTxt = (TextView) view.findViewById(R.id.items_list_personal_sum_number_txt);
-
         //инициализируем
+        initDatabaseReference();
+        initViews(view);
         initRecycler();
         initSum();
-        addItemFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), AddItemActivity.class);
-                // 2 - requestCode
-                intent.putExtra("guestsNames", currentParty.giveMePleaseGuestsNames());
-                startActivityForResult(intent, 2);
-            }
-        });
-
 
         return view;
     }
@@ -185,7 +164,6 @@ public class ItemsListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // progressBar.setVisibility(ProgressBar.INVISIBLE);
         initialisation = true;
         attachDatabaseReadListener();
         attachStopProgressBarListener();
@@ -200,16 +178,13 @@ public class ItemsListFragment extends Fragment {
             if (bundle != null) {
                 mMultiSelector.restoreSelectionStates(bundle.getBundle(TAG));
             }
-
             if (mMultiSelector.isSelectable()) {
                 if (mActionModeCallback != null) {
                     mActionModeCallback.setClearOnPrepare(false);
                     actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
                 }
-
             }
         }
-
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -241,6 +216,30 @@ public class ItemsListFragment extends Fragment {
     public void onPause() {
         super.onPause();
         detachDatabaseReadListener();
+    }
+
+    private void initViews(View view) {
+        //находим вьюшки
+        this.recyclerView = (RecyclerView) view.findViewById(R.id.items_list_recycler_view);
+        this.addItemFAB = (FloatingActionButton) view.findViewById(R.id.items_list_add_item_fab);
+        this.wholeSumTxt = (TextView) view.findViewById(R.id.items_list_res_sum_number_txt);
+        this.sumPerOneTxt = (TextView) view.findViewById(R.id.items_list_personal_sum_number_txt);
+
+        addItemFAB.setOnClickListener(view1 -> {
+            Intent intent = new Intent(view1.getContext(), AddItemActivity.class);
+            // 2 - requestCode
+            intent.putExtra("guestsNames", currentParty.giveMePleaseGuestsNames());
+            startActivityForResult(intent, 2);
+        });
+    }
+
+    private void initDatabaseReference() {
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = firebaseDatabase.getReference();
+        partyItemsReference = databaseReference
+                .child(DatabaseConsts.PARTIES)
+                .child(this.currentParty.getKey())
+                .child(DatabaseConsts.ITEMS);
     }
 
     /**
@@ -366,7 +365,6 @@ public class ItemsListFragment extends Fragment {
     private void attachStopProgressBarListener() {
         partyItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             public void onDataChange(DataSnapshot dataSnapshot) {
-//                progressBar.setVisibility(ProgressBar.INVISIBLE);
                 initialisation = false;
             }
 
@@ -418,12 +416,10 @@ public class ItemsListFragment extends Fragment {
             actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
             mMultiSelector.setSelected(ItemViewHolder.this, true);
             return true;
-
         }
     }
 
     private class ItemAdapter extends RecyclerView.Adapter<ItemViewHolder> {
-
 
         @Override
         public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -433,7 +429,7 @@ public class ItemsListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ItemViewHolder holder, int position) {
-            Item item = (Item) currentParty.getItems().get(position);
+            Item item = currentParty.getItems().get(position);
 
             holder.itemName.setText(item.getName());
             holder.quantity.setText(String.valueOf(item.getQuantity()));

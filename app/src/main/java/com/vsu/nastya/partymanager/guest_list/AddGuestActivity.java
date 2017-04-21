@@ -58,11 +58,18 @@ public class AddGuestActivity extends AppCompatActivity implements TextView.OnEd
             toast.show();
         } else {
             String name = getTextFromField();
-            newGuest = new Guest(VkFriendsWorker.getVkFriendIdByName(name, arrayListFriends), name);
-            Intent intent = new Intent();
-            intent.putExtra("guest", newGuest);
-            setResult(RESULT_OK, intent);
-            finish();
+            String vkId = VkFriendsWorker.getVkFriendIdByName(name, arrayListFriends);
+            if (vkId == null) {
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        R.string.alertHisIsNotYourFriend, Toast.LENGTH_SHORT);
+                toast.show();
+            } else {
+                newGuest = new Guest(vkId, name);
+                Intent intent = new Intent();
+                intent.putExtra("guest", newGuest);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
         }
     }
 

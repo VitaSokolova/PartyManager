@@ -24,6 +24,7 @@
     <string name="enter_party_name">Введите название вечеринки</string>
     <string name="alertGuestNameIsEmpty">Заполните имя гостя</string>
     <string name="alertSomeFieldsAreEmpty">Заполните все поля</string>
+    <string name="alertHisIsNotYourFriend">Выберете друга из Вконтакте</string>
     <string name="logout">Выйти</string>
     <string name="place_is_set">Место проведения установлено</string>
     <string name="network_is_not_available">Нет подключения к интернету</string>

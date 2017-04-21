@@ -45,8 +45,6 @@ public class EditItemDialogFragment extends DialogFragment {
     private int quantity;
     private int price;
 
-    private ArrayList<Friend> arrayListFriends;
-
     public interface OnItemClickListener {
         void onItemClick(String whatToBuy, String whoBuy, int quantity, int price);
     }
@@ -92,33 +90,24 @@ public class EditItemDialogFragment extends DialogFragment {
             public void onShow(final DialogInterface dialog) {
 
                 Button buttonOk = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                buttonOk.setOnClickListener(new View.OnClickListener() {
+                buttonOk.setOnClickListener(view -> {
 
-                    @Override
-                    public void onClick(View view) {
-
-                        //я вполне допускаю, что price может быть == 0. Например вы вносите в список клубничку, которую сорвете у себя на даче,
-                        // вам надо не забыть её сорвать, а следовательно внести список, но стоимость её будет == 0
-                        if (nameTxtView.getText().toString().isEmpty() || (whoBuyAutoCompleteView.getText().toString().isEmpty()) || (quantity == 0)) {
-                            Toast toast = Toast.makeText(getContext(),
-                                    R.string.alertSomeFieldsAreEmpty, Toast.LENGTH_SHORT);
-                            toast.show();
-                        } else {
-                            String name = whoBuyAutoCompleteView.getText().toString();
-                            listener.onItemClick(nameTxtView.getText().toString(), name, quantity, price);
-                            //если всё хорошо, то можно закрывать диалог
-                            dialog.dismiss();
-                        }
+                    //я вполне допускаю, что price может быть == 0. Например вы вносите в список клубничку, которую сорвете у себя на даче,
+                    // вам надо не забыть её сорвать, а следовательно внести список, но стоимость её будет == 0
+                    if (nameTxtView.getText().toString().isEmpty() || (whoBuyAutoCompleteView.getText().toString().isEmpty()) || (quantity == 0)) {
+                        Toast toast = Toast.makeText(getContext(),
+                                R.string.alertSomeFieldsAreEmpty, Toast.LENGTH_SHORT);
+                        toast.show();
+                    } else {
+                        String name = whoBuyAutoCompleteView.getText().toString();
+                        listener.onItemClick(nameTxtView.getText().toString(), name, quantity, price);
+                        //если всё хорошо, то можно закрывать диалог
+                        dialog.dismiss();
                     }
                 });
 
                 Button buttonCancel = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
-                buttonCancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        EditItemDialogFragment.this.getDialog().cancel();
-                    }
-                });
+                buttonCancel.setOnClickListener(view -> EditItemDialogFragment.this.getDialog().cancel());
             }
         });
 
@@ -155,12 +144,7 @@ public class EditItemDialogFragment extends DialogFragment {
         whoBuyAutoCompleteView.setAdapter(adapter);
 
         //исправляем баги AutoCompleteTextView советами со Stackoverflow
-        whoBuyAutoCompleteView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                whoBuyAutoCompleteView.showDropDown();
-            }
-        }, 500);
+        whoBuyAutoCompleteView.postDelayed(() -> whoBuyAutoCompleteView.showDropDown(), 500);
         whoBuyAutoCompleteView.setText(this.whoBuy.getGuestName());
         whoBuyAutoCompleteView.dismissDropDown();
         whoBuyAutoCompleteView.setSelection(whoBuyAutoCompleteView.getText().length());
@@ -178,12 +162,10 @@ public class EditItemDialogFragment extends DialogFragment {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
     }
@@ -203,12 +185,10 @@ public class EditItemDialogFragment extends DialogFragment {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
     }
