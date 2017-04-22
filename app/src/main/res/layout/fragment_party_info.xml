@@ -1,48 +1,58 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/party_info_linear"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.vsu.nastya.partymanager.party_info.PartyInfoFragment">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:orientation="horizontal"
-        android:id="@+id/party_info_linear">
+    <android.support.v7.widget.CardView
+        android:id="@+id/party_info_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        app:cardElevation="6dp"
+        app:contentPadding="4dp">
 
-        <AutoCompleteTextView
-            android:id="@+id/party_info_text"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginRight="55dp"
-            android:layout_marginEnd="55dp"
-            android:gravity="center_vertical"
-            android:imeOptions="actionSearch"
-            android:inputType="textAutoComplete"
-            android:padding="16dp"
-            android:textSize="18sp" />
-
-        <ToggleButton
-            android:id="@+id/party_info_confirm_button"
-            android:layout_width="55dp"
             android:layout_height="55dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:adjustViewBounds="true"
-            android:background="@drawable/ic_circle_bg"
-            android:checked="true"
-            android:padding="2dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/confirm_button"
-            android:textOff=""
-            android:textOn="" />
-    </RelativeLayout>
+            android:orientation="horizontal">
+
+            <AutoCompleteTextView
+                android:id="@+id/party_info_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="55dp"
+                android:layout_marginRight="55dp"
+                android:gravity="center_vertical"
+                android:dropDownHeight="match_parent"
+                android:imeOptions="actionSearch"
+                android:inputType="textAutoComplete"
+                android:padding="16dp"
+                android:textSize="18sp" />
+
+            <ToggleButton
+                android:id="@+id/party_info_confirm_button"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:adjustViewBounds="true"
+                android:background="@drawable/ic_circle_bg"
+                android:checked="true"
+                android:padding="2dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/confirm_button"
+                android:textOff=""
+                android:textOn="" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/party_info_map_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/party_info_linear"
         android:apiKey="@string/google_maps_key" />
 
-</RelativeLayout>
+</FrameLayout>
