@@ -31,7 +31,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.logic.DatabaseConsts;
-import com.vsu.nastya.partymanager.logic.Notifications;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
 
@@ -45,7 +44,6 @@ public class GuestListFragment extends Fragment {
     public static String TAG = "guestListFragment";
     private static final String FIREBASE_ERROR = "firebase_error";
 
-    private boolean initialization;
     private Party currentParty;
     private RecyclerView recyclerView;
     private FloatingActionButton addGuestFab;
@@ -145,7 +143,6 @@ public class GuestListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         progressBar.setVisibility(ProgressBar.INVISIBLE);
-        initialization = true;
         attachDatabaseReadListener();
         attachStopProgressBarListener();
     }
@@ -285,9 +282,6 @@ public class GuestListFragment extends Fragment {
                         currentParty.getGuests().add(guest);
                         adapter.notifyItemInserted(currentParty.getGuests().size());
                     }
-                    if (!initialization) {
-                        Notifications.newGuestAdded(getActivity(), currentParty);
-                    }
                 }
 
                 @Override
@@ -342,7 +336,6 @@ public class GuestListFragment extends Fragment {
         guestsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 progressBar.setVisibility(ProgressBar.INVISIBLE);
-                initialization = false;
             }
 
             @Override

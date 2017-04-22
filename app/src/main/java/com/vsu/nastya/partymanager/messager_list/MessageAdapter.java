@@ -35,6 +35,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
 
 
     @Override
+    public int getItemViewType(int position) {
+
+        return super.getItemViewType(position);
+    }
+
+    @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         FriendlyMessage message = messages.get(position);
         boolean isPhoto = message.getPhotoUrl() != null;

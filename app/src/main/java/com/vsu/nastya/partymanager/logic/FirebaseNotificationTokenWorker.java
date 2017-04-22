@@ -1,9 +1,6 @@
 package com.vsu.nastya.partymanager.logic;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
-
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -16,9 +13,6 @@ import static com.vsu.nastya.partymanager.logic.DatabaseConsts.*;
  */
 
 public abstract class FirebaseNotificationTokenWorker {
-
-    private static final String PREFERENCES = "preferences";
-    private static final String PREFERENCES_VK_ID = "vk_id";
 
     /**
      * Метод отправляет новый notification token в базу данных Firebase.
@@ -43,25 +37,10 @@ public abstract class FirebaseNotificationTokenWorker {
      */
     public static void sendNewTokenToServer(Context context, String token) {
         DatabaseReference databaseReference =  FirebaseDatabase.getInstance().getReference();
-        String id = getUsersVkIdFromPreferences(context);
+        String id = SharedPreferencesWorker.getUsersVkIdFromPreferences(context);
         if (id != null) {
             DatabaseReference tokenReference = databaseReference.child(USERS).child(id).child(NOTIFICATION_TOKEN);
             tokenReference.setValue(token);
         }
-    }
-
-    public static void saveUsersVkIdToPreferences(Context context, String id) {
-        SharedPreferences preferences = context.getSharedPreferences(PREFERENCES, AppCompatActivity.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(PREFERENCES_VK_ID, id);
-        editor.apply();
-    }
-
-    private static String getUsersVkIdFromPreferences(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences(PREFERENCES, AppCompatActivity.MODE_PRIVATE);
-        if (preferences.contains(PREFERENCES_VK_ID)){
-            return preferences.getString(PREFERENCES_VK_ID, "");
-        }
-        return null;
     }
 }
