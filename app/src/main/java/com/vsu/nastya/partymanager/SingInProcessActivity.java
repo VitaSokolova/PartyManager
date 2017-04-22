@@ -12,12 +12,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
+import com.vsu.nastya.partymanager.logic.FirebaseNotificationTokenWorker;
 import com.vsu.nastya.partymanager.logic.Friend;
 import com.vsu.nastya.partymanager.logic.Network;
 import com.vsu.nastya.partymanager.logic.User;
@@ -27,13 +29,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static com.vsu.nastya.partymanager.logic.DatabaseConsts.USERS;
+import static com.vsu.nastya.partymanager.logic.ErrorsConstants.FIREBASE_ERROR;
+import static com.vsu.nastya.partymanager.logic.ErrorsConstants.VK_ERROR;
+
 /**
  * Окно, в котором показывается прогресс, пока грузятся данные.
  */
 public class SingInProcessActivity extends AppCompatActivity {
 
-    private static final String VK_ERROR = "vk_error";
-    private static final String FIREBASE_ERROR = "firebase_error";
     private DatabaseReference usersReference;
 
     public static void start(Context context) {
@@ -52,7 +56,7 @@ public class SingInProcessActivity extends AppCompatActivity {
             Toast.makeText(this, getResources().getString(R.string.network_is_not_available), Toast.LENGTH_LONG).show();
         }
 
-        usersReference = FirebaseDatabase.getInstance().getReference().child("users");
+        usersReference = FirebaseDatabase.getInstance().getReference().child(USERS);
         onSignIn(VKAccessToken.currentToken());
     }
 
@@ -106,6 +110,9 @@ public class SingInProcessActivity extends AppCompatActivity {
                             user.getLastName(),
                             user.getVkId(),
                             user.getPartiesIdList());
+
+                    String newToken = FirebaseInstanceId.getInstance().getToken();
+                    FirebaseNotificationTokenWorker.sendNewTokenToServer(newToken, User.getInstance().getVkId());
                 }
             }
 
@@ -146,8 +153,10 @@ public class SingInProcessActivity extends AppCompatActivity {
                 }
                 user.setVkId(token.userId);
                 user.setToken(token);
+                user.setNotificationToken(FirebaseInstanceId.getInstance().getToken());
                 usersReference.child(user.getVkId()).setValue(user);
 
+                FirebaseNotificationTokenWorker.saveUsersVkIdToPreferences(SingInProcessActivity.this, user.getVkId());
             }
 
             @Override
@@ -187,12 +196,10 @@ public class SingInProcessActivity extends AppCompatActivity {
                         friend.setFirstName((String) properties.get("first_name"));
                         friend.setLastName((String) properties.get("last_name"));
                         user.addFriend(friend);
-
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                // usersReference.child(user.getVkId()).setValue(???);
             }
 
             @Override
