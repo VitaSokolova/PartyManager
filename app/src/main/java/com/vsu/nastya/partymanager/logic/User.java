@@ -2,24 +2,17 @@ package com.vsu.nastya.partymanager.logic;
 
 import com.google.firebase.database.Exclude;
 import com.vk.sdk.VKAccessToken;
-import com.vsu.nastya.partymanager.party_list.Party;
 
 import java.util.ArrayList;
 
-/**
- * Created by Вита on 08.12.2016.
- */
-
-//создала я этот класс и крепко задумалась о том как получать из него эти данные из всех точек
-//в голову пришел Singleton, но это надо обсудить
-
-public class User{
+public class User {
 
     private String firstName;
     private String lastName;
     private String vkId;
     @Exclude
     private VKAccessToken token;
+    private String notificationToken;
     private ArrayList<String> partiesIdList = new ArrayList<>();
     @Exclude
     private ArrayList<Friend> friendsList = new ArrayList<>();
@@ -40,9 +33,6 @@ public class User{
         this.lastName = lastName;
         this.vkId = vkId;
         this.partiesIdList = partyList;
-    }
-
-    public static void setUser() {
     }
 
     public String getFirstName() {
@@ -101,4 +91,11 @@ public class User{
         return this.firstName + " " + this.lastName;
     }
 
+    public String getNotificationToken() {
+        return notificationToken;
+    }
+
+    public void setNotificationToken(String notificationToken) {
+        this.notificationToken = notificationToken;
+    }
 }
