@@ -22,6 +22,7 @@ import com.vk.sdk.api.VKResponse;
 import com.vsu.nastya.partymanager.logic.FirebaseNotificationTokenWorker;
 import com.vsu.nastya.partymanager.logic.Friend;
 import com.vsu.nastya.partymanager.logic.Network;
+import com.vsu.nastya.partymanager.logic.SharedPreferencesWorker;
 import com.vsu.nastya.partymanager.logic.User;
 import com.vsu.nastya.partymanager.party_list.PartyListActivity;
 
@@ -156,7 +157,7 @@ public class SingInProcessActivity extends AppCompatActivity {
                 user.setNotificationToken(FirebaseInstanceId.getInstance().getToken());
                 usersReference.child(user.getVkId()).setValue(user);
 
-                FirebaseNotificationTokenWorker.saveUsersVkIdToPreferences(SingInProcessActivity.this, user.getVkId());
+                SharedPreferencesWorker.saveUsersVkIdToPreferences(SingInProcessActivity.this, user.getVkId());
             }
 
             @Override

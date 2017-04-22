@@ -7,7 +7,7 @@ import android.net.NetworkInfo;
 /**
  * Класс для раюоты с сетью.
  */
-public class Network {
+public abstract class Network {
 
     /**
      * Проверка подкючено ли устройство к интернету.

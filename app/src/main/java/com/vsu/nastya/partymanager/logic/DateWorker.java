@@ -10,7 +10,7 @@ import java.util.SimpleTimeZone;
 /**
  * Класс для работы с представлением даты и времени
  */
-public class DateWorker {
+public abstract class DateWorker {
 
     public static String getDateAsString(Calendar date){
         Locale myLocale = Locale.getDefault();
