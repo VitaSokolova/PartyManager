@@ -16,12 +16,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -60,6 +62,8 @@ public class GuestListFragment extends Fragment {
     private DatabaseReference guestsDatabaseReference;
     private DatabaseReference usersDatabaseReference;
     private ChildEventListener guestsEventListener;
+
+    private boolean initialization;
 
     private ModalMultiSelectorCallback mActionModeCallback = new ModalMultiSelectorCallback(mMultiSelector) {
         //открывается наше меню
@@ -120,6 +124,7 @@ public class GuestListFragment extends Fragment {
             super.onDestroyActionMode(actionMode);
         }
     };
+
 
     public static GuestListFragment newInstance() {
         return new GuestListFragment();
@@ -197,8 +202,8 @@ public class GuestListFragment extends Fragment {
         }
         Guest newGuest = (Guest) data.getSerializableExtra("guest");
         guestsDatabaseReference.child(String.valueOf(currentParty.getGuests().size())).setValue(newGuest);
-        this.guestList.add(newGuest);
-        this.adapter.notifyItemInserted(this.guestList.size());
+        this.currentParty.getGuests().add(newGuest);
+        this.adapter.notifyItemInserted(this.currentParty.getGuests().size());
 
         addPartyIdToGuestPartyList(newGuest);
     }

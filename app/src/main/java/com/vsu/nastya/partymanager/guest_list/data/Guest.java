@@ -7,9 +7,9 @@ import java.io.Serializable;
  */
 
 public class Guest implements Serializable {
+    private String guestName;
     private String vkId;
     private String vkPhotoUrl;
-    private String guestName;
 
     public Guest() {
     }
@@ -20,13 +20,24 @@ public class Guest implements Serializable {
         this.guestName = guestName;
     }
 
-
     public String getGuestName() {
         return guestName;
     }
 
     public void setGuestName(String guestName) {
         this.guestName = guestName;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        boolean retVal = false;
+
+        if (obj instanceof Guest) {
+            Guest ptr = (Guest) obj;
+            retVal = (ptr.guestName.equals(this.guestName)) && (((ptr.vkId == null) && (this.vkId == null)) || (ptr.vkId.equals(this.vkId)));
+        }
+
+        return retVal;
     }
 
     public String getVkId() {
@@ -43,17 +54,5 @@ public class Guest implements Serializable {
 
     public void setVkPhotoUrl(String vkPhotoUrl) {
         this.vkPhotoUrl = vkPhotoUrl;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        boolean retVal = false;
-
-        if (obj instanceof Guest) {
-            Guest ptr = (Guest) obj;
-            retVal = ((ptr.guestName.equals(this.guestName)) && ((ptr.vkId == null) && (this.vkId == null) || (ptr.vkId.equals(this.vkId))));
-        }
-
-        return retVal;
     }
 }

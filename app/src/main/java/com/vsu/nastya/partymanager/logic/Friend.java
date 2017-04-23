@@ -18,8 +18,6 @@ public class Friend implements Serializable {
     public Friend(String firstName, String lastName, String vkId, String vkPhotoId) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.vkId = vkId;
-        this.vkPhotoUrl = vkPhotoId;
     }
 
     @Override

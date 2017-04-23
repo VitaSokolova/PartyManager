@@ -48,6 +48,7 @@ public class ItemsListFragment extends Fragment {
     public static String TAG = "itemListFragment";
     private static final String FIREBASE_ERROR = "firebase_error";
 
+    private boolean initialisation;
     private Party currentParty;
     private RecyclerView recyclerView;
     private FloatingActionButton addItemFAB;
@@ -110,7 +111,7 @@ public class ItemsListFragment extends Fragment {
 
                             removeItemFromSum(editableItem);
                             editableItem.setName(whatToBuy);
-                            editableItem.setWhoBrings(new Guest(VkFriendsWorker.getVkFriendIdByName(whoBuyName, User.getInstance().getFriendsList()), whoBuyName));
+                            editableItem.setWhoBrings(VkFriendsWorker.getVkFriendIdByName(whoBuyName, User.getInstance().getFriendsList()));
                             editableItem.setQuantity(quantity);
                             editableItem.setPrice(price);
                             addItemToSum(editableItem);
@@ -136,6 +137,8 @@ public class ItemsListFragment extends Fragment {
             super.onDestroyActionMode(actionMode);
         }
     };
+
+
 
     public static ItemsListFragment newInstance() {
         return new ItemsListFragment();
