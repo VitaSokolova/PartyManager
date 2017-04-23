@@ -1,24 +1,22 @@
 package com.vsu.nastya.partymanager.guest_list.data;
 
-import com.vsu.nastya.partymanager.item_list.data.Item;
-
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
- * Created by Вита on 01.12.2016.
+ * Created by vita7 on 23.04.2017.
  */
 
 public class Guest implements Serializable {
-
     private String vkId;
+    private String vkPhotoUrl;
     private String guestName;
 
     public Guest() {
     }
 
-    public Guest(String vkId, String guestName) {
+    public Guest(String vkId, String vkPhotoUrl, String guestName) {
         this.vkId = vkId;
+        this.vkPhotoUrl = vkPhotoUrl;
         this.guestName = guestName;
     }
 
@@ -39,6 +37,14 @@ public class Guest implements Serializable {
         this.vkId = vkId;
     }
 
+    public String getVkPhotoUrl() {
+        return vkPhotoUrl;
+    }
+
+    public void setVkPhotoUrl(String vkPhotoUrl) {
+        this.vkPhotoUrl = vkPhotoUrl;
+    }
+
     @Override
     public boolean equals(Object obj) {
         boolean retVal = false;
@@ -50,5 +56,4 @@ public class Guest implements Serializable {
 
         return retVal;
     }
-
 }

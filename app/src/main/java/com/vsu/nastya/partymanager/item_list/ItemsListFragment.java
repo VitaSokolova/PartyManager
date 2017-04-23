@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
@@ -28,8 +27,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.R;
+import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.item_list.data.Item;
 import com.vsu.nastya.partymanager.logic.DatabaseConsts;
 import com.vsu.nastya.partymanager.logic.Notifications;
@@ -78,8 +77,6 @@ public class ItemsListFragment extends Fragment {
                 //проходимся по всему списку, если элемент присутствует в MultiSelector, удаляем его
                 for (int i = currentParty.getItems().size(); i >= 0; i--) {
                     if (mMultiSelector.isSelected(i, 0)) {
-
-                        //TODO:удалить еще и из базы и вообще навсегда
                         Item item = currentParty.getItems().get(i);
                         removeItemFromSum(item);
                         currentParty.getItems().remove(i);
@@ -109,7 +106,7 @@ public class ItemsListFragment extends Fragment {
 
                             removeItemFromSum(editableItem);
                             editableItem.setName(whatToBuy);
-                            editableItem.setWhoBrings(new Guest(VkFriendsWorker.getVkFriendIdByName(whoBuyName, User.getInstance().getFriendsList()), whoBuyName));
+                            editableItem.setWhoBrings(VkFriendsWorker.getVkFriendIdByName(whoBuyName, User.getInstance().getFriendsList()));
                             editableItem.setQuantity(quantity);
                             editableItem.setPrice(price);
                             addItemToSum(editableItem);

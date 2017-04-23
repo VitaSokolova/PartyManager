@@ -27,7 +27,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.vk.sdk.VKSdk;
 import com.vsu.nastya.partymanager.MainActivity;
@@ -40,8 +39,6 @@ import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * Окно со списоком всех вечеринок
@@ -182,10 +179,10 @@ public class PartyListActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     Party party = (Party) data.getSerializableExtra("party");
                     User user = User.getInstance();
-                    party.getGuests().add(new Guest(user.getVkId(), user.getFullName()));
+                    party.getGuests().add(new Guest(user.getVkId(), user.getVkPhotoUrl(), user.getFullName()));
                     DatabaseReference reference = partiesReference.push();
                     party.setKey(reference.getKey());
-                    party.setMessagesList(new ArrayList<FriendlyMessage>());
+                    party.setMessagesList(new ArrayList<>());
                     reference.setValue(party);
 
                     user.getPartiesIdList().add(party.getKey());
@@ -228,7 +225,7 @@ public class PartyListActivity extends AppCompatActivity {
         }
     }
 
-    private void   initView() {
+    private void initView() {
         //Firebase
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference();
@@ -290,7 +287,7 @@ public class PartyListActivity extends AppCompatActivity {
                     Party party = dataSnapshot.getValue(Party.class);
                     if ((party != null) && (user.getPartiesIdList().contains(party.getKey()))) {
                         partiesList.add(party);
-                        adapter.notifyItemInserted(partiesList.size());
+                        adapter.notifyItemInserted(partiesList.size()-1);
                     }
                 }
 

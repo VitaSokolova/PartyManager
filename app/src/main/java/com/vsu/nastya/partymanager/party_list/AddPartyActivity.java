@@ -95,39 +95,30 @@ public class AddPartyActivity extends AppCompatActivity implements DatePickerDia
         timeText.setText(DateWorker.getTimeAsString(calendar));
 
         ImageButton showTimePickerButton = (ImageButton) findViewById(R.id.addparty_time_button);
-        showTimePickerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DialogFragment timeFragment = TimePickerFragment.newInstance(calendar);
-                timeFragment.show(getSupportFragmentManager(), "timePicker");
-            }
+        showTimePickerButton.setOnClickListener(view -> {
+            DialogFragment timeFragment = TimePickerFragment.newInstance(calendar);
+            timeFragment.show(getSupportFragmentManager(), "timePicker");
         });
 
         ImageButton showDatePickerButton = (ImageButton) findViewById(R.id.addparty_date_button);
-        showDatePickerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DialogFragment dateFragment = DatePickerFragment.newInstance(calendar);
-                dateFragment.show(getSupportFragmentManager(), "datePicker");
-            }
+        showDatePickerButton.setOnClickListener(view -> {
+            DialogFragment dateFragment = DatePickerFragment.newInstance(calendar);
+            dateFragment.show(getSupportFragmentManager(), "datePicker");
         });
 
         Button okButton = (Button) findViewById(R.id.addparty_ok_button);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!partyName.getText().toString().equals("")) {
-                    //Заполняем информацию о вечеринке
-                    Party party = new Party(partyName.getText().toString(), calendar.getTimeInMillis());
-                    Intent intent = new Intent();
-                    intent.putExtra("party", party);
-                    setResult(RESULT_OK, intent);
-                    finish();
-                }
-                else {
-                    Toast toast = Toast.makeText(AddPartyActivity.this, getResources().getString(R.string.enter_party_name), Toast.LENGTH_SHORT);
-                    toast.show();
-                }
+        okButton.setOnClickListener(view -> {
+            if (!partyName.getText().toString().equals("")) {
+                //Заполняем информацию о вечеринке
+                Party party = new Party(partyName.getText().toString(), calendar.getTimeInMillis());
+                Intent intent1 = new Intent();
+                intent1.putExtra("party", party);
+                setResult(RESULT_OK, intent1);
+                finish();
+            }
+            else {
+                Toast toast = Toast.makeText(AddPartyActivity.this, getResources().getString(R.string.enter_party_name), Toast.LENGTH_SHORT);
+                toast.show();
             }
         });
     }

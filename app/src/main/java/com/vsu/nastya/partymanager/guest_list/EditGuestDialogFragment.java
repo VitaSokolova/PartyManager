@@ -12,8 +12,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.vsu.nastya.partymanager.R;
-import com.vsu.nastya.partymanager.guest_list.data.Guest;
-import com.vsu.nastya.partymanager.item_list.EditItemDialogFragment;
 
 /**
  * Created by Вита on 25.01.2017.

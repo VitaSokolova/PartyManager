@@ -17,11 +17,7 @@ import android.widget.Toast;
 
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
-import com.vsu.nastya.partymanager.logic.Friend;
 import com.vsu.nastya.partymanager.logic.User;
-import com.vsu.nastya.partymanager.logic.VkFriendsWorker;
-
-import java.util.ArrayList;
 
 /**
  * Created by Вита on 30.01.2017.

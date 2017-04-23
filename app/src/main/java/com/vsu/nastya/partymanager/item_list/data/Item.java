@@ -1,6 +1,5 @@
 package com.vsu.nastya.partymanager.item_list.data;
 
-import com.google.firebase.database.Exclude;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 
 import java.io.Serializable;

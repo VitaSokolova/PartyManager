@@ -5,11 +5,8 @@ import com.vk.sdk.VKAccessToken;
 
 import java.util.ArrayList;
 
-public class User {
+public class User extends VkUser {
 
-    private String firstName;
-    private String lastName;
-    private String vkId;
     @Exclude
     private VKAccessToken token;
     private String notificationToken;
@@ -28,37 +25,13 @@ public class User {
         return UserHolder.INSTANCE;
     }
 
-    public void init(String firstName, String lastName, String vkId, ArrayList<String> partyList) {
+    public void init(String firstName, String lastName, String vkId, ArrayList<String> partyList, String vkPhotoUrl) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.vkId = vkId;
         this.partiesIdList = partyList;
+        this.vkPhotoUrl = vkPhotoUrl;
     }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String surname) {
-        this.lastName = surname;
-    }
-
-    public String getVkId() {
-        return vkId;
-    }
-
-    public void setVkId(String vkId) {
-        this.vkId = vkId;
-    }
-
     public ArrayList<String> getPartiesIdList() {
         return partiesIdList;
     }
@@ -90,6 +63,7 @@ public class User {
     public String getFullName() {
         return this.firstName + " " + this.lastName;
     }
+
 
     public String getNotificationToken() {
         return notificationToken;

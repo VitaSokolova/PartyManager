@@ -1,30 +1,23 @@
 package com.vsu.nastya.partymanager.logic;
 
-import java.io.Serializable;
-
 /**
- * Created by Комп on 04.03.2017.
+ * Created by vita7 on 23.04.2017.
  */
 
-public class Friend implements Serializable {
-    private String firstName;
-    private String lastName;
-    private String vkId;
-    private String vkPhotoUrl;
+public abstract class VkUser {
+    public String firstName;
+    public String lastName;
+    public String vkId;
+    public String vkPhotoUrl;
 
-    public Friend() {
+    public VkUser() {
     }
 
-    public Friend(String firstName, String lastName, String vkId, String vkPhotoId) {
+    public VkUser(String firstName, String lastName, String vkId, String vkPhotoUrl) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.vkId = vkId;
-        this.vkPhotoUrl = vkPhotoId;
-    }
-
-    @Override
-    public String toString() {
-        return this.getFirstName() + " " + this.getLastName();
+        this.vkPhotoUrl = vkPhotoUrl;
     }
 
     public String getFirstName() {

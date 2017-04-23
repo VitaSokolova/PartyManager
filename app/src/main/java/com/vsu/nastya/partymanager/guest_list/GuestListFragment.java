@@ -16,12 +16,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,6 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.logic.DatabaseConsts;
+import com.vsu.nastya.partymanager.logic.Friend;
 import com.vsu.nastya.partymanager.logic.Notifications;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
@@ -47,13 +50,15 @@ public class GuestListFragment extends Fragment {
 
     private boolean initialization;
     private Party currentParty;
+
     private RecyclerView recyclerView;
     private FloatingActionButton addGuestFab;
-    private ArrayList<Guest> guestList;
+
     private GuestAdapter adapter;
     private MultiSelector mMultiSelector = new MultiSelector();
     private ActionMode actionMode;
     private ProgressBar progressBar;
+
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference guestsDatabaseReference;
     private DatabaseReference usersDatabaseReference;
@@ -73,16 +78,17 @@ public class GuestListFragment extends Fragment {
         public boolean onActionItemClicked(android.support.v7.view.ActionMode actionMode, MenuItem menuItem) {
             if (menuItem.getItemId() == R.id.action_delete) {
                 //проходимся по всему списку, если элемент присутствует в MultiSelector, удаляем его
-                for (int i = guestList.size(); i >= 0; i--) {
+                for (int i = currentParty.getGuests().size(); i >= 0; i--) {
                     if (mMultiSelector.isSelected(i, 0)) {
                         //удаление id вечеринки из списка юзера
-                        Guest guest = guestList.get(i);
+                        Guest guest = currentParty.getGuests().get(i);
                         removePartyIdFromUser(currentParty.getKey(), guest);
-                        //удаления юзера из полей вечеринки
-                        guestList.remove(i);
-                        recyclerView.getAdapter().notifyItemRemoved(i);
-                        guestsDatabaseReference.setValue(currentParty.getGuests());
 
+                        //удаления юзера из полей вечеринки
+                        currentParty.getGuests().remove(i);
+                        recyclerView.getAdapter().notifyItemRemoved(i);
+                        guestsDatabaseReference.removeValue();
+                        guestsDatabaseReference.setValue(currentParty.getGuests());
                     }
                 }
                 actionMode.finish();
@@ -92,9 +98,9 @@ public class GuestListFragment extends Fragment {
             if (menuItem.getItemId() == R.id.action_edit) {
                 final ArrayList<Integer> indexes = (ArrayList<Integer>) mMultiSelector.getSelectedPositions();
                 if (indexes.size() == 1) {
-                    EditGuestDialogFragment dialog = EditGuestDialogFragment.newInstance(guestList.get(indexes.get(0)).getGuestName());
+                    EditGuestDialogFragment dialog = EditGuestDialogFragment.newInstance(currentParty.getGuests().get(indexes.get(0)).getGuestName());
                     dialog.setListener(text -> {
-                        Guest guest = guestList.get(indexes.get(0));
+                        Guest guest = currentParty.getGuests().get(indexes.get(0));
                         guest.setGuestName(text);
                         adapter.notifyItemChanged(indexes.get(0));
                         guestsDatabaseReference.child(String.valueOf(indexes.get(0))).setValue(guest);
@@ -193,8 +199,8 @@ public class GuestListFragment extends Fragment {
         }
         Guest newGuest = (Guest) data.getSerializableExtra("guest");
         guestsDatabaseReference.child(String.valueOf(currentParty.getGuests().size())).setValue(newGuest);
-        this.guestList.add(newGuest);
-        this.adapter.notifyItemInserted(this.guestList.size());
+        this.currentParty.getGuests().add(newGuest);
+        this.adapter.notifyItemInserted(this.currentParty.getGuests().size());
 
         addPartyIdToGuestPartyList(newGuest);
     }
@@ -220,9 +226,7 @@ public class GuestListFragment extends Fragment {
      */
     private void initRecycler() {
 
-        this.guestList = new ArrayList<>();
-        this.adapter = new GuestAdapter();
-        this.guestList = this.currentParty.getGuests();
+        this.adapter = new GuestAdapter(currentParty.getGuests());
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -283,7 +287,7 @@ public class GuestListFragment extends Fragment {
                     //этот же кусочек исполняетс для загрузки гостей вечеринки впервые
                     if (!currentParty.getGuests().contains(guest)) {
                         currentParty.getGuests().add(guest);
-                        adapter.notifyItemInserted(currentParty.getGuests().size());
+                        adapter.notifyItemInserted(currentParty.getGuests().size()- 1);
                     }
                     if (!initialization) {
                         Notifications.newGuestAdded(getActivity(), currentParty);
@@ -381,10 +385,12 @@ public class GuestListFragment extends Fragment {
     private class GuestViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
 
         public TextView nameTxtView;
+        public ImageView profilePhoto;
 
         public GuestViewHolder(View itemView) {
             super(itemView, mMultiSelector);
             this.nameTxtView = (TextView) itemView.findViewById(R.id.guest_name_txt);
+            this.profilePhoto = (ImageView) itemView.findViewById(R.id.guest_profile_image);
             itemView.setLongClickable(true);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -413,6 +419,11 @@ public class GuestListFragment extends Fragment {
     }
 
     private class GuestAdapter extends RecyclerView.Adapter<GuestViewHolder> {
+        private ArrayList<Guest> guestList;
+
+        public GuestAdapter(ArrayList<Guest> guestList) {
+            this.guestList = guestList;
+        }
 
         @Override
         public GuestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -422,13 +433,18 @@ public class GuestListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(GuestViewHolder holder, int position) {
-            Guest guest = guestList.get(position);
+            Guest guest = this.guestList.get(position);
             holder.nameTxtView.setText(guest.getGuestName());
+            //грузим картинку
+            Glide.with(getContext())
+                    .load(guest.getVkPhotoUrl())
+                    .centerCrop()
+                    .into(holder.profilePhoto);
         }
 
         @Override
         public int getItemCount() {
-            return guestList.size();
+            return this.guestList.size();
         }
     }
 }

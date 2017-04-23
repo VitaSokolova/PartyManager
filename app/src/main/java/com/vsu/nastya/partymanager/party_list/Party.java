@@ -1,13 +1,11 @@
 package com.vsu.nastya.partymanager.party_list;
 
-import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.item_list.data.Item;
+import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.messager_list.FriendlyMessage;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by nastya on 06.12.16.
@@ -18,6 +16,7 @@ public class Party implements Serializable {
     private String name;
     private long date;
     private ArrayList<Item> items = new ArrayList<>();
+
     private ArrayList<Guest> guests = new ArrayList<>();
     private ArrayList<FriendlyMessage> messagesList = new ArrayList<>();
     private String place;
