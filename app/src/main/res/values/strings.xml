@@ -31,5 +31,6 @@
     <string name="new_friend_in">Новый друг в</string>
     <string name="new_item_in">Новая позиция в</string>
     <string name="new_location_set">Новое место проведения в</string>
+    <string name="invite_to_new_party">Новое приглашение!</string>
     <integer name="com_vk_sdk_AppId">5747918</integer>
 </resources>

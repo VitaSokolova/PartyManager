@@ -27,6 +27,7 @@ public class MessagingService extends FirebaseMessagingService {
     private static final String NEW_GUEST = "new guest";
     private static final String NEW_ITEM = "new item";
     private static final String NEW_PLACE = "new place";
+    private static final String NEW_PARTY = "new party";
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -38,13 +39,16 @@ public class MessagingService extends FirebaseMessagingService {
     }
 
     private void sendNotification(Map<String, String> data) {
-
+        Log.d("Notification", "Here: sendNotification!");
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         DatabaseReference partyReference = databaseReference.child(PARTIES).child(data.get("party_id"));
+        Log.d("Notification", "Here: reference: " + partyReference);
         partyReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("Notification", "Here: onDateChange");
                 Party party = dataSnapshot.getValue(Party.class);
+                Log.d("Notification", "Here: sendNotification type " + data.get("type"));
                 String type = data.get("type");
                 switch (type) {
                     case NEW_GUEST: {
@@ -57,6 +61,10 @@ public class MessagingService extends FirebaseMessagingService {
                     }
                     case NEW_PLACE: {
                         Notifications.newLocationSet(MessagingService.this, party);
+                        break;
+                    }
+                    case NEW_PARTY: {
+                        Notifications.newPartyInvite(MessagingService.this, party);
                         break;
                     }
                 }
