@@ -16,14 +16,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
-import com.bumptech.glide.Glide;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -48,7 +46,6 @@ public class GuestListFragment extends Fragment {
     public static String TAG = "guestListFragment";
     private static final String FIREBASE_ERROR = "firebase_error";
 
-    private boolean initialization;
     private Party currentParty;
 
     private RecyclerView recyclerView;
@@ -89,6 +86,7 @@ public class GuestListFragment extends Fragment {
                         recyclerView.getAdapter().notifyItemRemoved(i);
                         guestsDatabaseReference.removeValue();
                         guestsDatabaseReference.setValue(currentParty.getGuests());
+
                     }
                 }
                 actionMode.finish();
@@ -199,8 +197,8 @@ public class GuestListFragment extends Fragment {
         }
         Guest newGuest = (Guest) data.getSerializableExtra("guest");
         guestsDatabaseReference.child(String.valueOf(currentParty.getGuests().size())).setValue(newGuest);
-        this.currentParty.getGuests().add(newGuest);
-        this.adapter.notifyItemInserted(this.currentParty.getGuests().size());
+        this.guestList.add(newGuest);
+        this.adapter.notifyItemInserted(this.guestList.size());
 
         addPartyIdToGuestPartyList(newGuest);
     }

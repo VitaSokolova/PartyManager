@@ -83,7 +83,6 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     private Party currentParty;
     private boolean doNotCallListener = false;
     private Subscription subscription;
-    private boolean initialisation;
 
     // Google Map
     private String place;
@@ -161,7 +160,6 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onResume() {
         super.onResume();
-        initialisation = true;
         attachDatabaseReadListener();
     }
 
@@ -518,11 +516,6 @@ public class PartyInfoFragment extends Fragment implements OnMapReadyCallback,
                     } else {
                         confirmButton.setChecked(false);
                         confirmButton.setClickable(true);
-                    }
-                    if (!initialisation) {
-                        Notifications.newLocationSet(activity, currentParty);
-                    } else {
-                        initialisation = false;
                     }
                 }
 
