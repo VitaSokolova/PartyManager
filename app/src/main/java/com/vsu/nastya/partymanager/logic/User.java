@@ -6,10 +6,11 @@ import com.vk.sdk.VKAccessToken;
 import java.util.ArrayList;
 
 public class User {
-
     private String firstName;
     private String lastName;
     private String vkId;
+    private String vkPhotoUrl;
+
     @Exclude
     private VKAccessToken token;
     private String notificationToken;
@@ -28,11 +29,12 @@ public class User {
         return UserHolder.INSTANCE;
     }
 
-    public void init(String firstName, String lastName, String vkId, ArrayList<String> partyList) {
+    public void init(String firstName, String lastName, String vkId, ArrayList<String> partyList, String vkPhotoUrl) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.vkId = vkId;
         this.partiesIdList = partyList;
+        this.vkPhotoUrl = vkPhotoUrl;
     }
 
     public String getFirstName() {
@@ -47,16 +49,8 @@ public class User {
         return lastName;
     }
 
-    public void setLastName(String surname) {
-        this.lastName = surname;
-    }
-
-    public String getVkId() {
-        return vkId;
-    }
-
-    public void setVkId(String vkId) {
-        this.vkId = vkId;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public ArrayList<String> getPartiesIdList() {
@@ -97,5 +91,21 @@ public class User {
 
     public void setNotificationToken(String notificationToken) {
         this.notificationToken = notificationToken;
+    }
+
+    public String getVkId() {
+        return vkId;
+    }
+
+    public void setVkId(String vkId) {
+        this.vkId = vkId;
+    }
+
+    public String getVkPhotoUrl() {
+        return vkPhotoUrl;
+    }
+
+    public void setVkPhotoUrl(String vkPhotoUrl) {
+        this.vkPhotoUrl = vkPhotoUrl;
     }
 }

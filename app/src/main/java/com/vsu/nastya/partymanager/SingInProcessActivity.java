@@ -37,7 +37,8 @@ import static com.vsu.nastya.partymanager.logic.ErrorsConstants.VK_ERROR;
 /**
  * Окно, в котором показывается прогресс, пока грузятся данные.
  */
-public class SingInProcessActivity extends AppCompatActivity {
+public class
+SingInProcessActivity extends AppCompatActivity {
 
     private DatabaseReference usersReference;
 
@@ -110,7 +111,8 @@ public class SingInProcessActivity extends AppCompatActivity {
                     User.getInstance().init(user.getFirstName(),
                             user.getLastName(),
                             user.getVkId(),
-                            user.getPartiesIdList());
+                            user.getPartiesIdList(),
+                            user.getVkPhotoUrl());
 
                     String newToken = FirebaseInstanceId.getInstance().getToken();
                     FirebaseNotificationTokenWorker.sendNewTokenToServer(newToken, User.getInstance().getVkId());
@@ -135,7 +137,7 @@ public class SingInProcessActivity extends AppCompatActivity {
     private void createUser(final VKAccessToken token) {
 
         VKParameters vkParameters = new VKParameters();
-        vkParameters.put(VKApiConst.FIELDS, "id, first_name, last_name");
+        vkParameters.put(VKApiConst.FIELDS, "id, first_name, last_name, photo_50");
         vkParameters.put(VKApiConst.USER_IDS, token.userId);
         vkParameters.put(VKApiConst.NAME_CASE, "nom");
 
@@ -149,6 +151,7 @@ public class SingInProcessActivity extends AppCompatActivity {
                     JSONObject json = (JSONObject) ((JSONArray) response.json.get("response")).get(0);
                     user.setFirstName((String) json.get("first_name"));
                     user.setLastName((String) json.get("last_name"));
+                    user.setVkPhotoUrl((String) json.get("photo_50"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -177,7 +180,7 @@ public class SingInProcessActivity extends AppCompatActivity {
     private void getFriendsList(final VKAccessToken token) {
 
         VKParameters vkParameters = new VKParameters();
-        vkParameters.put(VKApiConst.FIELDS, "id, first_name, last_name");
+        vkParameters.put(VKApiConst.FIELDS, "id, first_name, last_name, photo_50");
         vkParameters.put(VKApiConst.USER_ID, token.userId);
         vkParameters.put(VKApiConst.NAME_CASE, "nom");
         VKRequest request = new VKRequest("friends.get", vkParameters);
@@ -196,6 +199,7 @@ public class SingInProcessActivity extends AppCompatActivity {
                         friend.setVkId(String.valueOf(properties.get("id")));
                         friend.setFirstName((String) properties.get("first_name"));
                         friend.setLastName((String) properties.get("last_name"));
+                        friend.setVkPhotoUrl((String) properties.get("photo_50"));
                         user.addFriend(friend);
                     }
                 } catch (JSONException e) {

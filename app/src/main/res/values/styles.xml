@@ -8,4 +8,37 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="BrownAppTheme" parent="Theme.AppCompat.Light">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorLightBrown</item>
+        <item name="colorPrimaryDark">@color/colorOrange</item>
+        <item name="colorAccent">@color/colorRaspberry</item>
+    </style>
+    <style name="PurpleAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorLightPurple</item>
+        <item name="colorPrimaryDark">@color/colorMidPurple</item>
+        <item name="colorAccent">@color/colorLeaves</item>
+    </style>
+
+    <style name="BlueAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorLightBlue</item>
+        <item name="colorPrimaryDark">@color/colorMidBlue</item>
+        <item name="colorAccent">@color/colorLeaves</item>
+    </style>
+
+    <style name="BlueRedAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorLightBlue</item>
+        <item name="colorPrimaryDark">@color/colorMidBlue</item>
+        <item name="colorAccent">@color/colorCoralish</item>
+    </style>
+
+    <style name="RedWavesAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorLightRed</item>
+        <item name="colorPrimaryDark">@color/colorMidRed</item>
+        <item name="colorAccent">@color/colorWaves</item>
+    </style>
 </resources>

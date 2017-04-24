@@ -10,18 +10,18 @@ public class Friend implements Serializable {
     private String firstName;
     private String lastName;
     private String vkId;
+    private String vkPhotoUrl;
 
     public Friend() {
     }
 
-    public Friend(String firstName, String lastName, String vkId) {
+    public Friend(String firstName, String lastName, String vkId, String vkPhotoId) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.vkId = vkId;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return this.getFirstName() + " " + this.getLastName();
     }
 
@@ -49,4 +49,11 @@ public class Friend implements Serializable {
         this.vkId = vkId;
     }
 
+    public String getVkPhotoUrl() {
+        return vkPhotoUrl;
+    }
+
+    public void setVkPhotoUrl(String vkPhotoUrl) {
+        this.vkPhotoUrl = vkPhotoUrl;
+    }
 }

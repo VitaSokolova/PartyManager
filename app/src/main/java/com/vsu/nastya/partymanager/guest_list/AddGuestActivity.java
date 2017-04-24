@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -58,11 +57,17 @@ public class AddGuestActivity extends AppCompatActivity implements TextView.OnEd
             toast.show();
         } else {
             String name = getTextFromField();
-            newGuest = new Guest(VkFriendsWorker.getVkFriendIdByName(name, arrayListFriends), name);
-            Intent intent = new Intent();
-            intent.putExtra("guest", newGuest);
-            setResult(RESULT_OK, intent);
-            finish();
+            Guest guest = VkFriendsWorker.getVkFriendIdByName(name, arrayListFriends);
+            if (guest.getVkId() == null) {
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        R.string.alertHisIsNotYourFriend, Toast.LENGTH_SHORT);
+                toast.show();
+            } else {
+                Intent intent = new Intent();
+                intent.putExtra("guest", guest);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
         }
     }
 

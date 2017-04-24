@@ -1,5 +1,7 @@
 package com.vsu.nastya.partymanager.logic;
 
+import com.vsu.nastya.partymanager.guest_list.data.Guest;
+
 import java.util.ArrayList;
 
 /**
@@ -20,15 +22,18 @@ public abstract class VkFriendsWorker {
      * @param name текст из поля ввода
      * @return id этого друга
      */
-    public static String getVkFriendIdByName(String name, ArrayList<Friend> arrayListFriends) {
+    public static Guest getVkFriendIdByName(String name, ArrayList<Friend> arrayListFriends) {
         String vkId = null;
+        String vkPhotoUrl = null;
         for (Friend friend : arrayListFriends) {
             if (friend.toString().equals(name)) {
                 vkId = friend.getVkId();
+                vkPhotoUrl = friend.getVkPhotoUrl();
                 break;
             }
         }
-        return vkId;
+        return new Guest(vkId, vkPhotoUrl, name);
+
     }
 }
 

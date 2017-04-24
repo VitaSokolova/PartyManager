@@ -16,8 +16,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:orientation="horizontal">
+            android:layout_height="55dp">
 
             <AutoCompleteTextView
                 android:id="@+id/party_info_text"
@@ -39,6 +38,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:adjustViewBounds="true"
+                android:backgroundTint="?attr/colorAccent"
                 android:background="@drawable/ic_circle_bg"
                 android:checked="true"
                 android:padding="2dp"

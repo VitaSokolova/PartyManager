@@ -27,6 +27,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.*;
 import com.vsu.nastya.partymanager.R;
+import com.vsu.nastya.partymanager.logic.DatabaseConsts;
 import com.vsu.nastya.partymanager.logic.User;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 import com.vsu.nastya.partymanager.party_list.Party;
@@ -83,9 +84,14 @@ public class MessageListFragment extends Fragment {
         fireBaseDatabase = FirebaseDatabase.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
 
-        messagesDatabaseReference = fireBaseDatabase.getReference().child("parties").child(currentParty.getKey()).child("messages");
+        messagesDatabaseReference = fireBaseDatabase.getReference()
+                .child(DatabaseConsts.PARTIES)
+                .child(currentParty.getKey())
+                .child(DatabaseConsts.MESSAGES);
 
-        chatPhotosStorageReference = firebaseStorage.getReference().child(currentParty.getKey()).child("chat_photos");
+        chatPhotosStorageReference = firebaseStorage.getReference()
+                .child(currentParty.getKey())
+                .child(DatabaseConsts.CHAT_PHOTOS);
 
         // Initialize references to views
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
@@ -106,14 +112,11 @@ public class MessageListFragment extends Fragment {
         progressBar.setVisibility(ProgressBar.INVISIBLE);
 
         // ImagePickerButton shows an image picker to upload a image for a message
-        photoPickerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
-            }
+        photoPickerButton.setOnClickListener(view12 -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/jpeg");
+            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+            startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
         });
 
         // Enable Send button when there's text to send
@@ -138,18 +141,14 @@ public class MessageListFragment extends Fragment {
         messageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
         // Send button sends a message and clears the EditText
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: Send messages on click
-                long currentTime = Calendar.getInstance().getTimeInMillis();
-                FriendlyMessage friendlyMessage = new FriendlyMessage(messageEditText.getText().toString(), username, null, currentTime);
-                messagesDatabaseReference.push().setValue(friendlyMessage);
-                // Clear input box
-                messageEditText.setText("");
-                ArrayList<FriendlyMessage> messageList = currentParty.getMessagesList();
+        sendButton.setOnClickListener(view1 -> {
+            long currentTime = Calendar.getInstance().getTimeInMillis();
+            FriendlyMessage friendlyMessage = new FriendlyMessage(messageEditText.getText().toString(), username, null, currentTime);
+            messagesDatabaseReference.push().setValue(friendlyMessage);
+            // Clear input box
+            messageEditText.setText("");
+            ArrayList<FriendlyMessage> messageList = currentParty.getMessagesList();
 
-            }
         });
 
         return view;
@@ -187,15 +186,11 @@ public class MessageListFragment extends Fragment {
             StorageReference photoRef = chatPhotosStorageReference.child(selectedImageUri.getLastPathSegment());
 
             photoRef.putFile(selectedImageUri).addOnSuccessListener(getActivity(),
-                    new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Uri downloadUri = taskSnapshot.getDownloadUrl();
-                            long currentTime = Calendar.getInstance().getTimeInMillis();
-                            FriendlyMessage friendlyMessage = new FriendlyMessage(messageEditText.getText().toString(), username, downloadUri.toString(), currentTime );
-                            messagesDatabaseReference.push().setValue(friendlyMessage);
-                        }
-
+                    taskSnapshot -> {
+                        Uri downloadUri = taskSnapshot.getDownloadUrl();
+                        long currentTime = Calendar.getInstance().getTimeInMillis();
+                        FriendlyMessage friendlyMessage = new FriendlyMessage(messageEditText.getText().toString(), username, downloadUri.toString(), currentTime );
+                        messagesDatabaseReference.push().setValue(friendlyMessage);
                     });
         }
     }
