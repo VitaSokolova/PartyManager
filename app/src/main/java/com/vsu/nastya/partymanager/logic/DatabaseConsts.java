@@ -26,5 +26,6 @@ public final class DatabaseConsts {
     public static String LAST_NAME = "lastName";
     public static String NOTIFICATION_TOKEN = "notificationToken";
     public static String VK_TOKEN = "token";
+    public static String CHAT_PHOTOS = "chat_photos";
 
 }

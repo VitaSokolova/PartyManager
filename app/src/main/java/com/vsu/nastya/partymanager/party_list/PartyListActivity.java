@@ -2,11 +2,14 @@ package com.vsu.nastya.partymanager.party_list;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -32,6 +35,7 @@ import com.vk.sdk.VKSdk;
 import com.vsu.nastya.partymanager.MainActivity;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.guest_list.data.Guest;
+import com.vsu.nastya.partymanager.logic.DatabaseConsts;
 import com.vsu.nastya.partymanager.logic.DateWorker;
 import com.vsu.nastya.partymanager.logic.User;
 import com.vsu.nastya.partymanager.messager_list.FriendlyMessage;
@@ -190,7 +194,7 @@ public class PartyListActivity extends AppCompatActivity {
                     // Заносим в базу новую вечеринку в список у текущего юзера
                     String partyIndex = String.valueOf(partiesList.size());
                     usersReference.child(user.getVkId()).
-                            child("partiesIdList").
+                            child(DatabaseConsts.PARTIES_ID_LIST).
                             child(partyIndex).setValue(party.getKey());
                 }
                 break;
@@ -238,19 +242,26 @@ public class PartyListActivity extends AppCompatActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.partylist_parties_recycler);
 
         adapter = new PartiesAdapter();
+
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                1);//1-вертикальная ориентация LinearLayout
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //этот метод получения ресурса дико ругается и аналог ему не найден, поэтому обладатели устройств
+            // до 21й версии будут жить с простой стандартной полосочкой
+            Drawable divider = getResources().getDrawable(R.drawable.divider, getTheme());
+            dividerItemDecoration.setDrawable(divider);
+
+        }
+        recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
         // Кнопка добавления новой вечеринки
         FloatingActionButton addPartyButton = (FloatingActionButton) findViewById(R.id.partylist_partyAdd_fab);
-        addPartyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivityForResult(new Intent(PartyListActivity.this, AddPartyActivity.class), ADD_PARTY_REQUEST_CODE);
-            }
-        });
+        addPartyButton.setOnClickListener(view -> startActivityForResult(new Intent(PartyListActivity.this, AddPartyActivity.class), ADD_PARTY_REQUEST_CODE));
 
         progressBar = (ProgressBar) findViewById(R.id.partyList_progressBar);
         progressBar.setVisibility(ProgressBar.INVISIBLE);
@@ -287,7 +298,7 @@ public class PartyListActivity extends AppCompatActivity {
                     Party party = dataSnapshot.getValue(Party.class);
                     if ((party != null) && (user.getPartiesIdList().contains(party.getKey()))) {
                         partiesList.add(party);
-                        adapter.notifyItemInserted(partiesList.size()-1);
+                        adapter.notifyItemInserted(partiesList.size() - 1);
                     }
                 }
 

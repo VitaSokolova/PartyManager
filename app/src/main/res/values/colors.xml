@@ -5,6 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="itemStroke">#B4BAC0</color>
     <color name="textColorDetails">#747474</color>
+    <color name="colorGrey">#bdbdbd</color>
     <color name="colorLightGrey">#f5f4f2</color>
     <color name="colorRaspberry">#bd3542</color>
     <color name="colorOrange">#db6e40</color>

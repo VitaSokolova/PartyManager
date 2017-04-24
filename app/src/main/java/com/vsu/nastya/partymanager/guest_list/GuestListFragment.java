@@ -290,7 +290,7 @@ public class GuestListFragment extends Fragment {
                     //этот же кусочек исполняетс для загрузки гостей вечеринки впервые
                     if (!currentParty.getGuests().contains(guest)) {
                         currentParty.getGuests().add(guest);
-                        adapter.notifyItemInserted(currentParty.getGuests().size()- 1);
+                        adapter.notifyItemInserted(currentParty.getGuests().size());
                     }
                     if (!initialization) {
                         Notifications.newGuestAdded(getActivity(), currentParty);
