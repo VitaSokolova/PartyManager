@@ -81,7 +81,6 @@ SingInProcessActivity extends AppCompatActivity {
                     createUser(token);
                 }
                 getFriendsList(token);
-                PartyListActivity.start(SingInProcessActivity.this);
             }
 
             @Override
@@ -116,6 +115,8 @@ SingInProcessActivity extends AppCompatActivity {
 
                     String newToken = FirebaseInstanceId.getInstance().getToken();
                     FirebaseNotificationTokenWorker.sendNewTokenToServer(newToken, User.getInstance().getVkId());
+
+                    PartyListActivity.start(SingInProcessActivity.this);
                 }
             }
 
@@ -161,6 +162,7 @@ SingInProcessActivity extends AppCompatActivity {
                 usersReference.child(user.getVkId()).setValue(user);
 
                 SharedPreferencesWorker.saveUsersVkIdToPreferences(SingInProcessActivity.this, user.getVkId());
+                PartyListActivity.start(SingInProcessActivity.this);
             }
 
             @Override

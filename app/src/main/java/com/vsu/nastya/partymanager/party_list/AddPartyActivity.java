@@ -5,18 +5,23 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.vsu.nastya.partymanager.R;
 import com.vsu.nastya.partymanager.logic.DateWorker;
 import com.vsu.nastya.partymanager.pickers.DatePickerFragment;
@@ -24,14 +29,29 @@ import com.vsu.nastya.partymanager.pickers.TimePickerFragment;
 
 import java.util.Calendar;
 
+import static com.vsu.nastya.partymanager.party_list.PartyListActivity.ICON_EXTRA;
+import static com.vsu.nastya.partymanager.party_list.PartyListActivity.PARTY_EXTRA;
+import static com.vsu.nastya.partymanager.party_list.PartyListActivity.POSITION_EXTRA;
+
 /**
  * Окно для добавления новой вечеринки
  */
-public class AddPartyActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
+public class AddPartyActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener,
+        Toolbar.OnMenuItemClickListener, View.OnClickListener{
 
+    private static final String TIME_PICKER = "timePicker";
+    private static final String DATE_PICKER = "datePicker";
+    private static final int PHOTO_PICKER = 1;
+
+    private Uri iconUri;
+    private int position;
+
+    private ImageView partyBigPhotoImageView;
+    private EditText partyName;
     private TextView dateText;
     private TextView timeText;
     private Calendar calendar;
+    private FloatingActionButton addPartyPhotoButton;
 
     public static void startForResult(Context context, int requestCode){
         Intent intent = new Intent(context, AddPartyActivity.class);
@@ -43,6 +63,65 @@ public class AddPartyActivity extends AppCompatActivity implements DatePickerDia
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_party);
         initView();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PHOTO_PICKER && resultCode == RESULT_OK) {
+            Uri selectedImageUri = data.getData();
+            partyBigPhotoImageView.setImageURI(selectedImageUri);
+            iconUri = selectedImageUri;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.add_party_photo_button: {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(Intent.createChooser(intent, "Complete action using"), PHOTO_PICKER);
+                break;
+            }
+            case R.id.add_party_time_tv: {
+                DialogFragment timeFragment = TimePickerFragment.newInstance(calendar);
+                timeFragment.show(getSupportFragmentManager(), TIME_PICKER);
+                break;
+            }
+            case R.id.add_party_date_tv: {
+                DialogFragment dateFragment = DatePickerFragment.newInstance(calendar);
+                dateFragment.show(getSupportFragmentManager(), DATE_PICKER);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.add_party_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        if (item.getItemId() == R.id.save_menu_item) {
+            if (!String.valueOf(partyName.getText()).equals("")) {
+                Party party = new Party(partyName.getText().toString(), calendar.getTimeInMillis());
+                Intent intent = new Intent();
+                intent.putExtra(PARTY_EXTRA, party);
+                intent.putExtra(POSITION_EXTRA, position);
+                if (iconUri != null) {
+                    intent.putExtra(ICON_EXTRA, iconUri);
+                }
+                setResult(RESULT_OK, intent);
+                finish();
+                return true;
+            } else {
+                Toast.makeText(this, getResources().getString(R.string.enter_party_name), Toast.LENGTH_LONG).show();
+            }
+        }
+        return false;
     }
 
     /**
@@ -69,57 +148,46 @@ public class AddPartyActivity extends AppCompatActivity implements DatePickerDia
     }
 
     private void initView() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.add_student_toolbar);
+        toolbar.inflateMenu(R.menu.add_party_menu);
 
-        dateText = (TextView) findViewById(R.id.addparty_date_text);
-        timeText = (TextView) findViewById(R.id.addparty_time_text);
-        final EditText partyName = (EditText) findViewById(R.id.addparty_name_edit);
+        partyName = (EditText) findViewById(R.id.add_party_name_tv);
+        partyBigPhotoImageView = (ImageView) findViewById(R.id.add_party_big_photo);
+        addPartyPhotoButton = (FloatingActionButton) findViewById(R.id.add_party_photo_button);
+        dateText = (TextView) findViewById(R.id.add_party_date_tv);
+        timeText = (TextView) findViewById(R.id.add_party_time_tv);
 
+        toolbar.setOnMenuItemClickListener(this);
+        addPartyPhotoButton.setOnClickListener(this);
+        dateText.setOnClickListener(this);
+        timeText.setOnClickListener(this);
+
+        setValuesToViews();
+    }
+
+    private void setValuesToViews() {
         Intent intent = getIntent();
-        final int pos; // Если меняем старую информацию о вечеринке, то это ее позиция в списке
-
         if (intent.getExtras() != null) {
            /* Если надо поменять информацию о существующей вечеринке,
             заполняем поля старой информацией о вечеринке */
-            Party party = (Party) intent.getSerializableExtra("party");
+            Party party = (Party) intent.getSerializableExtra(PARTY_EXTRA);
+            position = intent.getIntExtra(POSITION_EXTRA, 0);
             calendar = DateWorker.getCalendarFromMilliseconds(party.getDate());
             partyName.setText(party.getName());
-            pos = intent.getIntExtra("position", 0);
+            String iconUrl = party.getIcon();
+            if (iconUrl != null) {
+                Glide.with(partyBigPhotoImageView.getContext())
+                        .load(iconUrl)
+                        .into(partyBigPhotoImageView);
+            }
         } else {
             /* Если создаем новую вечеринку, то устанавливаем текущее время и дату.
              Поле с названием вечеринки оставляем пустым */
             calendar = Calendar.getInstance();
-            pos = -1;
+            position = -1;
         }
 
         dateText.setText(DateWorker.getDateAsString(calendar));
         timeText.setText(DateWorker.getTimeAsString(calendar));
-
-        ImageButton showTimePickerButton = (ImageButton) findViewById(R.id.addparty_time_button);
-        showTimePickerButton.setOnClickListener(view -> {
-            DialogFragment timeFragment = TimePickerFragment.newInstance(calendar);
-            timeFragment.show(getSupportFragmentManager(), "timePicker");
-        });
-
-        ImageButton showDatePickerButton = (ImageButton) findViewById(R.id.addparty_date_button);
-        showDatePickerButton.setOnClickListener(view -> {
-            DialogFragment dateFragment = DatePickerFragment.newInstance(calendar);
-            dateFragment.show(getSupportFragmentManager(), "datePicker");
-        });
-
-        Button okButton = (Button) findViewById(R.id.addparty_ok_button);
-        okButton.setOnClickListener(view -> {
-            if (!partyName.getText().toString().equals("")) {
-                //Заполняем информацию о вечеринке
-                Party party = new Party(partyName.getText().toString(), calendar.getTimeInMillis());
-                Intent intent1 = new Intent();
-                intent1.putExtra("party", party);
-                setResult(RESULT_OK, intent1);
-                finish();
-            }
-            else {
-                Toast toast = Toast.makeText(AddPartyActivity.this, getResources().getString(R.string.enter_party_name), Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        });
     }
 }

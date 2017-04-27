@@ -20,16 +20,17 @@ import com.vsu.nastya.partymanager.logic.VkFriendsWorker;
 
 import java.util.ArrayList;
 
+import static com.vsu.nastya.partymanager.guest_list.GuestListFragment.GUEST_EXTRA;
+
 /**
  * Created by Вита on 08.12.2016.
+ * Экран для добавления нового гостя
  */
 
 public class AddGuestActivity extends AppCompatActivity implements TextView.OnEditorActionListener {
 
-    private Button addBtn;
     private AutoCompleteTextView autoCompleteTextView;
     private ArrayList<Friend> arrayListFriends;
-    private Guest newGuest;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,7 +65,7 @@ public class AddGuestActivity extends AppCompatActivity implements TextView.OnEd
                 toast.show();
             } else {
                 Intent intent = new Intent();
-                intent.putExtra("guest", guest);
+                intent.putExtra(GUEST_EXTRA, guest);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -80,15 +81,15 @@ public class AddGuestActivity extends AppCompatActivity implements TextView.OnEd
     }
 
     private void initViews() {
-        this.addBtn = (Button) findViewById(R.id.add_guest_btn);
+        Button addBtn = (Button) findViewById(R.id.add_guest_btn);
         this.autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.add_guest_autocomplete_txt);
         this.autoCompleteTextView.setOnEditorActionListener(this);
 
         // Создаем адаптер для автозаполнения элемента AutoCompleteTextView
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, VkFriendsWorker.getVkFriendsArray(this.arrayListFriends));
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, VkFriendsWorker.getVkFriendsArray(this.arrayListFriends));
         autoCompleteTextView.setAdapter(adapter);
 
-        this.addBtn.setOnClickListener(view -> addingEvent());
+        addBtn.setOnClickListener(view -> addingEvent());
 
     }
 }

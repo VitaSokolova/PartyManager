@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#3F51B5</color>
+    <color name="transparentPrimaryColor">#cc3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="itemStroke">#B4BAC0</color>
@@ -11,6 +12,7 @@
     <color name="colorOrange">#db6e40</color>
     <color name="colorLightOrange">#ffb778</color>
     <color name="colorLightBrown">#e3b674</color>
+    <color name="transparentColor">#00ffffff</color>
     <!--<color name="colorDarkPurple">#45072f</color>-->
     <!--<color name="colorVeryDarkPurple">#2D021E</color>-->
     <!--<color name="colorDarkBlue">#a3d3e3</color>-->

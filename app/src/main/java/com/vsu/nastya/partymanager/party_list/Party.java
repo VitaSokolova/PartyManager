@@ -15,12 +15,12 @@ public class Party implements Serializable {
     private String key;
     private String name;
     private long date;
+    private String place;
+    private String icon;
+    private String comment;
     private ArrayList<Item> items = new ArrayList<>();
-
     private ArrayList<Guest> guests = new ArrayList<>();
     private ArrayList<FriendlyMessage> messagesList = new ArrayList<>();
-    private String place;
-    //Еще потом добавим messages
 
     public Party() {
     }
@@ -92,6 +92,22 @@ public class Party implements Serializable {
             arrayGuests[i] = guests.get(i).getGuestName();
         }
         return arrayGuests;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }
 

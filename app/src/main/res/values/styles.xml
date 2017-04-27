@@ -41,4 +41,10 @@
         <item name="colorPrimaryDark">@color/colorMidRed</item>
         <item name="colorAccent">@color/colorWaves</item>
     </style>
+    <style name="AppThemeWithoutActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorLightPurple</item>
+        <item name="colorPrimaryDark">@color/transparentColor</item>
+        <item name="colorAccent">@color/colorLeaves</item>
+    </style>
+
 </resources>

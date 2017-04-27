@@ -3,6 +3,7 @@ package com.vsu.nastya.partymanager.party_list;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -25,12 +26,15 @@ import android.widget.TextView;
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.vk.sdk.VKSdk;
 import com.vsu.nastya.partymanager.MainActivity;
 import com.vsu.nastya.partymanager.R;
@@ -38,16 +42,27 @@ import com.vsu.nastya.partymanager.guest_list.data.Guest;
 import com.vsu.nastya.partymanager.logic.DatabaseConsts;
 import com.vsu.nastya.partymanager.logic.DateWorker;
 import com.vsu.nastya.partymanager.logic.User;
-import com.vsu.nastya.partymanager.messager_list.FriendlyMessage;
 import com.vsu.nastya.partymanager.party_details.PartyDetailsActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.vsu.nastya.partymanager.logic.DatabaseConsts.DATE;
+import static com.vsu.nastya.partymanager.logic.DatabaseConsts.NAME;
+import static com.vsu.nastya.partymanager.logic.DatabaseConsts.PARTIES;
+import static com.vsu.nastya.partymanager.logic.DatabaseConsts.PARTIES_ID_LIST;
+import static com.vsu.nastya.partymanager.logic.DatabaseConsts.USERS;
+
 /**
  * Окно со списоком всех вечеринок
  */
 public class PartyListActivity extends AppCompatActivity {
+
+    public static final String ICON_EXTRA = "icon";
+    public static final String PARTY_EXTRA = "party";
+    public static final String POSITION_EXTRA = "position";
 
     private static final int ADD_PARTY_REQUEST_CODE = 1;
     private static final int EDIT_PARTY_REQUEST_CODE = 2;
@@ -60,7 +75,6 @@ public class PartyListActivity extends AppCompatActivity {
     private MultiSelector multiSelector = new MultiSelector();
     private DatabaseReference partiesReference;
     private DatabaseReference usersReference;
-    private DatabaseReference messagesReference;
     private ChildEventListener partyAddListener = null;
     private ProgressBar progressBar;
 
@@ -89,8 +103,8 @@ public class PartyListActivity extends AppCompatActivity {
                     ArrayList<Integer> positions = (ArrayList<Integer>) multiSelector.getSelectedPositions();
                     if (positions.size() == 1) {
                         Intent intent = new Intent(PartyListActivity.this, AddPartyActivity.class);
-                        intent.putExtra("party", partiesList.get(positions.get(0)));
-                        intent.putExtra("position", positions.get(0));
+                        intent.putExtra(PARTY_EXTRA, partiesList.get(positions.get(0)));
+                        intent.putExtra(POSITION_EXTRA, positions.get(0));
                         startActivityForResult(intent, EDIT_PARTY_REQUEST_CODE);
                         mode.finish();
                     }
@@ -119,13 +133,11 @@ public class PartyListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_party_list);
         initView();
-        User user = User.getInstance();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        // attachDatabaseReadListener();
     }
 
     @Override
@@ -181,13 +193,20 @@ public class PartyListActivity extends AppCompatActivity {
         switch (requestCode) {
             case ADD_PARTY_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
-                    Party party = (Party) data.getSerializableExtra("party");
+                    DatabaseReference partyReference = partiesReference.push();
+
+                    Uri iconUri = data.getParcelableExtra(ICON_EXTRA);
+                    if (iconUri != null) {
+                        setNewPartyIcon(null, iconUri, partyReference);
+                    }
+
+                    Party party = (Party) data.getSerializableExtra(PARTY_EXTRA);
                     User user = User.getInstance();
                     party.getGuests().add(new Guest(user.getVkId(), user.getVkPhotoUrl(), user.getFullName()));
-                    DatabaseReference reference = partiesReference.push();
-                    party.setKey(reference.getKey());
+
+                    party.setKey(partyReference.getKey());
                     party.setMessagesList(new ArrayList<>());
-                    reference.setValue(party);
+                    partyReference.setValue(party);
 
                     user.getPartiesIdList().add(party.getKey());
 
@@ -200,12 +219,21 @@ public class PartyListActivity extends AppCompatActivity {
                 break;
             case EDIT_PARTY_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
-                    Party newParty = (Party) data.getSerializableExtra("party");
-                    int position = data.getIntExtra("position", 0);
+                    int position = data.getIntExtra(POSITION_EXTRA, 0);
+                    Party oldParty = partiesList.get(position);
+                    DatabaseReference partyReference = partiesReference.child(oldParty.getKey());
+
+                    Uri iconUri = data.getParcelableExtra(ICON_EXTRA);
+                    if (iconUri != null) {
+                        setNewPartyIcon(oldParty.getIcon(), iconUri, partyReference);
+                    }
+
+                    Party newParty = (Party) data.getSerializableExtra(PARTY_EXTRA);
+                    //int position = data.getIntExtra("position", 0);
                     HashMap<String, Object> task = new HashMap<>();
-                    task.put("name", newParty.getName());
-                    task.put("date", newParty.getDate());
-                    partiesReference.child(partiesList.get(position).getKey()).updateChildren(task);
+                    task.put(NAME, newParty.getName());
+                    task.put(DATE, newParty.getDate());
+                    partyReference.updateChildren(task);
                 }
                 break;
         }
@@ -233,9 +261,8 @@ public class PartyListActivity extends AppCompatActivity {
         //Firebase
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = firebaseDatabase.getReference();
-        partiesReference = databaseReference.child("parties");
-        usersReference = databaseReference.child("users");
-        messagesReference = databaseReference.child("parties").child("messages");
+        partiesReference = databaseReference.child(PARTIES);
+        usersReference = databaseReference.child(USERS);
 
         // Инициализируем список вечеринок
         partiesList = new ArrayList<>();
@@ -284,6 +311,29 @@ public class PartyListActivity extends AppCompatActivity {
         return -1;
     }
 
+    private void removePartyIcon(String iconUrl) {
+        StorageReference partyIconStorageReference = FirebaseStorage.getInstance()
+                .getReferenceFromUrl(iconUrl);
+        partyIconStorageReference.delete();
+    }
+
+    private void setNewPartyIcon(String oldIconUrl, Uri newIconUri, DatabaseReference partyReference) {
+        if (oldIconUrl != null) {
+            removePartyIcon(oldIconUrl);
+        }
+        StorageReference partyIconStorageReference = FirebaseStorage.getInstance()
+                .getReference()
+                .child(partyReference.getKey())
+                .child(DatabaseConsts.PARTY_ICON)
+                .child(newIconUri.getLastPathSegment());
+
+        partyIconStorageReference.putFile(newIconUri)
+                .addOnSuccessListener(this, taskSnapshot -> {
+            String icon = String.valueOf(taskSnapshot.getDownloadUrl());
+            partyReference.child(DatabaseConsts.ICON).setValue(icon);
+        });
+    }
+
     /**
      * В метод устанавливается listener, который следит за изменениями в базе данных
      * (добавление вечеринки, удаление, обновление).
@@ -294,7 +344,6 @@ public class PartyListActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                    HashMap<String, Object> hashMap = (HashMap<String, Object>) dataSnapshot.getValue();
                     Party party = dataSnapshot.getValue(Party.class);
                     if ((party != null) && (user.getPartiesIdList().contains(party.getKey()))) {
                         partiesList.add(party);
@@ -331,7 +380,7 @@ public class PartyListActivity extends AppCompatActivity {
 
                             // Для удаления id вечеринки из базы сначала удаляем весь список id,
                             // а затем записываем все заново
-                            DatabaseReference partiesIdReference = usersReference.child(User.getInstance().getVkId()).child("partiesIdList");
+                            DatabaseReference partiesIdReference = usersReference.child(User.getInstance().getVkId()).child(PARTIES_ID_LIST);
                             partiesIdReference.removeValue();
                             for (String id : partiesIds) {
                                 partiesIdReference.child(String.valueOf(partiesIds.indexOf(id))).setValue(id);
@@ -379,24 +428,34 @@ public class PartyListActivity extends AppCompatActivity {
     // ViewHolder для списка вечеринок
     private class PartyViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
 
-        public TextView partyName, date;
+        TextView partyName, date;
+        CircleImageView icon;
 
-        public PartyViewHolder(View itemView) {
+        PartyViewHolder(View itemView) {
             super(itemView, multiSelector);
 
             partyName = (TextView) itemView.findViewById(R.id.parties_item_name);
             date = (TextView) itemView.findViewById(R.id.parties_item_date);
+            icon = (CircleImageView) itemView.findViewById(R.id.parties_item_icon);
 
             itemView.setLongClickable(true);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
         }
 
-        public void bindParty(Party party) {
+        void bindParty(Party party) {
             partyName.setText(party.getName());
             String date = DateWorker.getDateAsString(party.getDate()) + ", " +
                     DateWorker.getTimeAsString(party.getDate());
             this.date.setText(date);
+
+            if (party.getIcon() != null) {
+                Glide.with(icon.getContext())
+                        .load(party.getIcon())
+                        .into(icon);
+            } else {
+                icon.setImageResource(R.drawable.ic_star_primary_24dp);
+            }
         }
 
         @Override
@@ -411,7 +470,7 @@ public class PartyListActivity extends AppCompatActivity {
                 int index = getAdapterPosition();
 
                 Intent intent = new Intent(getApplicationContext(), PartyDetailsActivity.class);
-                intent.putExtra("party", partiesList.get(index));
+                intent.putExtra(PARTY_EXTRA, partiesList.get(index));
                 view.getContext().startActivity(intent);
             }
         }

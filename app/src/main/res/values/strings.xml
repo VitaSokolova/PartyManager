@@ -33,5 +33,8 @@
     <string name="new_item_in">Новая позиция в</string>
     <string name="new_location_set">Новое место проведения в</string>
     <string name="invite_to_new_party">Новое приглашение!</string>
+    <string name="save">Сохранить</string>
+    <string name="main">Основное</string>
+    <string name="other">Дополнительно</string>
     <integer name="com_vk_sdk_AppId">5747918</integer>
 </resources>
